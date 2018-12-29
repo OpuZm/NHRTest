@@ -1,0 +1,108 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ExtendTypeCreateDTO ExtendType = ViewBag.ExtendType ?? new ExtendTypeCreateDTO();
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">名称:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@ExtendType.Name">
+            </div>
+        </div>
+        <div class="form-group" hidden="hidden">
+            <label for="Name" class="col-xs-2 control-label">所属公司:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="R_Company_Id" name="R_Company_Id" value="0">
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+        <input type="hidden" id="Id" name="Id" value="@ExtendType.Id" />
+    </form>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "CkediterJs")
+    <script>
+        $(function () {
+            var pageJs = editJs.Create();
+            pageJs.init();
+        })
+
+        var editJs = {
+            Create: function () {
+                var editor = {};
+                var layindex;
+
+                var bindAction = function () {
+                    var height = $(document).height() - 250;
+
+                    $("#SubmitForm").validate({
+                        rules: {
+                            Name: {
+                                required: true
+                            }
+                        },
+                        messages: {
+
+                        },
+                        errorPlacement: function (error, element) {
+                            error.appendTo(element.parent());
+                        },
+                        submitHandler: function (label) {
+                            Submit();
+                        }
+                    })
+
+                    function Submit() {
+                        var para = $("#SubmitForm").serialize();
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/ExtendType/Edit",
+                            dataType: "json",
+                            data: para,
+                            beforeSend: function (XMLHttpRequest) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false,
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                if (data["Data"] == true) {
+                                    layer.confirm("提交完成", {
+                                        btn: ['继续操作', '退出'] //按钮
+                                    }, function () {
+                                        location.reload();
+                                    }, function () {
+                                        parent.layer.closeAll();
+                                    });
+                                    parent.Refresh();
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    }
+
+                    $(".closeAll").click(function () {
+                        parent.layer.closeAll();
+                    })
+                }
+
+                editor.init = function () {
+                    bindAction();
+                }
+
+                return editor;
+            }
+        }
+    </script>
+}

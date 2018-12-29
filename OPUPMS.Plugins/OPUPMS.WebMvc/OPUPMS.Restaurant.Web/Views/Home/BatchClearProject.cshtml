@@ -1,0 +1,372 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>估清</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+	.Panel-side .layui-form-switch{margin-top:0;}
+	.Panel-side .del-icon{border-radius: 50%;border:1px solid #bbb;padding: 0 1px;background:#fff;cursor:pointer;}
+	.Panel-side .layui-table .layui-btn{width:32px !important;}
+	.order-content .layui-table td{vertical-align: middle;}
+	.Panel-side .Num{line-height:21px;}
+	/*点餐右上导航  二级分类    按钮*/
+	
+	.MealTable-lists ul{padding:0;}
+	.MealTable-lists li.layui-this{border-color:#eee;}
+	
+	.orderScrollBtn{top:2px;left:120px;}
+    </style>
+</head>
+<body>
+    <div class="container flex">
+        <!-- ▼左侧 点菜列表 -->
+        <div class="Panel-side left layui-form">
+            <!-- ▼左侧 点菜内容 -->
+            <table class="layui-table table-head layui-table-header" lay-skin="line" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th width="44%">
+                        	<input type="checkbox" name="allSelect" lay-skin="switch" lay-filter="allSelect" lay-text="全选|取消" id="allSelected">
+                        	<span style="vertical-align: middle;">菜名</span>
+                        </th>
+                        <th width="30%"><div class="tc">数量</div></th>
+                        <th width="10%"></th>
+                    </tr>
+                </thead>
+            </table>
+            <!--滚动按钮  开始-->
+            <div class="orderScrollBtn">
+            	<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+            	<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+            </div>
+            <!--滚动按钮  结束-->
+            <div class="order-content" style="top: 44px;bottom:0;">
+                <table class="layui-table" lay-skin="line" style="margin: 0;">
+                    <tbody id="ProjectLists_view"></tbody>
+                </table>
+                <script id="ProjectLists_tpml" type="text/html">
+                    {{#  layui.each(d, function(index, item){ }}
+	                    <tr data-id="{{ item.Id }}"  data-index="{{index}}" data-CyddMxType="{{ item.CyddMxType }}" {{# if(item.T_Orderselected){ }} class="layui-this" {{# } }}>
+	                        <td width="44%">
+	                            <div class="prod-title">
+	                                <h4>
+	                                	<input type="checkbox" name="yyy" lay-skin="switch" lay-text="启用|禁用" lay-filter="orderSelect"
+	                                		{{# if(item.IsStock){ }}
+	                                		checked
+	                                		{{# } }}
+	                                	>
+	                                	<span style="vertical-align: middle;">{{ item.Name }}</span>
+	                                </h4>
+	                            </div>
+	                        </td>
+	                        <td class="tc" width="30%">
+	                        	<div class="layui-btn-group add_minus">
+									<a href="javascript:void(0)" class="layui-btn layui-btn-primary layui-btn-sm minus" onclick="orederNumMinus(this)"><i class="layui-icon">-</i></a> 
+									<input type="text" style="width:60px !important;height:30px;padding:0;" min="0"  value="{{ item.Stock }}" class="layui-btn layui-btn-primary layui-btn-small num" disabled="disabled">
+									<a href="javascript:void(0)" class="layui-btn layui-btn-primary layui-btn-sm plus" onclick="orederNumPlus(this)"><i class="layui-icon">+</i></a>
+								</div>
+	                        </td>
+	                        <td width="10%"><i class="layui-icon del-icon" onclick="orderDelete(this)">&#x1006;</i></td>
+	                    </tr>
+                    {{#  }); }}
+                </script>
+            </div>
+            <!-- ▲左侧 点菜内容 -->
+        </div>
+        <!-- ▲左侧 点菜列表 -->
+        <!-- ▼点菜操作菜单 -->
+        <nav class="actions-vertical">
+            <ul class="row" id="operation_lists">
+                <li><a href="javascript:void(0);" data-type="estimate " onclick="selectClear()">估清</a></li>
+                <li><a href="javascript:void(0);" data-type="plus" onclick="allPlus()">+1</a></li>
+                <li><a href="javascript:void(0);" data-type="minus" onclick="allMinus()">-1</a></li>
+                <li><a href="javascript:void(0);" onclick="NumberKeyboard('editnum',this)";>数量</a></li>
+                <li><a href="javascript:void(0);" data-type="delte" onclick="selectDelete()">删除</a></li>
+                <li><a href="javascript:void(0);" data-type="isSelecrClear" onclick="isSelecrClear()">已估清</a></li>
+            </ul>
+        </nav>
+        <!-- ▲点菜操作菜单 -->
+        <!-- ▼点菜操作 -->
+        <div class="Panel-form right flex-item order-form">
+            <form class="layui-form" action="">
+                <div class="ClassTab-head moveClassTab">
+                    <div id="CategoryList_view" class="layui-tab layui-tab-brief moveClassTab CategoryListTab" lay-filter="ClassTab" style="width: calc(100vw - 480px);overflow: hidden;">
+                    </div>
+                    <script id="CategoryList_tpml" type="text/html">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">全部</li>
+                            {{#  layui.each(d, function(index, item){ }}
+                            <li>{{ item.Name }}</li>
+                            {{#  }); }}
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="class-group">
+                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this">全部</a>
+                                </div>
+                            </div>
+                            {{#  layui.each(d, function(index, item){ }}
+                            <div class="layui-tab-item">
+                            	<a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-left"><i class="layui-icon">&#xe65a;</i></a>
+                                <div class="class-group">
+                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this">全部</a>{{#  if(item.ChildList.length > 0){ }}{{#  layui.each(item.ChildList, function(index, item){ }}<a href="javascript:void(0);" class="layui-btn layui-btn-primary ">{{ item.Name }}</a>{{#  }); }}{{#  }  }}
+                                </div>
+                                <a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-right"><i class="layui-icon">&#xe65b;</i></a>
+                            </div>
+                            {{#  }); }}
+                        </div>
+                        <div class="layui-form-item searchInput">
+							<div class="layui-input-inline" style="width:140px;">
+								<input type="text" id="KeyWord" name="KeyWord" placeholder="输入检索字母" title="搜索" value="" data-type="text" data-lang="en" onfocus="ShowKeyboard(this.name)"  class="layui-input search-input" style="font-size:16px;">
+								<a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+							</div>
+						</div>
+						<!--滚动按钮  开始-->
+						<div class="scrollBtn">
+							<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+							<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+						</div>
+						<!--滚动按钮  结束-->
+                    </script>
+                </div>
+                <!-- ▼菜品列表 -->
+                <div class="MealTable-lists flex-item" style="margin-right: 0;">
+                    <ul id="ProjectAndDetails_view"></ul>
+                    <script id="ProjectAndDetails_tpml" type="text/html">
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li data-id="{{ item.Id }}" data-CyddMxType="{{ item.CyddMxType }}"  {{# if( item.T_isSelected ){ }} class="layui-this" {{# } }}>
+                            <a>
+                                <div class="MealTable-head flex">
+                                    <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                                </div>
+                                <div class="MealTable-title">
+                                    {{ item.Name }}
+                                </div>
+                                <div class="MealTable-footer flex">
+                                    {{#  if(item.IsStock == false){ var stock='<span>--</span>'; }}  {{#  }else{ var stock='<span class="color-red">'+item.Stock+'</span>'; }} {{#  } }}
+                                    <span class="MealTable-stock"><i class="iconfont">&#xe645;</i>{{ stock }}</span>
+                                    
+                                    {{#  layui.each(item.ProjectDetailList, function(index, item){ }}
+                                      {{#  if(index==0){ }} 
+                                        <span class="MealTable-price flex-item">￥{{ item.Price }}</span>
+                                      {{#  } }}
+                                    {{#  }); }}
+                                </div>
+                            </a>
+                        </li>
+                        {{#  }); }}
+                    </script>
+                </div>
+                <!-- ▲菜品列表 -->
+                <!-- ▼操作 -->
+                <div class="actions-box pbr" id="actionsbtn_view" style="padding-left:50px;text-align: left;">
+                	<a href="javascript:void(0)" class="layui-btn layui-btn-normal layui-btn-lg" onclick="submitOrderTable()">提 交</a>
+                </div>
+                <!-- ▲操作 -->
+                
+            </form>
+
+        </div>
+        <!-- ▲点菜操作 -->
+
+
+
+    </div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+    
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Report")
+    @ScriptsEx.Render(Plugin.Instance.Name, "isScrollconfigJS")
+	@ScriptsEx.Render(Plugin.Instance.Name, "ClearProjectJs")
+
+    <script src="~/signalr/hubs"></script>
+	<script>
+		//已选菜品向下滚动 一页
+        $(document).on('mousedown touchstart','.orderScrollBtn .scrollBottomBtn',function(){
+        	var list = $(this).parent().next();
+        	var isScoll = true;//是否继续滚动
+        	var x = list.scrollTop();
+        	maxScroll = 0;
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+                
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = list.scrollTop();
+        			x + 10 > 0 ? x += 10 : x = 0;
+        			if(maxScroll == x)return;
+        			maxScroll = x;
+    				list.scrollTop(x)
+    				setTimeout(moving,15);
+        		}
+            }
+        })
+        
+        //已选菜品向上滚动 一页
+        $(document).on('mousedown touchstart','.orderScrollBtn .scrollTopBtn',function(){
+        	
+        	var list = $(this).parent().next();
+        	var isScoll = true;//是否继续滚动
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = list.scrollTop();
+        			x - 10 > 0 ? x -= 10 : x = 0;
+        			if(x <= 0){
+        				list.scrollTop(0);
+        				scolling = false;
+        			}else{
+        				list.scrollTop(x)
+        				setTimeout(moving,15);
+        			}
+        		}
+            }
+        })
+    	
+    	
+		//菜品向下滚动 一页
+        $(document).on('mousedown touchstart','.scrollBtn .scrollBottomBtn',function(){
+        	var list = $(this).closest('.ClassTab-head').siblings('.MealTable-lists');
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	
+    		list.scrollTop(h + listH)
+        })
+        
+        //菜品向上滚动 一页
+        $(document).on('mousedown touchstart','.scrollBtn .scrollTopBtn',function(){
+        	var list = $(this).closest('.ClassTab-head').siblings('.MealTable-lists');
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	if(h < listH){
+        		list.scrollTop(0)
+        	}else{
+        		list.scrollTop(h - listH)
+        	}
+        	
+        })
+        
+        //操作栏  向下滚动 一页
+        $(document).on('mousedown touchstart','.actions-vertical .actionsScrollBottomBtn',function(){
+        	var list = $('#operation_lists').parent();
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	list.scrollTop(h + listH)
+        	
+        })
+        
+        //操作栏  向上滚动 一页
+        $(document).on('mousedown touchstart','.actions-vertical .actionsScrollTopBtn',function(){
+        	var list = $('#operation_lists').parent();
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	if(h < listH){
+        		list.scrollTop(0)
+        	}else{
+        		list.scrollTop(h - listH)
+        	}
+        	
+        })
+        
+        //监控滚动条   向左滚动
+        $(document).on('mousedown touchstart','.layui-tab .move-btn.move-left',function(){
+        	var $group = $(this).siblings('.class-group');
+        	var isScoll = true;//是否继续滚动
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = $group.scrollLeft();
+        			x - 10 > 0 ? x -= 10 : x = 0;
+        			if(x <= 0){
+        				$group.scrollLeft(0);
+        				scolling = false;
+        			}else{
+        				$group.scrollLeft(x)
+        				setTimeout(moving,15);
+        			}
+        		}
+            }
+        })
+        
+        //监控滚动条   向左滚动
+        $(document).on('mousedown touchstart','.layui-tab .move-btn.move-right',function(){
+        	var $group = $(this).siblings('.class-group');
+        	var isScoll = true;//是否继续滚动
+        	var x = $group.scrollLeft();
+        	maxScroll = 0;
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+                
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = $group.scrollLeft();
+        			x + 10 > 0 ? x += 10 : x = 0;
+        			if(maxScroll == x)return;
+        			maxScroll = x;
+    				$group.scrollLeft(x)
+    				setTimeout(moving,15);
+        		}
+            }
+        })
+	</script>
+</body>
+</html>

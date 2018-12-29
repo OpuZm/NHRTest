@@ -1,0 +1,185 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "赠退菜理由";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>赠退菜理由</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+    <header class="container-head" style="padding-top: 15px;">
+        <div class="layui-form">
+            <button type="button" class="layui-btn add layui-btn-normal" onclick="layerBox('/Res/OrderDetailCause/Edit','','添加赠退菜理由',230,400);"><span class="layui-icon" style="font-size: 24px; color: #fff;">&#xe654;</span>添加</button>
+            <div class="layui-form-item" style="float: right; padding-top: 5px;">
+                <label class="layui-form-label" style="width: 60px;">类型</label>
+                <div class="layui-input-inline">
+                    <select class="form-control" id="CauseType" name="CauseType" lay-search>
+                        <option value="0">全部</option>
+                        <option value="1">赠菜</option>
+                        <option value="2">退菜</option>
+                    </select>
+                </div>
+                <button class="layui-btn layui-btn-primary" style="float: left;" id="SearchSubmit">查询</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-right: 20px;">
+        <table id="table" lay-filter="table"></table>
+    </div>
+    <footer class="footer-copyright">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+    </footer>
+</body>
+</html>
+<script type="text/html" id="bartable">
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="edit"><i class="iconfont">&#xe633;</i>编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="t-del" data-id="{{d.Id}}"><i class="layui-icon" style="margin:0">&#xe640;</i>删除</a>
+</script>
+
+<script type="text/html" id="barCauseType">
+    {{#  if(d.CauseType==1){ }}
+    	赠菜
+    {{#  }else{ }}
+		退菜
+    {{#  } }}
+</script>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+	var isEdIT = false;
+	var para = {ListType: '1'};
+    layui.use(['element', 'table', 'layer'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+            table = layui.table;
+
+        var winw = $(window).width() - 50;
+        table.render({
+            elem: '#table' //指定原始表格元素选择器（推荐id选择器）
+            , url: "/Res/OrderDetailCause/GetList"
+            , where: { ListType: '1' }
+            , height: 'full-139' //容器高度
+            , request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            }
+            , response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            }
+            , cols: [[ //标题栏
+                { field: 'Id', title: 'ID'}
+                , { field: 'CauseType', title: '类型', align:'center',toolbar: '#barCauseType' }
+                , { field: 'Remark', title: '理由', align:'center'}
+                , { field: 'Id', title: '操作', maxwidth: '150', toolbar: '#bartable',fixed: 'right' }
+            ]]
+            , even: true
+            , page: {
+            	hash: 'fenye'
+            }
+            , skin : 'line'
+            , limits: [5, 10, 15, 20]
+            , limit: 10 //每页默认显示的数量
+            , done: function (res, curr, count) {
+                isEdIT = false;
+            }
+        });
+		
+		
+        
+        table.on('tool(table)', function (obj) {
+	        var data = obj.data;
+	        var id = data.Id;
+	        if (obj.event === 'edit') {
+	        	isEdIT = true;
+	            layerBox('/Res/OrderDetailCause/Edit', id, '添加赠退菜理由',230,400);
+	        }else if(obj.event === 't-del'){
+	        	layer.confirm('是否确认删除', {
+					icon: 7, title:'提示',
+			        btn: ['确定', '取消'] //按钮
+			    }, function (index) {
+			        $.ajax({
+			            type: "post",
+			            url: '/Res/OrderDetailCause/Delete',
+			            dataType: "json",
+			            //contentType: "application/json; charset=utf-8",
+			            data: {ids:[id]},
+			            async: false,
+			            beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+			            success: function (data, textStatus) {
+			                if (data["Data"] == true) {
+			                	//如果当前页只有一条并且即将删除
+			                	if($('#table').next().find('.layui-table-body tr').length == 1){
+                                	var curr = location.hash.replace('#!fenye=', '');
+                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                                }
+								table.reload('table', {
+					                where: para
+					                ,page: {
+									    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+									}
+					            });
+								layer.close(index);
+			                    layer.msg("删除成功");
+			                } else {
+			                    layer.alert(data["Message"]);
+			                }
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            }
+			        });
+			    }, function (index) {
+			        layer.close(index);
+			    });
+	        }
+			
+	    });
+	    
+
+        //监听排序点击
+        table.on('sort(table)', function (obj) {
+            table.reload('table', {
+                initSort: obj
+                , where: { //请求参数
+                    ListType: '1'
+                    , sort: obj.field //排序字段
+                    , order: obj.type //排序方式
+                }
+            });
+        });
+        
+        //select条件筛选
+        $('#SearchSubmit').click(function () {
+            para.CauseType = $('#CauseType').val();
+            var curr = isEdIT ? location.hash.replace('#!fenye=', '') : 1;
+            location.hash = '#!fenye=' + curr
+            table.reload('table', {
+                where: para
+                , page: {
+                    hash: 'fenye',
+                    curr: curr //重新从第 1 页开始
+                }
+            });
+        });
+    });
+
+</script>

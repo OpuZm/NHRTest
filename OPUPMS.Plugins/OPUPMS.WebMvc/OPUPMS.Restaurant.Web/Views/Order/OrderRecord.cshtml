@@ -1,0 +1,137 @@
+﻿
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    var TableList = ViewBag.TableList;
+    var OrderId = ViewBag.OrderId;
+    var RestaurantName = ViewBag.RestaurantName;
+}
+
+<div>
+    <div class="form-inline">
+        <div class="form-group" style="padding-left:15px;">
+            <label for="">所在餐厅: &nbsp;</label> <b>@RestaurantName</b> &nbsp;&nbsp;&nbsp;&nbsp;
+            <label for="">台名:</label>
+            <select id="TableSel" name="TableSel" class="form-control" onchange="Search()">
+                <option value="0">--所有--</option>
+                @{
+                    if (TableList != null)
+                    {
+                        foreach (var item in TableList)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <button type="button" onclick="Search()" class="btn btn-primary search">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+        </div>
+    </div>
+    
+    <div class="page-container" style="padding-right:10px;">
+        <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+    </div>
+</div>
+@section FooterScripts{
+    <script type="text/javascript">
+        
+        $(function () {
+            var pageJs = stalls.Create();
+            pageJs.init();
+        })
+
+        var stalls = {
+            Create: function () {
+                var bindModel = {};
+                var layindex;
+                
+                var bindAction = function () {
+                    var height = $(document).height() - 100;
+                    var width = $(document).width() - 100;
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Order/OrderRecordSearch',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: false,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            params.OrderId = @OrderId;
+                            params.TableId = $("#TableSel option:selected").val();
+                            return params;
+                        },//传递参数（*）
+                        sidePagination: "server",      //分页方式：client客户端分页，server服务端分页（*）
+                        pageNumber: 1,            //初始化加载第一页，默认第一页
+                        pageSize: 10,            //每页的记录行数（*）
+                        pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                        strictSearch: true,
+                        //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                        uniqueId: "Id",           //每一行的唯一标识，一般为主键列
+                        cardView: false,          //是否显示详细视图
+                        buttonsAlign: "left",
+                        exportDataType: "basic",
+                        columns: [{
+                            field: 'UserName',
+                            title: '操作人',
+                            width: '80px'
+                        },
+                        {
+                            field: 'CreateDate',
+                            title: '操作时间',
+                            width: '150px'
+                        },
+                        {
+                            field: 'OperatorTypeName',
+                            title: '操作类型',
+                            width: '100px'
+                        },
+                        {
+                            field: 'UserTypeName',
+                            title: '用户类型',
+                            width: '80px'
+                        },
+                        {
+                            field: 'TableName',
+                            title: '关联台',
+                            width: '80px'
+                        },
+                        {
+                            field: 'Remark',
+                            title: '备注信息',
+                        }]
+                    })
+                                        
+                }
+
+                bindModel.init = function () {
+                    bindAction();
+                }
+
+                return bindModel;
+            }
+        }
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+
+        function Search() {
+            $("#tablist").bootstrapTable('refreshOptions', { pageNumber: 1 });
+        }
+    </script>
+}
+
+
+
+
+

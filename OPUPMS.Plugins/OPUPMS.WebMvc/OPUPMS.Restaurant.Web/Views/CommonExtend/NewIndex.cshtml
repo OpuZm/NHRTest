@@ -1,0 +1,173 @@
+﻿
+@{
+    Layout = null;
+    var name = ViewBag.TypeName;
+    var TypeId = @ViewBag.TypeId;
+    ViewBag.Title = name + "管理";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <header class="container-head" style="padding-top: 15px;">
+        <div class="layui-form">
+            <button type="button" class="layui-btn add layui-btn-normal" onclick="layerBox('/Res/CommonExtend/NewEdit', 0 + '&typeId='+@TypeId,'添加',360,400);"><span class="layui-icon" style="font-size: 24px; color: #fff;">&#xe654;</span>添加</button>
+        </div>
+    </header>
+
+    <div class="container" style="padding-right: 20px;">
+        <table id="table" lay-filter="table"></table>
+    </div>
+    <footer class="footer-copyright">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+    </footer>
+</body>
+</html>
+<script type="text/html" id="bartable">
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="edit"><i class="iconfont">&#xe633;</i>编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete" data-id="{{d.Id}}"><i class="layui-icon" style="margin:0">&#xe640;</i>删除</a>
+</script>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+	var isEdIT = false;
+	var para = {ListType: '1',TypeId:"@TypeId"};
+    layui.use(['element', 'table', 'layer'], function () {
+        var element = layui.element,
+                layer = layui.layer;
+                table = layui.table;
+
+        var winw = $(window).width() - 50;
+        table.render({
+            elem: '#table' //指定原始表格元素选择器（推荐id选择器）
+            , url: "/Res/CommonExtend/GetExtendItemList"
+            ,where: para
+            , height: 'full-139' //容器高度
+            , request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            }
+            , response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            }
+            , cols: [[ //标题栏
+                {field: 'TypeName', title: '类型', width: winw*0.22}
+                ,{field: 'Code', title: '代码', width: winw*0.17}
+                ,{field: 'Name', title: '名称', width: winw*0.17}
+                ,{field: 'ItemValue', title: '项值', width: winw*0.12, sort: true}
+                ,{field: 'Sort', title: '排序', width: winw*0.12, sort: true}
+                ,{field: 'Id', title: '操作', minWidth: winw*0.20,toolbar: '#bartable'}
+            ]]
+            , even: true
+            , page: {
+            	hash: 'fenye'
+            }
+            , skin : 'line'
+            , limits: [5, 10, 15, 20]
+            , limit: 10 //每页默认显示的数量
+            , done: function (res, curr, count) {
+				isEdIT = false;
+            }
+        });
+
+
+        //监听工具条
+        table.on('tool(table)', function(obj){
+            var data = obj.data;
+            var id = data.Id;
+            var Code = data.Code;
+            if(obj.event === 'edit'){
+            	isEdIT = true;
+                layerBox('/Res/CommonExtend/NewEdit', id + "&typeId="+@TypeId,'编辑',360,400);
+            }else if(obj.event === 'delete'){
+                layer.confirm("确定要删除"+Code+"数据吗？", {
+                    title: '删除提示',btn: ['删除','取消']
+                 }, function(){
+                    var para = { id: id, typeId:"@TypeId"};
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/CommonExtend/DeleteExtendItem",
+                        dataType: "json",
+                        data: JSON.stringify(para),
+                        contentType: "application/json; charset=utf-8",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({type: 3});
+                        },
+                        success: function (data, textStatus) {
+                            var res = data.Data;
+                            var mes = data.Message;
+                            if (res == true) {
+                            	//如果当前页只有一条并且即将删除
+			                	if($('#table').next().find('.layui-table-body tr').length == 1){
+                                	var curr = location.hash.replace('#!fenye=', '');
+                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                                }
+                                //layer.alert("删除成功");
+                                layer.msg("删除成功");
+                                if($('#table').next().find('.layui-table-body tr').length == 1){
+                                	var curr = location.hash.replace('#!fenye=', '');
+                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                                }
+                                table.reload('table', {
+					                where: para
+					                ,page: {
+									    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+									}
+					            });
+                            } else {
+                                //layer.alert(mes);
+                                layer.alert(data["Message"]);
+                            }
+                        }
+                        ,
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                 }
+                );
+            }
+        });
+        
+        //删除
+
+        //监听排序点击
+        table.on('sort(table)', function(obj){
+            table.reload('tableReload', {
+                initSort: obj
+                ,where: { //请求参数
+                    ListType: '1'
+                    ,sort: obj.field //排序字段
+                    ,order: obj.type //排序方式
+                }
+            });
+        });
+        //select条件筛选
+//      $('#SearchSubmit').click(function() {
+//          var keyword=$('#Restaurant').val();
+//          table.reload('tableReload', {
+//              where: { //请求参数
+//                  ListType: '1'
+//                  ,Restaurant:keyword
+//              }
+//          });
+//      })
+
+    });
+
+</script>

@@ -1,0 +1,758 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "结账";
+
+}
+
+
+<style type="text/css">
+    .菜品项选中 {
+        background-color: aquamarine;
+    }
+
+    .菜品项未选中 {
+        background-color: #fff;
+    }
+</style>
+
+
+
+<div class="container" style="wi">
+    <table>
+        <tr>
+            <!-- 第一列 订单信息展示-->
+            <td style="width:25%; vertical-align:top; " id="OrderInfo"></td>
+
+            <!-- 第二列 结账处理按钮-->
+            <td style="width:10%; vertical-align:top;  text-align:center;">
+                <input type="button" value="单品折" style="margin-bottom:3px;" onclick="单品折()" /><br />
+                <input type="button" value="菜金折" style="margin-bottom:3px;" /><br />
+                <input type="button" value="全单折" style="margin-bottom:3px;" onclick="全单折()" /><br />
+                <input type="button" value="方案折" style="margin-bottom:3px;" onclick="方案折()" /><br />
+                <input type="button" value="抹零" style="margin-bottom:3px;" onclick="抹零()" /><br />
+                <input type="button" value="服务费" style="margin-bottom:3px;" /><br />
+                <input type="button" value="解锁" style="margin-bottom:3px;" /><br />
+                <input type="button" value="结账单" style="margin-bottom:3px;" /><br />
+                <input type="button" value="预结单" style="margin-bottom:3px;" /><br />
+                <input type="button" value="发票" style="margin-bottom:3px;" /><br />
+                <input type="button" value="&nbsp;&nbsp;&nbsp;&nbsp;" style="margin-bottom:3px;" /><br />
+                <input type="button" value="更多" style="margin-bottom:3px;" /><br />
+            </td>
+
+            <!-- 第三列 实收，应收，未付，折后价-->
+            <td style="width:40%; vertical-align:top;">
+                <div style="width:100%; background-color:antiquewhite;" id="OrderPay">
+
+                </div>
+
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>
+                                付款方式
+                            </th>
+                            <th>
+                                金额
+                            </th>
+                            <th>
+                                操作员
+                            </th>
+                            <th>
+                                <!--操作列-->
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyForPayRecord"></tbody>
+                </table>
+
+            </td>
+
+            <!-- 第四列 付款方式输入，数字输入-->
+            <td style="width:25%; vertical-align:top;">
+
+                <h2> 付款方式</h2>
+                @{int index = 0;}
+                @foreach (var payType in (ViewBag.CyddPayTypeList as List<BaseDto>))
+                {
+                    if (index == 0)
+                    {
+                        <label><input name="payType" type="radio" value="@payType.Key" title="@payType.Text" style="padding:10px;" checked />@payType.Text</label>
+                    }
+                    else
+                    {
+                        <label><input name="payType" type="radio" value="@payType.Key" title="@payType.Text" style="padding:10px;" />@payType.Text</label>
+                    }
+                    index++;
+
+                }
+                <br />
+                <div>
+                    <input id="moneyInput" type="text" value="" style="padding:10px;" />
+                    <input type="button" value="<-" style="padding:10px;" onclick="deleteInput()" />
+                </div>
+                <div>
+                    <input type="button" value="7" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="8" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="9" style="padding:10px;" onclick="buttonInput(this)" />
+                    <br />
+                    <input type="button" value="4" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="5" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="6" style="padding:10px;" onclick="buttonInput(this)" />
+                    <br />
+                    <input type="button" value="1" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="2" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="3" style="padding:10px;" onclick="buttonInput(this)" />
+                    <br />
+                    <input type="button" value="0" style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="." style="padding:10px;" onclick="buttonInput(this)" />
+                    <input type="button" value="-" style="padding:10px;" onclick="buttonInput(this)" />
+
+                    <br />
+                    <script type="text/javascript">
+
+                        //数字删除
+                        function deleteInput() {
+                            var text = $(moneyInput).val();
+                            if (text.length >= 1) {
+                                text = text.substring(0, text.length - 1);
+                            }
+                            $(moneyInput).val(text);
+
+                        }
+
+                        //数字输入
+                        function buttonInput(button) {
+                            var text = $(moneyInput).val();
+                            text += $(button).val();
+                            $(moneyInput).val(text);
+                        }
+                    </script>
+                    <br />
+                    <input type="button" value="结账" style="padding:15px;" onclick="结账()" />
+
+                    <input type="button" value="付款" style="padding:15px;" onclick="付款()" />
+
+                </div>
+            </td>
+
+        </tr>
+
+        <tr>
+            <td>
+                <!--选中项结算 begin-->
+                <!--选中项结算 end-->
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+
+<!--订单选择 单选-->
+<div id="ClearAmountDiv" style="display:none;">
+    <input type="text" id="ClearAmount" value="0.00" />
+    <input type="hidden" id="ClearAmountForLayerIndex" value="" />
+    <div>
+        <input type="button" value="确定" style="padding:15px;" onclick="ClearAmountSet()" />
+        <script type="text/javascript">
+            function ClearAmountSet() {
+                var money = $(ClearAmount).val();
+                var unpayAmount = parseFloat((jsonCheckoutOrder.OriginalAmount - jsonCheckoutOrder.RealAmount).toFixed(2));
+                if (unpayAmount < 0) {
+                    layer.alert("未付金额小于0 无法执行抹零操作！");
+                    return;
+                }
+                else if (money > unpayAmount) {
+                    layer.alert("抹零数额不能超过未付金额！");
+                    return;
+                }
+                jsonCheckoutOrder.ClearAmount = parseFloat(money);
+                重新渲染画面内容(jsonCheckoutOrder);
+                layer.close($(ClearAmountForLayerIndex).val());
+            }
+
+        </script>
+    </div>
+</div>
+
+
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+    <script src="~/signalr/hubs"></script>
+
+
+    <script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        //请求待结账的订单和台号信息
+        $.ajax({
+            url: "/Res/CheckOut/GetOrderInfo",
+            data: '@Html.Raw(ViewBag.Req)',
+            type: "post",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            async: true,
+            beforeSend: function (xhr) {
+
+            },
+            success: function (data, textStatus) {
+                jsonCheckoutOrder = data;
+                //每次结账，实收金额都设置为0
+                jsonCheckoutOrder.RealAmount = 0;
+                jsonCheckoutOrder.ClearAmount = 0;
+                重新渲染画面内容(data);
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                //layer.close(layindex);
+            }
+        });
+
+
+    });
+
+    //页面全局变量
+    var jsonCheckoutOrder = {};
+
+    function 重新渲染画面内容(jsonCheckoutOrder)
+    {
+        //各种付款金额 begin
+        jsonCheckoutOrder.ConAmount = 0;
+        jsonCheckoutOrder.OriginalAmount = 0;
+        jsonCheckoutOrder.DiscountAmount = 0;
+        jsonCheckoutOrder.ServiceAmount = 0;
+        jsonCheckoutOrder.GiveAmount = 0;
+
+        var html = "";
+        //订单信息 begin
+        html += "<div style=\" background-color:lightcoral\" >";
+        html += "单号："+jsonCheckoutOrder.OrderNo;
+        html += "人数："+jsonCheckoutOrder.PersonNum+" 人&nbsp;&nbsp;开单人：" + jsonCheckoutOrder.BillingUser;
+        html += "类型：" + jsonCheckoutOrder.CyddOrderSource + "&nbsp;&nbsp;开单时间：" + jsonCheckoutOrder.CreateDate;
+        html += "</div>";
+        //订单信息 end
+
+        //台号和菜品信息  begin
+        $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+            var item = this;
+            html += "<div>";
+
+            //台号信息  begin
+            html += "<div  onclick=\"每台菜品项的全选或全不选($(this).next('table'))\" style=\"padding: 10px; font - size:medium; text - align:center; \">";
+            html += "台号：" + item.R_Table_Id;
+            html += "</div>";
+            //台号信息  end
+
+            //菜品信息 begin
+            html += "<table data-id=" + item.R_Table_Id + " data-selected=\"no\">";
+            html += "<thead>";
+            html += "<tr>";
+            html += "<th>菜品名称</th>";
+            html += "<th>数量</th>";
+            html += "<th>单价</th>";
+            html += "<th>折扣率</th>";
+            html += "<th>金额</th>";
+            html += "</tr>";
+            html += "</thead>";
+            html += "<tbody>";
+            var tableMoney = 0; //单台折后金额
+            $(item.OrderDetailList).each(function () {//每菜品
+                var item2 = this;
+                var discountAmount = item2.Amount;
+                
+                discountAmount = parseFloat(item2.DiscountRate * item2.Amount);
+
+                tableMoney += discountAmount;
+                html += "<tr data-id=" + item2.Id + " data-projectname=" + item2.projectName + " data-isdiscount=" + item2.isDiscount + " class=\"菜品项未选中\" onclick=\"单菜品的选中或不选中($(this))\"  >";
+                html += "<td>" + item2.CyddMxName +" &nbsp;&nbsp;</td>";
+                html += "<td><span>" + item2.Num.toFixed(2) + "</span>&nbsp;&nbsp;</td>";
+                html += "<td><span>" + item2.Price.toFixed(2) + "</span>&nbsp;&nbsp;</td>";
+                html += "<td><span>" + item2.DiscountRate + "</span>&nbsp;&nbsp;</td>";
+                html += "<td><span>" + discountAmount.toFixed(2) + "</span></td>";
+                html += "</tr>";
+            });
+            var tableServiceMoney = tableMoney * item.ServerRate; //单台服务费
+
+            jsonCheckoutOrder.ServiceAmount += tableServiceMoney;
+
+            jsonCheckoutOrder.ServiceAmount = parseFloat(jsonCheckoutOrder.ServiceAmount);
+            html += "</tbody>";
+            html += "</table>";
+            //菜品信息 end
+
+            html += "</div>";
+        });
+       //台号和菜品信息  end
+
+        $(OrderInfo).html(html);
+
+        $(jsonCheckoutOrder.OrderTableList).each(function () {
+            $(this.OrderDetailList).each(function () {
+                jsonCheckoutOrder.ConAmount += this.Amount;
+                jsonCheckoutOrder.OriginalAmount += this.Amount * this.DiscountRate;
+            });
+        });
+
+        jsonCheckoutOrder.DiscountAmount = parseFloat(jsonCheckoutOrder.ConAmount - jsonCheckoutOrder.OriginalAmount);
+        jsonCheckoutOrder.OriginalAmount += jsonCheckoutOrder.ServiceAmount;
+
+        var unpayAmount = parseFloat((jsonCheckoutOrder.OriginalAmount - jsonCheckoutOrder.RealAmount - jsonCheckoutOrder.ClearAmount).toFixed(2));
+
+        jsonCheckoutOrder.OriginalAmount = jsonCheckoutOrder.OriginalAmount.toFixed(2);
+        jsonCheckoutOrder.ConAmount = jsonCheckoutOrder.ConAmount.toFixed(2);
+        jsonCheckoutOrder.ClearAmount = parseFloat(jsonCheckoutOrder.ClearAmount);
+        jsonCheckoutOrder.DiscountAmount = jsonCheckoutOrder.DiscountAmount.toFixed(2);
+        jsonCheckoutOrder.ServiceAmount = jsonCheckoutOrder.ServiceAmount.toFixed(2);
+        jsonCheckoutOrder.GiveAmount = parseFloat(jsonCheckoutOrder.GiveAmount);
+
+        var html2 = "";
+        html2 += "消费金额：¥<span>" + jsonCheckoutOrder.ConAmount +
+            "</span> &nbsp;&nbsp;&nbsp; 应收金额：¥<span>" + jsonCheckoutOrder.OriginalAmount + "</span> <br />";
+        html2 += "四舍五入：¥<span>0.00</span> &nbsp;&nbsp;&nbsp; 实收金额：¥<span>"
+            + jsonCheckoutOrder.RealAmount.toFixed(2) + "</span> <br />";
+        html2 += "抹&nbsp;&nbsp;&nbsp;&nbsp; 零：¥<span>" + jsonCheckoutOrder.ClearAmount.toFixed(2)
+            + "</span> &nbsp;&nbsp;&nbsp; 未付金额：¥<span>" + unpayAmount + "</span> <br />";
+        html2 += "折扣金额：¥<span>" + jsonCheckoutOrder.DiscountAmount + "</span> &nbsp;&nbsp;&nbsp; <br />";
+        html2 += "赠送金额：¥<span>" + jsonCheckoutOrder.GiveAmount.toFixed(2) + "</span> &nbsp;&nbsp;&nbsp; <br />";
+        html2 += "服 &nbsp; 务 &nbsp; 费：¥<span>" + jsonCheckoutOrder.ServiceAmount + "</span> &nbsp;&nbsp;&nbsp; <br />";
+        $(OrderPay).html(html2);
+        //各种付款金额 end
+
+        //付款框默认数值
+        $(moneyInput).val(unpayAmount);
+    }
+
+    function 每台菜品项的全选或全不选(table) {
+        var tableId = table.data("id");
+        var selected = table.data("selected");
+
+        if (selected == "no") {
+
+            table.data("selected", "yes");
+            table.find("tbody").find("tr").each(function () {
+                $(this).prop("class", "菜品项选中");
+
+            });
+        }
+        else if (selected == "yes") {
+
+            table.data("selected", "no");
+            table.find("tbody").find("tr").each(function () {
+                $(this).prop("class", "菜品项未选中");;
+
+            });
+
+        }
+
+
+    }
+
+    function 单菜品的选中或不选中(me) {
+        if (me.prop("class") == "菜品项选中") {
+            me.prop("class", "菜品项未选中");
+        }
+        else {
+            me.prop("class", "菜品项选中");
+        }
+    }
+
+    function 恢复所有菜品的折扣率() {
+        $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+            $(this.OrderDetailList).each(function () { //每菜品
+                this.DiscountRate = 1;
+            });
+        });
+    }
+
+    function 单品折设置后的相关更新(req) {
+
+        恢复所有菜品的折扣率();
+        for (var i = 0; i < req.length; i++) {
+
+            var discount = req[i].DiscountRate;//获得填写的折扣值
+            if (discount < 0) {
+                discount = 0;
+            }
+
+            $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+
+                $(this.OrderDetailList).each(function () { //每菜品
+                    if (req[i].OrderDetailID == this.Id) {
+                        this.DiscountRate = discount;
+                    }
+                });
+            });
+        }
+
+        重新渲染画面内容(jsonCheckoutOrder);
+
+    }
+
+    function 全单折设置后的相关更新(zk) {
+
+        if (zk < 0) {
+            zk = 0;
+        }
+        var message = "菜品：";
+        var messageOld = message;
+        恢复所有菜品的折扣率();
+        $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+
+            $(this.OrderDetailList).each(function () { //每菜品
+
+                if (!this.IsDiscount) {
+                    message += this.ProjectName + "  ";
+                }
+                else {
+                    this.DiscountRate = zk;
+                }
+            });
+        });
+        if (message != messageOld)
+        {
+            message += "设置为不可打折";
+            layer.alert(message, function () { 重新渲染画面内容(jsonCheckoutOrder); layer.closeAll();  });
+        }
+        else
+        {
+            重新渲染画面内容(jsonCheckoutOrder);
+            layer.closeAll();
+        }
+
+    }
+
+    function 方案折设置后的相关更新(schemeDiscount)
+    {
+        var schemalList = schemeDiscount.CyxmZkCp;
+        var message = "菜品：";
+        var messageOld = message;
+
+        恢复所有菜品的折扣率();
+
+        $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+            $(this.OrderDetailList).each(function () { //每菜品
+                var item = this;
+                $(schemalList).each(function () {
+                    if (this.R_Category_Id == item.CategoryId && item.CyddMxType == 1) //找到当前菜品的自定义折扣率
+                    {
+                        if (!item.IsDiscount) { //判断当前菜品是否允许打折
+                            message += item.ProjectName + "  ";
+                        }
+                        else {
+                            item.DiscountRate = this.DiscountRate;
+                        }
+
+                    }
+                }); //每个自定义折扣的“类别-折扣率”信息的配置
+
+            });//每菜品
+
+        });//每桌
+
+        if (message != messageOld) {
+            message += "设置为不可打折";
+            layer.alert(message, function () {
+                重新渲染画面内容(jsonCheckoutOrder);
+                layer.closeAll();
+            });
+
+        }
+        else
+        {
+            重新渲染画面内容(jsonCheckoutOrder);
+            layer.closeAll();
+        }
+
+    }
+
+    function 单品折() {
+        var list = $("tr[class=菜品项选中]");
+        if (list.length <= 0) {
+            layer.alert("请选中至少一个菜品");
+            return;
+        }
+        var listOrderDetailID = new Array();
+
+        var message = "菜品：";
+        var messageOld = message;
+        恢复所有菜品的折扣率();
+
+        $(list).each(function () { //循环选中的每个菜品
+            var item = $(this);
+            $(jsonCheckoutOrder.OrderTableList).each(function () { //每桌
+
+                $(this.OrderDetailList).each(function () { //每菜品
+                    if (this.Id == item.data("id"))
+                    {
+                        if (this.IsDiscount)
+                        {
+                            listOrderDetailID.push(this.Id);
+                        }
+                        else
+                        {
+                            message += this.ProjectName+ " ";
+                        }
+                    }
+
+                });
+            });
+
+
+
+        }); //筛选出可打折的菜品
+
+        if (message != messageOld) {
+            message += "设置为不可打折";
+            var layindex=layer.alert(message,
+                function () {
+                            layer.close(layindex);
+
+                            打开单品折设置画面(listOrderDetailID);
+                            }//function
+                        );
+        }
+        else
+        {
+            打开单品折设置画面(listOrderDetailID)
+        }
+
+
+
+
+    }
+
+    function 打开单品折设置画面(listOrderDetailID)
+    {
+        if (listOrderDetailID.length > 0) {
+            //搜集要设置单品折的菜品的id集合，将改写菜品信息展示在弹出窗口上，进行单品折设置
+            layer.open({
+                type: 2,
+                title: "单品折设置",
+                area: ["600px", "600px"],
+                content: "/Res/Checkout/SingleProductDiscount?orderDetailIDs=" + JSON.stringify(listOrderDetailID),
+                maxmin: false
+            });
+        }//if
+    }
+
+    function 全单折() {
+        layer.open({
+            type: 2,
+            title: "全单折设置",
+            area: ["600px", "600px"],
+            content: "/Res/Checkout/FullOrderDiscount",
+            maxmin: false
+        });
+    }
+
+    function 方案折() {
+        layer.open({
+            type: 2,
+            title: "方案折设置",
+            area: ["800px", "600px"],
+            content: "/Res/Checkout/SchemeDiscount?orderId=" +jsonCheckoutOrder.Id,
+            maxmin: false
+        });
+
+
+    }
+
+    function 付款() {
+        var PayType = $("input[name='payType']").filter(':checked').val(); //付款方式
+        var PayTypeName = $("input[name='payType']").filter(':checked').attr("title"); //付款方式
+        var PayAmount = $("#moneyInput").val();
+
+        var tr = $("<tr></tr>");
+
+        //支付方式
+        var td = $("<td></td>");
+        var span = $("<span></span>");
+        span.html(PayTypeName);
+        span.data("paytype",PayType);
+        td.html(span);
+        tr.append(td);
+
+
+        //支付金额
+        var td = $("<td></td>");
+        var span = $("<span></span>");
+        span.html(PayAmount);
+        td.html(span);
+        tr.append(td);
+
+        //操作人
+        var td = $("<td></td>");
+        td.html(jsonCheckoutOrder.OperateUserName);
+        tr.append(td);
+
+        //操作列
+        var td = $("<td></td>");
+        td.html('<a href="javascript:void(0)" onclick="$(this).parent().parent().remove(); 付款或删除付款后更新();" >删除</a>');
+        tr.append(td);
+
+        $(tbodyForPayRecord).append(tr);
+
+        付款或删除付款后更新();
+    }
+
+    function 付款或删除付款后更新()
+    {
+        //结账金额
+        var money = 0;
+        var trs = $(tbodyForPayRecord).find("tr");
+        $(trs).each(function () {
+            //部分付款金额
+            var partMoney = $(this).find("td:eq(1)").find("span").first().html();
+            money += parseFloat(partMoney);
+        });
+
+        //待结账金额
+        jsonCheckoutOrder.RealAmount = parseFloat(money.toFixed(2));
+        jsonCheckoutOrder.moneyInput = jsonCheckoutOrder.OriginalAmount - jsonCheckoutOrder.RealAmount;
+
+        重新渲染画面内容(jsonCheckoutOrder);
+    }
+
+    function 结账() {
+
+        var chat = $.connection.systemHub;
+        chat.hubName = 'systemHub';
+        chat.connection.start();
+
+       //结账金额
+        var money = 0;
+        var trs = $(tbodyForPayRecord).find("tr");
+
+
+        //付款记录集合
+        var ListOrderPayRecordDTO = new Array();
+
+        $(trs).each(function () {
+
+            var obj = {};
+
+            //部分付款金额
+            var partMoney = $(this).find("td:eq(1)").find("span").first().html();
+            money += parseFloat(partMoney);
+            obj.PayAmount = partMoney;
+
+            //部分付款方式
+            var paytype = $(this).find("td:eq(0)").find("span").first().data("paytype");
+            obj.CyddPayType = paytype;
+
+            ListOrderPayRecordDTO.push(obj);
+        });
+
+
+        if (isNaN(money)) {
+            layer.alert("结账金额输入不正确，请重新输入！");
+            return;
+        }
+        //如果有赠送，抹零等，在此判断
+        if (jsonCheckoutOrder.OriginalAmount < (jsonCheckoutOrder.RealAmount + jsonCheckoutOrder.ClearAmount) )
+        {
+            layer.alert("结账金额超出待结金额！");
+            return;
+        }
+
+        if (jsonCheckoutOrder.OriginalAmount > (jsonCheckoutOrder.RealAmount + jsonCheckoutOrder.ClearAmount)) {
+            layer.alert("尚未付清待结账金额，不能结账！");
+            return;
+        }
+
+        var req = new Object();
+        req.OrderId = jsonCheckoutOrder.Id; //订单id
+        req.TableIds = jsonCheckoutOrder.TableIds; //当前订单下待结账台号
+        req.ListOrderPayRecordDTO = ListOrderPayRecordDTO;
+
+        req.Money = money;//结账金额
+
+        req.ConAmount=jsonCheckoutOrder.ConAmount;
+        req.OriginalAmount=jsonCheckoutOrder.OriginalAmount;
+        req.ClearAmount =jsonCheckoutOrder.ClearAmount;
+        req.DiscountAmount =jsonCheckoutOrder.DiscountAmount;
+        req.ServiceAmount =jsonCheckoutOrder.ServiceAmount;
+        req.GiveAmount =jsonCheckoutOrder.GiveAmount;
+
+        var ListOrderDetailDTO = [];
+        $(jsonCheckoutOrder.OrderTableList).each(function () {
+            $(this.OrderDetailList).each(function () {
+                ListOrderDetailDTO.push(this);
+                //为了节省传输数据量，将用不到的数据去掉
+                this.Extend = null;
+                this.ExtendRequire = null;
+                this.ExtendExtra = null;
+
+            });
+        });
+
+        req.ListOrderDetailDTO = ListOrderDetailDTO;
+        //alert(JSON.stringify(req));
+        //return;
+
+        $.ajax({
+            type: "POST",
+            url: "/Res/Checkout/Checkout",
+            data: JSON.stringify(req),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            beforeSend: function (xhr) {
+                layindex = layer.open({
+                    type: 3,
+                    shadeClose: true, //点击遮罩关闭层
+                });
+            },
+            success: function (data, textStatus) {
+                if (data.Result == true) {
+
+                    $.connection.hub.start().done(function () {
+                        chat.server.notifyResServiceRefersh(true);
+                    });
+
+                    layer.alert("操作成功！", function () {
+                        parent.layer.closeAll();
+                    });
+                }
+                else
+                {
+                    layer.alert(data.Info);
+                }
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            }
+        }) //ajax
+
+
+   }
+
+    function 抹零()
+    {
+        var ClearAmount = $("#ClearAmount");
+
+        //提供应收金额的小数位作为抹零的默认值
+        if (!ClearAmount.val())
+        {
+            ClearAmount.val((jsonCheckoutOrder.OriginalAmount - parseInt(jsonCheckoutOrder.OriginalAmount)).toFixed(2));
+        }
+        var index = layer.open({
+            type: 1,
+            title: "请输入抹零金额",
+            area: ["500px", "500px"],
+            content: $("#ClearAmountDiv"),
+            maxmin: false
+        });
+        $(ClearAmountForLayerIndex).val(index);
+    }
+
+    </script>
+
+}
+
+

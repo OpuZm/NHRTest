@@ -1,0 +1,381 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@using OPUPMS.Domain.Restaurant.Model;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ProjectCreateDTO Project = ViewBag.Project ?? new ProjectCreateDTO();
+    var Categorys = ViewBag.Categorys;
+    List<ExtendListDTO> extends = ViewBag.Extend;
+    IEnumerable<ExtendListDTO> zf = null;
+    IEnumerable<ExtendListDTO> yq = null;
+    IEnumerable<ExtendListDTO> pc = null;
+    var ProjectExtends = Project.Extends == null ? new List<R_ProjectExtendAttribute>() : Project.Extends;
+}
+
+<div class="container">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#basic" aria-controls="home" role="tab" data-toggle="tab">基本资料</a></li>
+        <li role="presentation"><a href="#special" aria-controls="profile" role="tab" data-toggle="tab">特殊要求</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="basic">
+            <form class="form-horizontal" id="SubmitForm">
+                <div class="form-group">
+                    <label for="Name" class="col-xs-2 control-label">类别:</label>
+                    <div class="col-xs-10">
+                        <select id="R_Category_Id" name="R_Category_Id" class="form-control">
+                            <option value="0">请选择</option>
+                            @{
+                                if (Categorys != null)
+                                {
+                                    foreach (var item in Categorys)
+                                    {
+                                        <option value="@item.Id" discount="@item.IsDiscount" @(Project.R_Category_Id == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Name" class="col-xs-2 control-label">名称:</label>
+                    <div class="col-xs-10">
+                        <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@Project.Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">成本价:</label>
+                    <div class="col-xs-4">
+                        <input type="text" class="form-control" id="CostPrice" name="CostPrice" placeholder="请输入价格" value="@Project.CostPrice">
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">销售价:</label>
+                    <div class="col-xs-4">
+                        <input type="text" class="form-control" id="Price" name="Price" placeholder="请输入销售价" value="@Project.Price">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">是否上架:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsOnSale" class="radio inline" @(Project.IsOnSale>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否上架)" name="IsOnSale" class="radio inline" @(Project.IsOnSale>0 ? "checked='checked'" : "") />是
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">是否推荐:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsRecommend" class="radio inline" @(Project.IsRecommend>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否推荐)" name="IsRecommend" class="radio inline" @(Project.IsRecommend>0 ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">手写菜:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsCustomer" class="radio inline" @(Project.IsCustomer>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否自定义)" name="IsCustomer" class="radio inline" @(Project.IsCustomer>0 ? "checked='checked'" : "") />是
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">可赠送:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsGive" class="radio inline" @(Project.IsGive>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可赠送)" name="IsGive" class="radio inline" @(Project.IsGive>0 ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">可打折:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsDiscount" class="radio inline" @(Project.IsDiscount>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可打折)" name="IsDiscount" class="radio inline" @(Project.IsDiscount>0 ? "checked='checked'" : "") />是
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">强制打折:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsQzdz" class="radio inline" @(Project.IsQzdz>0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否强制打折)" name="IsQzdz" class="radio inline" @(Project.IsQzdz>0 ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">是否使用库存:</label>
+                    <div class="col-xs-2">
+                        <input type="radio" value="false" name="IsStock" class="radio inline" @(Project.IsStock ? "" : "checked='checked'") />否
+                        <input type="radio" value="true" name="IsStock" class="radio inline" @(Project.IsStock ? "checked='checked'" : "") />是
+                    </div>
+                    <div class="col-xs-2">
+                        <input type="text" id="Stock" name="Stock" class="form-control" value="@Project.Stock" @(Project.IsStock ? "" : "style=display:none;") />
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">是否可改价:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsChangePrice" class="radio inline" @(Project.IsChangePrice > 0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可改价)" name="IsChangePrice" class="radio inline" @(Project.IsChangePrice > 0 ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Description" class="col-xs-2 control-label">描述:</label>
+                    <div class="col-xs-10">
+                        <textarea id="Description" name="Description" class="form-control" rows="5">@Project.Description</textarea>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+                <input type="hidden" id="Id" name="Id" value="@Project.Id" />
+            </form>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="special">
+            @{
+                if (Project.Id > 0)
+                {
+                    <form class="form-horizontal" id="ExtendForm">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:20%">类型</th>
+                                    <th>选项</th>
+                                </tr>
+                            </thead>
+                            @{
+                                bool isExtend = false;
+                                if (extends != null)
+                                {
+                                    zf = extends.Where(p => p.CyxmKzTypeId == (int)CyxmKzType.做法);
+                                    yq = extends.Where(p => p.CyxmKzTypeId == (int)CyxmKzType.要求);
+                                    pc = extends.Where(p => p.CyxmKzTypeId == (int)CyxmKzType.配菜);
+                                }
+                                <thead>
+                                    <tr>
+                                        <td>做法:</td>
+                                        <td>
+                                            @{
+                                                if (zf != null)
+                                                {
+                                                    foreach (var item in zf)
+                                                    {
+                                                        isExtend = ProjectExtends.Any(p => p.R_ProjectExtend_Id == item.Id);
+                                                        <label><input type="checkbox" value="@item.Id" name="zf" class="radio inline" @(isExtend ? "checked='checked'" : "") />@(string.IsNullOrEmpty(item.Unit)?item.Name:item.Name+"/"+item.Unit)</label>
+                                                    }
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>要求:</td>
+                                        <td>
+                                            @{
+                                                if (yq != null)
+                                                {
+                                                    foreach (var item in yq)
+                                                    {
+                                                        isExtend = ProjectExtends.Any(p => p.R_ProjectExtend_Id == item.Id);
+                                                        <label><input type="checkbox" value="@item.Id" name="zf" class="radio inline" @(isExtend ? "checked='checked'" : "") />@(string.IsNullOrEmpty(item.Unit) ? item.Name : item.Name + "/" + item.Unit)</label>
+                                                    }
+                                                }
+                                            }
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>配菜:</td>
+                                                        <td>
+                                                            @{
+                                                                if (pc != null)
+                                                                {
+                                                                    foreach (var item in pc)
+                                                                    {
+                                                                        isExtend = ProjectExtends.Any(p => p.R_ProjectExtend_Id == item.Id);
+                                                                        <label><input type="checkbox" value="@item.Id" name="pc" class="radio inline" @(isExtend ? "checked='checked'" : "" ) />@(string.IsNullOrEmpty(item.Unit) ? item.Name : item.Name + "/" + item.Unit)</label>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                            }
+                        </table>
+                        <div class="form-group text-center">
+                            <button class="btn btn-primary" type="submit">提交</button>
+                            <button class="btn btn-default closeAll" type="button">取消</button>
+                        </div>
+                    </form>
+                                                            }
+                                                            else
+                                                            {
+                                                                <h3 style="color:red;">请先填写并提交基本资料</h3>
+                                                            }
+            }
+
+        </div>
+    </div>
+</div>
+@section FooterScripts{
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Name: {
+                            required: true
+                        },
+                        Category: {
+                            min:1
+                        },
+                        Price: {
+                            isFloatGteZero: true
+                        },
+                        CostPrice: {
+                            isFloatGteZero: true
+                        },
+                        Stock: {
+                            isFloatGteZero:true
+                        }
+                    },
+                    messages: {
+                        Category: {
+                            min:"请选择类型"
+                        },
+                        Price: {
+                            isFloatGteZero: "价格必须大于等于0"
+                        },
+                        CostPrice: {
+                            isFloatGteZero: "成本价格必须大于等于0"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var para = $("#SubmitForm").serialize();
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Project/Edit",
+                        dataType: "json",
+                        //contentType: "application/json; charset=utf-8",
+                        data: para,
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $("#ExtendForm").validate({
+                    rules: {
+                    },
+                    messages: {
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        SubmitExtend();
+                    }
+                })
+
+                function SubmitExtend() {
+                    var modules = [];
+                    $("#ExtendForm").find("input[type='checkbox']:checked").each(function (index,obj) {
+                        modules.push($(obj).val());
+                    })
+                    var para = { Id: '@Project.Id', Extends: modules };
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Project/SubmitExtend",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                })
+
+                $("#Category").change(function () {
+                    var distinct = $(this).find("option:selected").attr("discount");
+                    if (distinct) {
+                        $("input[name='IsDiscount'][value='true']").attr("checked", true);
+                    } else {
+                        $("input[name='IsDiscount'][value='false']").attr("checked", true);
+                    }
+                })
+
+                $("input[name='IsStock']").on("ifChecked", function (event) {
+                    var bol = $(this).val();
+                    if ($(this).val()=="true") {
+                        $("#Stock").show();
+                    } else {
+                        $("#Stock").hide();
+                    }
+                })
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

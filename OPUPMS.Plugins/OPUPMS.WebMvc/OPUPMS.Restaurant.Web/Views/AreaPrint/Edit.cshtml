@@ -1,0 +1,209 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "微信出单区域编辑";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>自定义折扣管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-form-checkbox, .layui-form-checked:hover{margin-top:4px;margin-bottom: 10px;}
+    </style>
+</head>
+<body>
+
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                @Html.AntiForgeryToken()
+                
+                <div class="layui-row" id="SubmitForm_view">
+                   	<script id="SubmitForm_tpml" type="text/html">
+	                    <div class="layui-form-item" style="width: 100%;">
+	                        <label class="layui-form-label">名称：</label>
+	                        <div class="layui-input-inline">
+	                            <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" {{# if(d.Model.Name ){ }} value="{{d.Model.Name}}" {{# } }}>
+	                        </div>
+	                        
+	                        <label class="layui-form-label">打印机：</label>
+	                        <div class="layui-input-inline">                        
+	                            <select id="Restaurant" name="Print" lay-filter="Print" lay-verify="required" lay-required-msg="请选择餐厅" lay-search>
+	                                <option value="">请选择</option>
+	                                {{#  layui.each(d.Prints, function(index, item){ }}
+	                                	<option value="{{item.Id}}" 
+	                                		{{# if(d.Model.Print_Id == item.Id){ }} selected {{# } }}
+	                                	>{{item.Name}}</option>
+	                                {{# }) }}
+	                            </select>
+	                        </div>
+	                    </div>
+	                    <div class="layui-form-item" style="width: 100%;">
+	                    	<label class="layui-form-label">餐厅：</label>
+	                        <div class="layui-input-inline">                        
+	                            <select id="Restaurant" name="Restaurant" lay-filter="Restaurant" lay-verify="required" lay-required-msg="请选择餐厅" lay-search>
+	                                <option value="">请选择</option>
+	                                {{#  layui.each(d.Restaurants, function(index, item){ }}
+	                                	<option value="{{item.Id}}"
+	                                		{{# if(d.Model.R_Restaurant_Id == item.Id){ }} selected {{# } }}
+                                		>{{item.Name}}</option>
+	                                {{# }) }}
+	                            </select>
+	                        </div>
+	                    </div>
+                    </script>
+                </div>
+                <div class="layui-row" id="SubmitFormList_view">
+                	<label class="layui-form-label">区域：</label>
+                </div>
+                <div class="layer-btns-bottom">
+                	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'table', 'layer', 'laydate', 'layedit','laytpl'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            form = layui.form,
+            layedit = layui.layedit,
+            table = layui.table;
+            laytpl = layui.laytpl;
+		
+		var Id = getUrlParam('id') || 0;
+		var PrintType = getUrlParam('PrintType') || 0;
+		
+		$.ajax({
+            type: "post",
+            url: "/Res/AreaPrint/GetModel?id=" + Id + '&PrintType=' + PrintType,
+            dataType: "json",
+            //contentType: "application/json; charset=utf-8",
+            async: false,
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+            	console.log(data)
+            	inidata = data;
+            	
+                var getTpl = SubmitForm_tpml.innerHTML,
+					view = document.getElementById('SubmitForm_view');
+				laytpl(getTpl).render(data, function(html) {
+					view.innerHTML = html;
+					form.render();
+				});
+				
+				if(data.Model.R_Restaurant_Id > 0 ){
+					areaRender(data.Model.R_Restaurant_Id);
+					$('#SubmitFormList_view').find('input[type=checkbox]').each(function(){
+						for(let i=0;i < data.Model.PrintAreas.length;i++){
+							if($(this).val() == data.Model.PrintAreas[i].R_Area_Id){
+								$(this).prop("checked", true);
+							}
+						}
+					})
+					form.render();
+				}
+            }
+        });
+        
+        //餐厅选择
+        form.on('select(Restaurant)', function(data){
+		  	console.log(data.elem); //得到select原始DOM对象
+		  	console.log(data.value); //得到被选中的值
+		  	console.log(data.othis); //得到美化后的DOM对象
+		  	areaRender(data.value);
+		  	form.render();
+		});
+		
+		//基本要求提交
+        form.on('submit(form1)', function (data) {
+            var params = data.field;
+            var params = {};
+            params.Id = Id;
+            params.Name = data.field.Name;
+            params.Print_Id = data.field.Print;
+            params.R_Restaurant_Id = data.field.Restaurant;
+            params.PrintAreas = [];
+            params.PrintType = PrintType;
+            
+            $('#SubmitFormList_view').find('input[type=checkbox]:checked').each(function(){
+            	params.PrintAreas.push({Id:Id,R_Area_Id:$(this).attr('name'),R_WeixinPrint_Id:Id});
+            })
+            
+            if(params.PrintAreas.length == 0){
+            	layer.msg('请选择区域');
+            	return false;
+            }
+            console.log(params)
+            $.ajax({
+	            type: "post",
+	            url: "/Res/AreaPrint/Edit",
+	            dataType: "json",
+	            //contentType: "application/json; charset=utf-8",
+	            async: false,
+	            data:params,
+	            beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+	            success: function (data, textStatus) {
+	            	console.log(data)
+	            	if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+	            }
+	        });
+	        
+	        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        
+        
+		
+		//区域渲染
+		function areaRender(Id){   //当前选择餐厅的Id
+			var view = $('#SubmitFormList_view');
+			view.empty();
+			
+			var list = inidata.Areas;
+			var str = '<label class="layui-form-label">区域：</label>';
+			for(let i=0;i<list.length;i++){
+				if(list[i].RestaurantId == Id){
+					str += '<input type="checkbox" value="' + list[i].Id + '" name="' + list[i].Id + '" title="' + list[i].Name + '"> '
+				}
+			}
+			
+			view.append(str);
+			
+		}
+	})
+       
+
+</script>

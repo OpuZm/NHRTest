@@ -1,0 +1,74 @@
+﻿@using OPUPMS.Domain.Base.Models;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/GroupTemplate.cshtml"));
+    List<GroupModel> GroupList = ViewBag.GroupList as List<GroupModel>;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>OPU-PMS 一站式快捷管理系统</title>
+
+</head>
+
+<body style="background:#f1f1f1; ">
+    <div id="page_home">
+        <div style="text-align:center;">
+            <table>
+                <tr>
+                    <td height="50px" width="120px"><button type="button" onclick="setting()">全局参数设置</button></td>
+                    <td height="50px" width="120px"><button type="button">用户角色设置</button></td>
+                    <td height="50px" width="120px"><button type="button" onclick="hotel()">客房设置</button></td>
+                    <td height="50px" width="120px"><button type="button" onclick="res()">餐饮设置</button></td>
+                    <td height="50px" width="120px"><button type="button" onclick="addGroup()">添加集团</button></td>
+                    <td height="50px" width="120px"><button type="button" onclick="logout()">退出系统</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="text-align:center; padding-left:20%;">
+        <div>
+            <h2>集团列表</h2>
+        </div>
+        <div>
+            <table width="80%">
+                <tr>
+                    <th>集团代码</th>
+                    <th>集团名称</th>
+                    <th>集团地址</th>
+                    <th>法人代表</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                @{
+                    foreach (var item in GroupList)
+                    {
+                        <tr>
+                            <td>@item.Code</td>
+                            <td>@item.Name</td>
+                            <td>@item.Address</td>
+                            <td>@item.Manager</td>
+                            <td>@item.Status</td>
+                            <td>@Html.ActionLink("查看", "Details", "Group", new { perfix = "MS", id = @item.Id }, null)</td>
+    @*<td><a href="/MS/Group/Details?groupId=@item.Id">查看详情</a></td>*@
+                            @*<td><a href="/MS/Group/Details/?@item.Id">查看详情</a></td>*@
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function logout() { window.location.href = "/User/Logout"; }
+        function hotel() { window.location.href = "/H/CloudPMS/Index"; }
+        function res() { window.location.href = "/Res/Home/Index"; }
+        function setting() { window.location.href = "/MS/Home/Index"; }
+        function addGroup() { window.location.href = "/MS/Group/AddGroup"; }
+    </script>
+</body>
+</html>
+

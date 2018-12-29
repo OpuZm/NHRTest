@@ -1,0 +1,492 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    DiscountCreateDTO Discount = ViewBag.Discount ?? new DiscountCreateDTO();
+    List<RestaurantListDTO> Restaurants = ViewBag.Restaurants;
+    List<CategoryListDTO> Categorys = ViewBag.Categorys;
+    string dc = Discount.CyxmZkCp!= null ? string.Join(",", Discount.CyxmZkCp.Select(p => p.R_Category_Id)) : "";
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">名称:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@Discount.Name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">餐厅:</label>
+            <div class="col-xs-10">
+                <select id="Restaurant" name="Restaurant" class="form-control">
+                    <option value="0">请选择</option>
+                    @{
+                        if (Restaurants != null)
+                        {
+                            foreach (var item in Restaurants)
+                            {
+                                <option value="@item.Id" @(Discount.Restaurant == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">分市:</label>
+            <div class="col-xs-10">
+                <select id="Market" name="Market" class="form-control" v-model="marketId">
+                    <option value="0">请选择</option>
+                    <option v-for="(mar,index) in marketRes" v-bind:value="mar.Id">{{mar.Name}}</option>
+                    <span>Selected: {{ marketId }}</span>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">区域:</label>
+            <div class="col-xs-10">
+                <select id="Area" name="Area" class="form-control" v-model="areaId">
+                    <option value="0">请选择</option>
+                    <option v-for="(area,index) in areaRes" v-bind:value="area.Id">{{area.Name}}</option>
+                    <span>Selected: {{ areaId }}</span>
+                </select>
+            </div>
+        </div>
+        @*<div class="form-group">
+                <label for="Price" class="col-xs-2 control-label">折扣率:</label>
+                <div class="col-xs-10">
+                    <input type="text" class="form-control" id="DiscountRate" name="DiscountRate" placeholder="请输入折扣率" value="@Discount.DiscountRate">
+                </div>
+            </div>*@
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">是否启用:</label>
+            <div class="col-xs-10">
+                <div class="switch switch-mini">
+                    <input type="checkbox" name="IsEnable" @(Discount.IsEnable ? "checked" : "") />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">开始时间:</label>
+            <div class="col-xs-3">
+                <input type="text" class="form-control datetimepicker" id="StartDate" name="StartDate" value="@Discount.StartDate" required>
+            </div>
+            <label for="" class="col-xs-2 control-label">结束时间:</label>
+            <div class="col-xs-3">
+                <input type="text" class="form-control datetimepicker" id="EndDate" name="EndDate" value="@Discount.EndDate" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">菜品类别:</label>
+            <div class="col-xs-10">
+                <table id="Categorys" class="table table-bordered">
+                    <tbody>
+                        @{
+                            if (Discount.CyxmZkCp != null)
+                            {
+                                foreach (var item in Discount.CyxmZkCp)
+                                {
+                                    var categoryName = Categorys.FirstOrDefault(p => p.Id == item.R_Category_Id);
+                                    <tr>
+                                        @{
+                                            if (categoryName != null)
+                                            {
+                                                <td class="text-center text-danger">@categoryName.Name</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-center text-danger">全部菜品</td>
+                                            }
+                                        }
+                                        <td class="text-center text-danger">折扣率： @item.DiscountRate</td>
+                                    </tr>
+                                                }
+                                            }
+                        }
+                        <tr v-for="(category,index) in GetList">
+                            <td>
+                                <select id="category" name="category" class="form-control" v-model="category.R_Category_Id" v-on:change="Change(index,$event)">
+                                    <option value="0">全部菜品</option>
+                                    @{
+                                        foreach (var item in Categorys)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                            <td style="width:30%" class="text-center text-danger">
+                                <input class="form-control" type="text" max="1" min="0" required placeholder="请输入折扣率" v-model="category.DiscountRate" v-on:change="ChangeRate(index,$event)" />
+                            </td>
+                            <td style="width:20%">
+                                <button type="button" data-id="0" class="btn btn-danger" v-on:click="Delete(index)">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td><button type="button" id="AddCategory" class="btn btn-default" v-on:click="Add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                @*<select id="Category" name="Category" class="form-control">
+                        <option value="0">请选择</option>
+                        @{
+                            if (Categorys != null)
+                            {
+                                foreach (var item in Categorys)
+                                {
+                                    <option value="@item.Id" @(Discount.Category == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>*@
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+        <input type="hidden" id="Id" name="Id" value="@Discount.Id" />
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    <script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Name: {
+                            required: true
+                        },
+                        Restaurant: {
+                            min: 1
+                        },
+                        Market: {
+                            min: 1
+                        },
+                        DiscountRate: {
+                            isFloatGteZero: true
+                        }
+                    },
+                    messages: {
+                        Restaurant: {
+                            min: "必须选择餐厅"
+                        },
+                        Market: {
+                            min: "必须选择分市"
+                        },
+                        DiscountRate: {
+                            isFloatGteZero: "折扣率必须大于等于0"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var res = false;
+                    var arr = '@dc'.split(',');
+                    arr = $.grep(arr, function (n, i) { return n != ''; });//去除空值
+                    $(vmCategorys.list).each(function (i, o) {
+                        if (res) return;
+                        //先判断是否存在数组中
+                        if ($.inArray(o.R_Category_Id, arr) < 0) {
+                            arr.push(o.R_Category_Id);//不存在数组中，则增加到数组中
+                        }
+                        else { //否则存在数组中，提示菜品选择重复
+                            res = true;
+                            layer.alert('你菜品选择重复了，请检查后再提交！');
+                            return;//跳出循环
+                        }
+                    });
+                    //包含全部菜品和其他单个菜品时
+                    if (res == false && arr.length > 1 && $.inArray("0", arr) > -1) {
+                        res = true;
+                        layer.alert('你选择了全部菜品时，不能在同时选择其他单个菜品，切勿重复操作！');
+                    }
+                    if (res) return;//提交出错，终止
+                    //alert(arr.length);
+                    if (arr.length <= 0) { layer.alert('菜品类别不能为空！'); return; }
+                    
+                    //var IsTrue = false;
+                    ////判断是否重复填写菜品的折扣,1.选了全部菜品，不能在选其他的；2，单个菜品不能重复填写折扣率
+                    //$(vmCategorys.list).each(function (i, o) {
+                    //    $(vmCategorys.list).each(function (ii, oo) {
+                    //        if (!IsTrue) {
+                    //            //1.选了全部菜品，不能在选其他的；
+                    //            if (o.R_Category_Id == 0 && oo.R_Category_Id != 0) {
+                    //                //提示1.选了全部菜品，不能在选其他的；
+                    //                layer.alert('你选择了全部菜品时，不能在同时选择其他单个菜品，切勿重复操作！');
+                    //                IsTrue = true;
+                    //            }
+                    //            //2，单个菜品不能重复填写折扣率
+                    //            if (o.R_Category_Id == oo.R_Category_Id && i != ii) {
+                    //                layer.alert('你选择了重复的菜品，切勿重复操作！');
+                    //                IsTrue = true;
+                    //            }
+                    //        } else return;//跳出第二个循环
+                    //    })
+                    //    if (IsTrue) return;//跳出第一个循环
+                    //});
+                    //if (IsTrue) return;//提交出错，终止
+
+                    var token = $('@Html.AntiForgeryToken()').val();
+                    var headers = {};
+                    headers["__RequestVerificationToken"] = token;
+
+                    var para = $('#SubmitForm').serializeArray();
+                    var params = {};
+                    $.each(para, function (i, field) {
+                        params[field.name] = field.value;
+                    });
+                    params.IsEnable = $("input[name='IsEnable']").bootstrapSwitch('state');
+                    params.CyxmZkCp = vmCategorys.list;
+
+                    var para = {
+                        Id: '@Discount.Id', Name: $("#Name").val(),
+                        Restaurant: $("#Restaurant").val(),
+                        Market: $("#Market").val(),
+                        Area: $("#Area").val(),
+                        DiscountRate: $("#DiscountRate").val(),
+                        IsEnable: $("input[name='IsEnable']").bootstrapSwitch('state'),
+                        StartDate: $("#StartDate").val(),
+                        EndDate: $("#EndDate").val(),
+                        CyxmZkCp: vmCategorys.list,
+                        __RequestVerificationToken: $("input[name='__RequestVerificationToken']").val()
+                    };
+                    console.log(params);
+                    //var para = $("#SubmitForm").serialize();
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Discount/Edit",
+                        dataType: "json",
+                        headers: headers,
+                        //contentType: "application/json; charset=utf-8",
+                        data: params,
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                var vmMarket = new Vue({
+                    el: '#Market',
+                    data: {
+                        market: [],
+                        marketRes: [],
+                        marketId: '@Discount.Market'
+                    },
+                    methods: {
+                    }
+                })
+
+                var vmArea = new Vue({
+                    el: '#Area',
+                    data: {
+                        area: [],
+                        areaRes: [],
+                        areaId: '@Discount.Area'
+                    },
+                    methods: {
+                    }
+                })
+
+                var vmCategorys = new Vue({
+                    el: '#Categorys',
+                    data: {
+                        list:[]
+                    },
+                    computed: {
+                        GetList: function () {
+                            return this.list;
+                        }
+                    },
+                    methods: {
+                        Delete: function (index) {
+                            DeleteCategory(index);
+                        },
+                        Add: function (index) {
+                            this.list.push({ Id: 0, R_Category_Id: '0', R_Discount_Id: '@Discount.Id', DiscountRate: 0 });
+                        },
+                        Change: function (index, event) {
+                            var category = this.list[index];
+                            category.R_Category_Id = event.target.value;
+                        },
+                        ChangeRate: function (index, event) {
+                            var category = this.list[index];
+                            category.DiscountRate = event.target.value;
+                        }
+                    }
+                })
+
+                function DeleteCategory(index) {
+                    layer.confirm("确定要删除吗?", {
+                        btn: ['确定', '取消']
+                    }, function () {
+                        vmCategorys.list.splice(index, 1);
+                        layer.closeAll();
+                    })
+                }
+
+                function PushMarket(data) {
+                    $(data).each(function (i, o) {
+                        vmMarket.market.push(o);
+                        if ('@Discount.Restaurant' == o.RestaurantId) {
+                            vmMarket.marketRes.push(o);
+                        }
+                    })
+                }
+
+                function PushArea(data) {
+                    $(data).each(function (i, o) {
+                        vmArea.area.push(o);
+                        if ('@Discount.Restaurant' == o.RestaurantId) {
+                            vmArea.areaRes.push(o);
+                        }
+                    })
+                }
+
+                function GetMarkets() {
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetMarkets",
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushMarket(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function GetAreas() {
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetAreas",
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushArea(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                $("#Restaurant").on("change", function () {
+                    var value = $(this).val();
+                    vmMarket.marketRes = [];
+                    $(vmMarket.market).each(function (i, o) {
+                        if (o.RestaurantId == value) {
+                            vmMarket.marketRes.push(o);
+                        }
+                    })
+                    vmArea.areaRes = [];
+                    $(vmArea.area).each(function (i, o) {
+                        if (o.RestaurantId == value) {
+                            vmArea.areaRes.push(o);
+                        }
+                    })
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                });
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                GetMarkets();
+                GetAreas();
+
+                $('.datetimepicker').datetimepicker({
+                    minView: "month", //选择日期后，不会再跳转去选择时分秒
+                    language: 'zh-CN',
+                    format: 'yyyy-mm-dd',
+                    todayBtn: 1,
+                    autoclose: 1,
+                });
+            }
+
+            editor.init = function () {
+                bindAction();
+                $("[name='IsEnable']").bootstrapSwitch({
+                    "onText": "是",
+                    "offText": "否",
+                    "size":"small"
+                });
+            }
+
+            return editor;
+        }
+    }
+    </script>
+}
+

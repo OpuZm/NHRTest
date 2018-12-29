@@ -1,0 +1,836 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@using OPUPMS.Domain.Restaurant.Model;
+@{
+    Layout = null;
+    ProjectCreateDTO Project = ViewBag.Project ?? new ProjectCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys;
+    List<ExtendListDTO> extends = ViewBag.Extend;
+    IEnumerable<ExtendListDTO> zf = null;
+    IEnumerable<ExtendListDTO> yq = null;
+    IEnumerable<ExtendListDTO> pc = null;
+    var ProjectExtends = Project.Extends == null ? new List<R_ProjectExtendAttribute>() : Project.Extends;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "webuploaderStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "webuploaderDropStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "dropDadStyle")
+
+    <style>
+        #StockDiv .layui-form-checkbox {
+            margin-top: 8px;
+            float: left;
+        }
+
+        .MealTable-lists {
+            overflow: hidden;
+        }
+
+            .MealTable-lists .list {
+                overflow-y: auto;
+                padding: 0;
+            }
+
+        .help-tips {
+            border-radius: 50%;
+            border: 1px solid #999;
+            margin-top: 2px;
+            width: 20px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+            .help-tips i {
+                color: #999;
+            }
+
+            .help-tips:hover {
+                border-color: #1E9FFF;
+            }
+
+                .help-tips:hover i {
+                    color: #1E9FFF;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">基本要求</li>
+            <li lay-id="detail">特殊要求</li>
+            <li lay-id="photo">图片管理</li>
+            <li lay-id="filePhoto">上传图片</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form form-col-two" id="SubmitForm">
+                    @Html.AntiForgeryToken()
+                    <div class="layui-row">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">类别</label>
+                            <div class="layui-input-inline">
+                                <select id="R_Category_Id" name="R_Category_Id" lay-verify="required" lay-filter="Category_Id" lay-required-msg="请选择类别" lay-search>
+                                    <option value="">请选择</option>
+                                    @{
+                                        if (Categorys != null)
+                                        {
+                                            foreach (var item in Categorys)
+                                            {
+                                                <option value="@item.Id" discount="@item.IsDiscount" @(Project.R_Category_Id == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">自定义编码</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Code" name="Code" placeholder="" value="@Project.Code">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Name" name="Name" lay-verify="required" lay-required-msg="请输入名称" placeholder="请输入名称" value="@Project.Name">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+
+                            <label class="layui-form-label">初始单位</label>
+                            <div class="layui-input-inline">
+                                @{
+                                    if (Project.Id <= 0)
+                                    {
+                                        <input type="text" class="layui-input" id="BaseUnit" name="BaseUnit" lay-verify="required" lay-required-msg="请输入单位" placeholder="例，份" maxlength="20" value="">
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">成本价</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="CostPrice" name="CostPrice" placeholder="请输入价格" lay-verify="required|number" value="@Project.CostPrice">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item layui-inline-block">
+                            <label class="layui-form-label ">销售价</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Price" name="Price" placeholder="请输入销售价" lay-verify="required|number" value="@Project.Price">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" style="width:100%">
+                            <label class="layui-form-label">提成方式</label>
+                            <div class="layui-input-block" style="height:38px;">
+                                <input type="radio" value="0" lay-filter="ExtractType" name="ExtractType" @(Project.ExtractType == 0 ? "checked='checked'" : "") title="无" />
+                                <input type="radio" value="1" lay-filter="ExtractType" name="ExtractType" @(Project.ExtractType == 1 ? "checked='checked'" : "") title="按数量" />
+                                <input type="radio" value="2" lay-filter="ExtractType" name="ExtractType" @(Project.ExtractType == 2 ? "checked='checked'" : "") title="按金额比例" />
+                                <input type="text" id="ExtractPrice" name="ExtractPrice" class="layui-input" value="@Project.ExtractPrice" style="width: 100px; display: inline-block;vertical-align: top;display:none;" />
+                                <span class="help-tips" data-tips="按数量:每点一份提成金额; 按比例:按菜品销售价提成,例:0.3 则为菜品销售价的30%"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否上架</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsOnSale" @(Project.IsOnSale > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否上架)" name="IsOnSale" @(Project.IsOnSale > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示微信点菜中是否可选择此菜品"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否推荐</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsRecommend" @(Project.IsRecommend > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否推荐)" name="IsRecommend" @(Project.IsRecommend > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示该菜品显示推荐标签"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手写菜</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsCustomer" @(Project.IsCustomer > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否自定义)" name="IsCustomer" @(Project.IsCustomer > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示该菜品可以手写名称"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">可赠送</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsGive" @(Project.IsGive > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可赠送)" name="IsGive" @(Project.IsGive > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示该菜品可以进行赠送"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">可打折</label>
+                            <div class="layui-input-inline" id="IsDiscount">
+                                <input type="radio" value="0" name="IsDiscount" @(Project.IsDiscount > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可打折)" name="IsDiscount" @(Project.IsDiscount > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示该菜品可以打折"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">强制打折</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsQzdz" @(Project.IsQzdz > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否强制打折)" name="IsQzdz" @(Project.IsQzdz > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示该菜品可以进行强制打折"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">使用库存</label>
+                            <div class="layui-input-inline" id="StockDiv">
+                                <input type="checkbox" name="IsStock" lay-filter="IsStock" id="IsStock" value="1" title="启用" @(Project.IsStock ? "checked='checked'" : "") />
+                                <input type="text" id="Stock" name="Stock" class="layui-input" value="@Project.Stock" style="width: 100px; display: inline-block;top: 5px; position: relative;" />
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否可改价</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsChangePrice" @(Project.IsChangePrice > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否可改价)" name="IsChangePrice" @(Project.IsChangePrice > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="显示菜品价格可以更改"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">启用</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsEnable" @(Project.IsEnable > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="1" name="IsEnable" @(Project.IsEnable > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示菜品是否启用"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">送厨后可否更改数量</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsChangeNum" @(Project.IsChangeNum > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.送厨后可否更改数量)" name="IsChangeNum" @(Project.IsChangeNum > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="表示菜品下单后可否更改数量（不一定非要打厨）"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否收取服务费</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsServiceCharge" @(Project.IsServiceCharge > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CyxmProperty.是否收取服务费)" name="IsServiceCharge" @(Project.IsServiceCharge > 0 ? "checked='checked'" : "") title="是" />
+                                <span class="help-tips" data-tips="是否收取服务费"><i class="layui-icon ">&#xe607;</i></span>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label ">排序</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Sorted" name="Sorted" placeholder="请输入排序" lay-verify="required|number" value="@Project.Sorted">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" style="width: 100%;">
+                            <label class="layui-form-label">描述</label>
+                            <div class="layui-input-block">
+                                <textarea id="Describe" name="Describe" class="layui-textarea" rows="3" style="width: 87%;">@Project.Description</textarea>
+                            </div>
+                        </div>
+
+                        <div class="layer-btns-bottom">
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">下一步</button>
+                            <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                        </div>
+                        <input type="hidden" id="Id" name="Id" value="@Project.Id" />
+                    </div>
+                </form>
+            </div>
+            <div class="layui-tab-item">
+                <div class="detail-tips">
+                    <h3 class="text-danger">请先填写并提交基本资料</h3>
+                </div>
+                <div id="specialRequirements" style="display:none;"></div>
+                <script id="specialRequirements_tpml" type="text/html">
+                    <div class="StartDesk-form flex-item" style="padding-left: 10px;margin:0;">
+                        <div class="select-class-box">
+                            <div class="class-tab">
+                                <ul class="class-tab-nav">
+                                    <li class="layui-this"><a href="javascript:;" data-id="1">做法</a></li>
+                                    <li><a href="javascript:;" data-id="2">要求</a></li>
+                                    <li><a href="javascript:;" data-id="3">配菜</a></li>
+                                </ul>
+                                <div class="layui-tab-content" style="margin-left:125px;padding:0;">
+                                    <div class="layui-tab-item layui-show MealTable-lists">
+                                        <div class="class-group">
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-type="all">全部</a>
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 1){ }}
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-Id="{{item.Id}}" data-type="{{item.ExtendType}}">{{item.Name}}</a>
+                                            {{# } }}
+                                            {{# }); }}
+                                        </div>
+                                        <ul class="list clearfix">
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 1){ }}
+                                            {{# layui.each(item.ProjectExtendDTOList, function(dIndex, dItem){ }}
+                                            <li data-type="{{item.ExtendType}}" data-type-id="{{item.Id}}" data-id="{{dItem.Id}}" {{# if(dItem.IsSelect){ }} class="checked" {{# } }}>
+                                                <div class="MealTable-title" style="line-height: 30px;height: 30px;font-size:16px;">{{dItem.ProjectExtendName}}{{# if(dItem.Unit){ }}（{{dItem.Unit}}）{{# } }}</div>
+                                                <div class="MealTable-footer">
+                                                    <span class="MealTable-price">{{dItem.Price}}</span>
+                                                </div>
+                                            </li>
+                                            {{# }); }}
+                                            {{# } }}
+                                            {{# }); }}
+                                        </ul>
+                                    </div>
+                                    <div class="layui-tab-item MealTable-lists">
+                                        <div class="class-group">
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-type="all">全部</a>
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 2){ }}
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-Id="{{item.Id}}" data-type="{{item.ExtendType}}">{{item.Name}}</a>
+                                            {{# } }}
+                                            {{# }); }}
+                                        </div>
+                                        <ul class="list">
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 2){ }}
+                                            {{# layui.each(item.ProjectExtendDTOList, function(dIndex, dItem){ }}
+                                            <li data-type="{{item.ExtendType}}" data-type-id="{{item.Id}}" data-id="{{dItem.Id}}" {{# if(dItem.IsSelect){ }} class="checked" {{# } }}>
+                                                <div class="MealTable-title" style="line-height: 30px;height: 30px;font-size:16px;">{{dItem.ProjectExtendName}}{{# if(dItem.Unit){ }}（{{dItem.Unit}}）{{# } }}</div>
+                                                <div class="MealTable-footer">
+                                                    <span class="MealTable-price">{{dItem.Price}}</span>
+                                                </div>
+                                            </li>
+                                            {{# }); }}
+                                            {{# } }}
+                                            {{# }); }}
+                                        </ul>
+                                    </div>
+                                    <div class="layui-tab-item MealTable-lists">
+                                        <div class="class-group">
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-type="all">全部</a>
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 3){ }}
+                                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-Id="{{item.Id}}" data-type="{{item.ExtendType}}">{{item.Name}}</a>
+                                            {{# } }}
+                                            {{# }); }}
+                                        </div>
+                                        <ul class="list">
+                                            {{# layui.each(d, function(index, item){ }}
+                                            {{# if(item.ExtendType == 3){ }}
+                                            {{# layui.each(item.ProjectExtendDTOList, function(dIndex, dItem){ }}
+                                            <li data-type="{{item.ExtendType}}" data-type-id="{{item.Id}}" data-id="{{dItem.Id}}" {{# if(dItem.IsSelect){ }} class="checked" {{# } }}>
+                                                <div class="MealTable-title" style="line-height: 30px;height: 30px;font-size:16px;">{{dItem.ProjectExtendName}} {{# if(dItem.Unit){ }}（{{dItem.Unit}}）{{# } }}</div>
+                                                <div class="MealTable-footer">
+                                                    <span class="MealTable-price">{{dItem.Price}}</span>
+                                                </div>
+                                            </li>
+                                            {{# }); }}
+                                            {{# } }}
+                                            {{# }); }}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layer-btns-bottom">
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form2">下一步</button>
+                            <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <div class="layui-tab-item">
+                <div class="detail-tips">
+                    <h3 class="text-danger">请先填写并提交基本资料</h3>
+                </div>
+                <div id="photo-setting" style="display:none;">
+                    <div id="photoContainer_view" class="clearfix">
+                    </div>
+                    <script id="photoContainer_tpml" type="text/html">
+                        {{# layui.each(d, function(index, item){ }}
+                        <div class="item" data-index="{{index}}">
+                            <div class="item-con">
+                                <div class="del">删除</div>
+                                <img src="{{item.FilePath + item.FileName + item.FileExt}}" />
+                                <div class="enlarge" title="查看大图" data-index="{{index}}" data-img-url="{{item.FilePath + item.FileName + item.FileExt}}"><i class="layui-icon">&#xe615;</i></div>
+                            </div>
+                        </div>
+                        {{# }); }}
+                    </script>
+                    <div class="layer-btns-bottom">
+                        <span style="float:left;line-height:39px;font-size:16px;font-weight: bold;">提示：图片支持拖拽排序，且第一张默认为封面图</span>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form3">完成</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="detail-tips">
+                    <h3 class="text-danger">请先填写并提交基本资料</h3>
+                </div>
+                <div id="file-photo" style="display:none;">
+                    <div id="uploader" class="wu-example">
+                        <div class="queueList">
+                            <div id="dndArea" class="placeholder">
+                                <div id="filePicker"></div>
+                                <p>或将照片拖到这里，单次最多可选10张，且每张图片不能大于10M</p>
+                            </div>
+                        </div>
+                        <div class="statusBar" style="display:none;">
+                            <div class="progress">
+                                <span class="text">0%</span>
+                                <span class="percentage"></span>
+                            </div>
+                            <div class="info"></div>
+                            <div class="btns">
+                                <div id="filePicker2"></div>
+                                <div class="uploadBtn">开始上传</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layer-btns-bottom">
+                        <button class="layui-btn" onclick="element.tabChange('docDemoTabBrief', 'photo')">图片管理</button>
+                        <button class="layui-btn layui-btn-normal" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">完成</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(Plugin.Instance.Name, "webuploaderJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "webuploaderDropJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "dropDadJS")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+
+
+<script type="text/javascript">
+
+    layui.use(['element', 'form', 'layer','layedit','laytpl'], function () {
+        element = layui.element,
+        layer = layui.layer,
+        layedit = layui.layedit,
+        laytpl = layui.laytpl,
+        form = layui.form;
+
+        var layeditIndex = layedit.build('Describe', {tool: ['strong','italic','underline','del','|','left','center','right','link','unlink','face'], height: 150 });
+
+		Sorted = 0;//图片排序用
+		ProjectId = @Project.Id;
+		var $specialRequirements = $('#specialRequirements');
+		var winW = $(window).width();
+		var winH = $(window).height();
+        var specialRequirementsTpml = specialRequirements_tpml.innerHTML;
+		var	specialRequirementsView = document.getElementById('specialRequirements');
+		//图片排序模板
+        var photoContainerTpml = photoContainer_tpml.innerHTML;
+		var	photoContainerView = document.getElementById('photoContainer_view');
+		if(ProjectId) {
+			GetProjectData(ProjectId);
+		}
+
+		if(@Project.ExtractType>0){
+            $('input#ExtractPrice').show().css('display', 'inline-block');
+		}
+
+		hintTips($('.help-tips'),function($this){
+			return $this.attr('data-tips')
+		})
+
+        //监听 是否开启 库存按钮点击 ，显示库存输入框
+        form.on('checkbox(IsStock)', function (data) {
+            if (data.elem.checked == true) {
+                $('input#Stock').show();
+            } else {
+            	var Stock = $('input#Stock')
+                Stock.hide();
+                if(Stock.val() === ""){
+                	Stock.val(0);
+                }
+            }
+        });
+
+        form.on('radio(ExtractType)', function (data) {
+            //debugger;
+			if(data.value>0){
+				$('input#ExtractPrice').show().css('display','inline-block');
+			}else{
+				$('input#ExtractPrice').hide();
+				$('input#ExtractPrice').val(0);
+			}
+        });
+
+        element.on('tab(docDemoTabBrief)', function(data){
+			if(data.index == 1){
+				setTimeout(requirementsAuto,100)
+			}
+		});
+
+
+        //菜品选择后  自动获取是否打折
+		form.on('select(Category_Id)', function(data){
+			var index = $(data.elem).find("option:selected").attr("discount") ? 1 : 0;
+			$('#IsDiscount>input[type=radio]').eq(index).prop("checked",true);
+			form.render('radio')
+		});
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+//      	if(ProjectId) {
+//      		element.tabChange('docDemoTabBrief', 'detail')
+//				return false;
+//			}
+        	var Stock = $('#Stock')
+            var sValue = Stock.val();
+            if((sValue < 0  || isNaN(sValue) || sValue === "")){
+            	layer.msg('库存必须为正整数且不能为空', {icon: 5,shift: 6})
+        		Stock.focus();
+        		return false;
+            }
+
+            if (data.field.IsStock == "1") {
+                data.field.IsStock = true;
+            } else {
+                data.field.IsStock = false;
+            }
+            data.field.Description = layedit.getContent(layeditIndex);
+            $.ajax({
+                type: "post",
+                url: "/Res/Project/Edit",
+                dataType: "json",
+                data: data.field,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] > 0) {
+                    	ProjectId = data["Data"];
+
+                        element.tabChange('docDemoTabBrief', 'detail')
+						GetProjectData(data["Data"]);
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+        function GetProjectData(ID) {
+			$('.layui-tab-item .detail-tips').hide().next().show();
+			$.ajax({
+				type: "get",
+				url: "/Res/Project/NewEditExtend?id=" + ProjectId,
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+				success: function(data, textStatus) {
+					console.log(data)
+					inidata = data.Data;
+					laytpl(specialRequirementsTpml).render(inidata.Extends, function(html) {
+						specialRequirementsView.innerHTML = html;
+
+
+
+						var tabNav = $specialRequirements.find('.class-tab-nav')
+						//特殊要求自适应
+						tabNav.height(winH - 130);//导航栏自适应
+
+						requirementsAuto();//内容自适应
+
+						var item = $specialRequirements.find('.layui-tab-content .MealTable-lists');
+			        	var list = item.children('.list');
+			        	var groupBtn = item.children('.class-group');
+
+						//特殊要求 => 导航栏 点击事件
+			        	tabNav.children('li').on('click',function(){
+			        		if($(this).hasClass('layui-show'))return;
+							var index = $(this).index();
+							$(this).addClass('layui-this').siblings().removeClass('layui-this');
+							$(this).closest('.class-tab').find('.MealTable-lists').eq(index).addClass('layui-show').siblings().removeClass('layui-show');
+							requirementsAuto();
+						})
+
+			        	//条件筛选
+			        	groupBtn.children('.layui-btn').on('click',function(){
+			        		if($(this).hasClass('layui-this'))return;
+			        		var Id = $(this).attr('data-id');
+			        		var Type = $(this).attr('data-type');
+			        		var li = $(this).closest('.MealTable-lists').find('.list li');
+			        		$(this).addClass('layui-this').siblings().removeClass('layui-this');
+			        		if(Type == 'all'){
+			        			li.show();
+			        		}else{
+			        			li.hide().filter('[data-type-id=' + Id + '][data-type=' + Type + ']').show();
+			        		}
+			        	})
+
+			        	//特殊要求 => 选择要求
+			        	list.children('li').on('click',function(){
+			        		if($(this).hasClass('checked')){
+			        			$(this).removeClass('checked');
+			        		}else{
+			        			$(this).addClass('checked');
+			        		}
+			        	})
+
+					});
+					Sorted = inidata.Images.length;
+					photoSortUpdate(inidata.Images);
+				}
+			})
+		}
+
+        //特殊要求 右侧要求选择  自适应
+        function requirementsAuto(){
+        	//要求自适应
+        	var item = $specialRequirements.find('.layui-tab-content .layui-show');
+        	var list = item.children('.list');
+        	var listW = winW - 150;
+        	var groupBtn = item.children('.class-group');
+        	list.height(winH - 180 - groupBtn.height());
+        	list.children().css('width',( listW / Math.floor(listW / 150) ) - 13);
+        }
+
+
+        //特殊要求提交
+        form.on('submit(form2)', function (data) {
+            var modules = [];
+
+			$specialRequirements.find('.list li').each(function(){
+				if($(this).hasClass('checked')){
+					modules.push($(this).attr('data-id'));
+				}
+			})
+
+            var para = { Id: ProjectId, Extends: modules };
+
+            $.ajax({
+                type: "post",
+                url: "/Res/Project/SubmitExtend",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(para),
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                    	parent.layer.msg('提交完成')
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+//                      layer.confirm("提交完成", {
+//                          btn: ['继续操作', '取消'] //按钮
+//                      }, function () {
+//                          location.reload();
+//                      }, function () {
+//                          parent.layer.closeAll();
+//                      });
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+        //图片上传提交
+        form.on('submit(form3)', function (data) {
+        	var ImagesData = [];
+        	$('#photoContainer_view .item').each(function(i){
+        		var index = $(this).closest('.item').attr('data-index');
+        		ImagesData.push(inidata.Images[index]);
+        		i == 0 ? ImagesData[i].IsCover = true : ImagesData[i].IsCover = false;
+        		ImagesData[i].Sorted = i;
+        	})
+
+        	if(ImagesData.length > 0){
+        		$.ajax({
+		            type: "post",
+		            url: "/Res/Project/BathUpdateProjectImage",
+		            dataType: "json",
+		            data: {req:ImagesData},
+		            beforeSend: function (XMLHttpRequest) {
+		                layindex = layer.open({type: 3});
+		            },
+		            complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+		            success: function (data, textStatus) {
+		            	console.log(data)
+		                if (data["Data"] == true) {
+		                	layer.confirm("提交完成", {
+	                            btn: ['继续操作', '退出']
+	                        }, function (index) {
+	                            layer.close(index);
+	                        }, function () {
+	                            parent.layer.closeAll();
+	                        });
+		                } else {
+		                    data["Message"] && layer.alert(data["Message"]);
+		                }
+		            }
+		        });
+        	}else{
+        		layer.confirm("提交完成", {
+                    btn: ['继续操作', '退出']
+                }, function (index) {
+                    layer.close(index);
+                }, function () {
+                    parent.layer.closeAll();
+                });
+        	}
+
+
+//      	parent.layer.msg('提交完成')
+//			parent.layer.close(parent.layer.getFrameIndex(window.name));
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+
+
+        //图片上传	开始
+        uploader = '';//用于监控是否创建
+        element.on('tab(docDemoTabBrief)', function(data){
+        	if($(this).attr('lay-id') == 'filePhoto' && uploader == ""){
+        		uploader = webUploaderCreate({
+					ele:'#uploader',
+					url:'/Res/Project/ImageUpload',
+					beforSendCallBack(obj,data,headers){
+						data.Id = 0;
+				        data.Source_Id = ProjectId;
+				        data.IsCover = Sorted == 0;
+				        data.Sorted = Sorted++;
+				        data.CyxmTpSourceType = 1;
+					},
+					successCallBack:function(file,response){
+//						console.log(response)
+					},
+					finishCallBack:function(){
+						$.ajax({
+							type: "get",
+							url: "/Res/Project/NewEditExtend?id=" + ProjectId,
+							contentType: "application/json; charset=utf-8",
+							dataType: "json",
+							async: false,
+							beforeSend: function (XMLHttpRequest) {
+				                layindex = layer.open({type: 3});
+				            },
+				            complete: function (XMLHttpRequest, textStatus) {
+				                layer.close(layindex);
+				            },
+							success: function(data, textStatus) {
+								$('#uploader .filelist').empty();//清空已上传图片
+								$('#dndArea').removeClass('element-invisible');
+								$('#filePicker > div').eq(1).css('left',$('#filePicker').width()/2-84);//恢复按钮定位
+								inidata = data.Data;
+//                      		element.tabChange('docDemoTabBrief', 'photo');
+
+								Sorted = inidata.Images.length;
+								photoSortUpdate(inidata.Images);
+
+								layer.msg('上传成功');
+							}
+						})
+					}
+				})
+
+        	}
+		});
+
+		//图片排序更新
+		function photoSortUpdate(data){
+			//已上传图片渲染
+			laytpl(photoContainerTpml).render(data, function(html) {
+				photoContainerView.innerHTML = html;
+
+				$('#photoContainer_view img').on('mousedown',function (e) {
+				    e.preventDefault()
+				})
+
+				$('#photoContainer_view .del,#photoContainer_view .enlarge').on('mousedown',function(e){
+					e.stopPropagation()
+				})
+
+				//查看大图
+				$('#photoContainer_view .enlarge').on('click',function(e){
+					var index = $(this).attr('data-index');
+					var $url = $(this).attr('data-img-url');
+					parent.parent.bigPhotoUpdateAndShow(inidata.Images,index)
+				})
+
+				//拖拽
+				$('#photoContainer_view').dad();
+
+				$('#photoContainer_view .del').on('click',function(e){
+					var item = $(this).closest('.item');
+					var Id = inidata.Images[item.attr('data-index')].Id;
+					$.ajax({
+		                type: "post",
+		                url: "/Res/Project/DeleteProjectImage",
+		                dataType: "json",
+		                data: {Id:Id},
+		                beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+		                success: function (data, textStatus) {
+		                    if (data["Data"] == true) {
+		                    	item.remove();
+		                    	Sorted == 0 ? Sorted = 0 : Sorted--;//排序
+		                    	console.log(Sorted)
+		                    	layer.msg('删除成功')
+		                    } else {
+		                        data["Message"] && layer.alert(data["Message"]);
+		                    }
+		                }
+		            });
+				})
+			});
+		}
+
+
+        //图片上传	结束
+    });
+</script>
+
+

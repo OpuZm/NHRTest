@@ -1,0 +1,296 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "自定义按钮";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "colpickStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+		html,body{width:100%;height:100%;}
+		
+		.layui-tab-card{height:100%;}
+		.layui-tab-card,.layui-tab-card>.layui-tab-title{background:#fff;}
+		.layui-tab-card>.layui-tab-title .layui-this{background:#009688;color:#fff}
+		.layui-tab-card .layui-tab-content{height:calc(100% - 41px);}
+		.layui-tab-card .layui-tab-item {height:100%;}
+		
+		.container{width:90%;margin:0 auto;height:90%;padding:2% 0;}
+		.content{width:100%;height:calc(100% - 70px);padding-bottom:10px;}
+		.card{border:1px solid #bbb;flex: 1;box-sizing: border-box;border-radius: 8px;overflow: hidden;}
+		.card-list{display: flex;height:100%;}
+		.card-list .card{margin-right:20px;}
+		.card-list .card:last-child{margin-right:0;}
+		.card-header{text-align: center;background:#009688;color:#fff;padding:15px 20px;font-size:20px;}
+		.card-body{padding: 20px;height:calc(100% - 56px);overflow: auto;box-sizing: border-box;}
+		.card-body .layui-btn{margin:5px;float:left;}
+		.card-body .layui-btn.sortable-ghost{opacity: 0.5;}
+		.card-body a{position: relative;overflow: hidden;}
+		.card-body a i{width:20px;height:20px;line-height:20px;border-radius:50%;position: absolute;right:0;top:0;color:#fff;transform: translateY(-100%);transition: all ease .2s;background:#FF5722;}
+		.card-body a:hover i{transform: translateY(0);}
+		
+		
+		body.selected a:hover i{transform: translateY(-100%);transition:all ease 0s}
+		
+		.btns{width:100%;text-align: center;}
+		/*颜色*/
+		.color-box{width:30px;height:30px;background:#fff;border:1px solid #000;margin:3px;display: inline-block;border-radius: 4px;}
+	</style>
+</head>
+<body>
+    <div class="container">
+    	<div class="layui-tab layui-tab-card">
+		  	<ul class="layui-tab-title">
+				<li class="layui-this">PC</li>
+				<li>平板</li>
+			</ul>
+			<div class="layui-tab-content">
+				<div class="layui-tab-item layui-show">
+					<div class="content">
+				    	<div class="card-list"></div>
+			    	</div>
+			    	<div class="btns">
+			    		<a href="javascript:;" class="layui-btn layui-btn-normal layui-btn-lg" onclick="submit(0);">确认</a>
+			    		<a href="javascript:;" class="layui-btn layui-btn-primary layui-btn-lg" onclick="btnsSorted(0);">重置</a>
+			    	</div>
+				</div>
+				<div class="layui-tab-item">
+					<div class="content">
+				    	<div class="card-list"></div>
+			    	</div>
+			    	<div class="btns">
+			    		<a href="javascript:;" class="layui-btn layui-btn-normal layui-btn-lg" onclick="submit(1);">确认</a>
+			    		<a href="javascript:;" class="layui-btn layui-btn-primary layui-btn-lg" onclick="btnsSorted(1);">重置</a>
+			    	</div>
+				</div>
+			</div>
+		</div>
+    </div>
+</body>
+</html>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "colpickJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "SortableJS")
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+	var $list = $('.content .card-list');
+	layui.use(['element', 'table', 'layer'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+            table = layui.table;
+        
+        reload()
+  	})
+	
+	function btnsSorted(){
+		//PC端
+		btnRender(0)
+		btnRender(1)
+    	
+    	//拖拽方法绑定
+    	$('.content').each(function(i){
+    		$(this).find('.card-body').each(function(){
+				Sortable.create($(this).get(0), {
+					group: 'photo',
+					animation: 150,
+					onStart:function(evt){ 
+					},
+					onEnd:function(evt){
+						$('body').removeClass('selected')
+					},
+				});
+			});
+    	})
+    }
+	
+	function btnRender(index){
+		Modules = index == 0 ? initdata.Modules : initdata.ModulesFlat;
+		Buttons = index == 0 ? initdata.Buttons : initdata.ButtonsFlat;
+		var thisList = $list.eq(index)
+		thisList.empty();
+    	for(var i=0;i<Modules.length;i++){
+    		thisList.append('<div class="card"><div class="card-header">'+Modules[i]+'</div><div class="card-body layui-btn-container clearfix"></div></div>')
+    	}
+    	
+    	var $card = thisList.find('.card-body');
+    	for(var i=0;i<Buttons.length;i++){
+    		var index = Modules.indexOf(Buttons[i].ModuleName)
+    		if(index > -1){
+    			$card.eq(index).append('<a href="javascript:;" class="layui-btn" style="background:'+Buttons[i].Colour+';" data-id="'+Buttons[i].Id+'"><span>'+Buttons[i].FunctionName+'</span><i class="iconfont" title="设置">&#xe609;</i></a>')
+    		}
+    	}
+	}
+	
+	//阻止拖动时显示设置图标
+	$(document).on('mousedown','.card-body a',function(){
+		$('body').addClass('selected')
+	})
+	$(document).on('mouseup','.card-body a',function(){
+		$('body').removeClass('selected')
+	})
+	
+	//按钮设置
+	$(document).on('mousedown','.card-body a i',function(e){
+		e.stopPropagation();
+		var $this = $(this);
+		var $btn = $this.closest('a');
+		var bgColor = rgb2hex($btn.css('background-color'));
+		var Text = $btn.children('span').html();
+		var html = '<form class="layui-form" id="btnSettingFrom" style="padding:20px 40px 0 0;" onkeydown="if(event.keyCode==13){return false;}">'+
+						'<div class="layui-form-item">'+
+							'<label class="layui-form-label">颜色:</label>'+
+							'<div class="layui-input-inline">'+
+								'<div class="color-box"></div>'+
+								'<input type="hidden" name="backgroundColor" value="'+bgColor+'"/>'+
+							'</div>'+
+						'</div>'+
+						'<div class="layui-form-item">'+
+							'<label class="layui-form-label">名称:</label>'+
+							'<div class="layui-input-inline">'+
+								'<input class="layui-input" type="text" id="btnName" name="name" placeholder="请输入名称" value="'+Text+'"/>'+
+							'</div>'+
+						'</div>'+
+					'</form>'
+		layer.open({
+            type: 1
+            , title: '按钮设置'
+            , content: html
+            , zIndex: 2000
+            , success: function (layero, index) {
+            	var $box = layero.find('.color-box')
+            	$box.css('background-color', bgColor);
+		        $box.colpick({
+		            colorScheme: 'dark',
+		            submit: 0,
+		            color: bgColor,
+		            layout: 'hex',
+		            onChange: function (hsb, hex, rgb, el, bySetColor) {
+		                if (!bySetColor) {
+		                    var $input = $(el).next();
+		                    $(el).css('background-color', '#' + hex);
+		                    $input.val('#' + hex);
+		                }
+		            }
+		        })
+		        
+		        $('#btnName').on('focus', function () {
+                    $(this).on('keydown', function (e) {
+                        if (e.keyCode == 13) {
+                            layero.find('.layui-layer-btn0').click();
+                        }
+                    });
+                }).on('blur', function () {
+                    $(this).off('keydown')
+                });
+		        
+            }
+            , btn: ['确认', '取消']
+            , yes: function (index, layero) {
+            	var data = erializeFormJSON($('#btnSettingFrom').serializeArray());
+            	$btn.css('background',data.backgroundColor);
+            	$btn.children('span').html(data.name);
+            	layer.close(index)
+            }
+            , btn2: function (index, layero) {
+            }
+        });
+	})
+	
+	function submit(index){
+		var Buttons = index == 0 ? initdata.Buttons : initdata.ButtonsFlat;
+		var $card = $list.eq(index).find('.card-body');
+		for(var i=0;i<$card.length;i++){
+			var btns = $card.eq(i).find('a');
+			for(var j=0;j<btns.length;j++){
+				var Id = btns.eq(j).attr('data-id');
+				var Text = btns.eq(j).children('span').html();
+				var color = rgb2hex(btns.eq(j).css('background-color'));
+				for(var x=0;x<Buttons.length;x++){
+					if(Buttons[x].Id == Id){
+						Buttons[x].Sorted = j;
+						Buttons[x].ModuleName = index == 0 ? initdata.Modules[i] : initdata.ModulesFlat[i];
+						Buttons[x].FunctionName = Text;
+						Buttons[x].Colour = color;
+						break;
+					}
+				}
+			}
+		}
+		$.ajax({
+	        type: "post",
+	        url: "/res/CustomConfig/EditOrderChoseProjectConfig",
+	        contentType : "application/json; charset=utf-8",
+			dataType:"json",
+	        data:JSON.stringify({req:Buttons}),
+	        beforeSend: function (XMLHttpRequest) {
+	            layindex = layer.open({type: 3});
+	        },
+	        complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+	        success: function (data, textStatus) {
+	        	if(data.Data){
+	        		layer.msg('提交成功');
+	        		reload()
+	        	}else{
+	        		layer.msg(data.Message)
+	        	}
+	        }
+	    });
+	}
+	
+	//初始化渲染刷新
+	function reload(){
+		$.ajax({
+	        type: "post",
+	        url: "/res/CustomConfig/GetOrderChoseProjectConfig",
+	        dataType: "json",
+	        //contentType: "application/json; charset=utf-8",
+	        beforeSend: function (XMLHttpRequest) {
+	            layindex = layer.open({type: 3});
+	        },
+	        complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+	        success: function (data, textStatus) {
+	        	initdata = data
+	        	btnsSorted();
+	        }
+	    });
+	}
+	
+	
+	function rgb2hex(rgb) {
+		rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+		function hex(x) {
+		return ("0" + parseInt(x).toString(16)).slice(-2);
+		}
+		return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+	}
+	
+	function erializeFormJSON(data) {
+ 
+        var o = {};
+//      var a = this.serializeArray();
+        $.each(data, function () {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+</script>

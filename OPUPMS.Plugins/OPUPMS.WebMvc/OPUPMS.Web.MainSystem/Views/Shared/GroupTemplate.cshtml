@@ -1,0 +1,39 @@
+﻿
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>@ViewBag.Title OPUPMS快速开发平台</title>
+    <meta charset="UTF-8">
+    
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle")
+    @StylesEx.Render(FrameworkInfo.Name, "CommonStyle")
+    @*@StylesEx.Render(Plugin.Instance.Name, "RootStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "GlobalStyle")*@
+    
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "JqUnobtrusiveMinJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "JqValidateUnobtrusiveMinJs")
+
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    @*<div class="loader-box">
+    <div class="opu-loader">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("images/opu-icon.svg"))" alt="">
+        <div class="loader"></div>
+        </div>
+    </div>*@
+    @RenderBody()
+    @Html.AntiForgeryToken()
+
+</body>
+</html>
+

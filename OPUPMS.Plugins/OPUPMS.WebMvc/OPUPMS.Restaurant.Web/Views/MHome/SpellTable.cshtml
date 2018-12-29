@@ -1,0 +1,357 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "开台";
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    TableCreateDTO Table = ViewBag.Table;
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    List<AreaListDTO> Areas = ViewBag.Areas;
+    List<TableListDTO> TableList = ViewBag.TableList;
+    var SellerList = ViewBag.SellerList;
+    var UserName = ViewBag.UserName;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>开台</title>
+@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+@StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+<style>
+	html,body,.container.flex{height:100%;}
+	.container.flex{overflow-y: auto;}
+	#moreInfoBtn{padding: 0 30px 15px;;cursor:pointer;user-select:none;}
+	#moreInfoBtn fieldset{border-width:1px 0 0;border-color: #ddd;border-style:solid;padding:0;}
+	#moreInfoBtn legend{padding:0 10px;text-align:right;color:#666;}
+	#moreInfoBtn i{color:#666;display:inline-block;-webkit-transition: all .2s;
+	-moz-transition: all .2s;
+	-ms-transition: all .2s;
+	-o-transition: all .2s;
+	transition: all .2s;}
+	#moreInfoBtn.expand i{-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	transform: rotate(90deg);}
+	
+</style>
+</head>
+<body>
+<div class="container flex">
+    <!-- ▼开台表单 -->
+    <form class="layui-form" action="" style="width:100%;">
+    <div class="StartDesk-form flex-item" style="width:100%;margin-right:0;padding-bottom:60px;">
+      	<input type="hidden" value="@Table.RestaurantId" name="R_Restaurant_Id"/>
+        <blockquote class="label-title">基础信息</blockquote>
+        <div class="layui-row">
+                
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">就餐人数</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="PersonNum" id="PersonNum" placeholder="点击输入" title="就餐人数" data-type="number" onfocus="ShowKeyboard(this.name)" lay-verify="required" class="layui-input" lay-required-msg="请输入就餐人数">
+                    <a  class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                    <span class="required"></span>
+                </div>
+                </div>
+            </div>
+
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">分市</label>
+	                <div class="layui-input-inline">
+	                    <select name="R_Market_Id" lay-required-msg="请选择分市" lay-verify="required">
+	                    @{          
+                            if (Markets != null)
+                            {
+                                if (!Markets.Where(x => x.IsDefault).Any())
+                                {
+                                <option value="0">请选择</option>
+                                }
+                                foreach (var item in Markets)
+                                {
+	                            <option value="@item.Id" @(item.IsDefault ? "selected='selected'" : "")>@item.Name</option>
+                                }
+                            }
+                        }
+	                    </select>  
+	                    <span class="required"></span>
+	                </div>
+                </div>
+            </div>
+            
+
+            @*<div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">业务部门</label>
+                    <div class="layui-input-inline">
+                        <select name="BillDepartMent" lay-verify="required" lay-required-msg="请选择业务部门" lay-search>
+                            @{
+                                if (SellerList != null)
+                                {
+                                    <option value="">请选择</option>
+                                    foreach (var item in SellerList)
+                                    {
+                                        <option value="@item.SysCode">@item.SysCodeName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        <span class="required"></span>
+                    </div>
+                </div>
+            </div>
+			<!--<div class="layui-col-md6">
+				<div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline" style="text-align: right;">
+                        <a class="layui-btn layui-btn-normal" id="moreInfoBtn">更多<i class="layui-icon">&#xe623;</i></a>
+                    </div>
+                </div>
+			</div>-->
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">业务员</label>
+                    <div class="layui-input-inline">
+                        <select name="BillingUser" lay-verify="">
+                            @{
+                                if (SellerList != null)
+                                {
+                                    <option value="0">请选择</option>
+                                    foreach (var item in SellerList)
+                                    {
+                                        <option value="@item.UserId">@item.UserName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+        </div>
+        <div id="moreInfoBtn">
+        	<fieldset class="">
+  				<legend>更多<i class="layui-icon">&#xe623;</i></legend>
+			</fieldset>
+        </div>
+    	<!--更多信息填写-->
+    	<div class="more-info layui-row">
+    		<div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">客源类型</label>
+                <div class="layui-input-inline">
+                    <select name="CyddOrderSource" lay-verify="">
+                        @{
+                            if (CustomerSources != null)
+                            {
+                                foreach (var item in CustomerSources)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">联系人</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ContactPerson" id="name" placeholder="点击输入" title="联系人" value="" data-type="text" onfocus="ShowKeyboard(this.name)"  class="layui-input">
+                    <a  class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                </div>
+                </div>
+            </div>
+
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户</label>
+                    <div class="layui-input-inline">
+                        <select name="CustomerId" lay-verify="" lay-search>
+                            @{
+                                if (Customers != null)
+                                {
+                                    foreach (var item in Customers)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">联系电话</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ContactTel" placeholder="点击输入" title="联系人" value="" data-type="number" onfocus="ShowKeyboard(this.name)"  class="layui-input">
+                    <a  class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                </div>
+                </div>
+            </div>
+            
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+	                <label class="layui-form-label">订单类型</label>
+	                <div class="layui-input-inline">
+	                    <select name="OrderType" lay-verify="" >
+                            @{
+                                if (OrderTypes != null)
+                                {
+                                    foreach (var item in OrderTypes)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+						</select> 
+	                </div>
+	            </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">操作员</label>
+                    <div class="layui-input-inline">
+                        <div disabled class="layui-input" style="line-height: 32px;">@UserName</div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs6 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+	                <label class="layui-form-label">备注</label>
+	                <div class="layui-input-inline">
+	                    <textarea name="Remark" placeholder="请输入内容" class="layui-textarea"></textarea>
+	                </div>
+	            </div>
+            </div>
+    	</div>
+    </div>
+    <div class="layer-btns-bottom">
+        <button class="layui-btn layui-btn-normal" lay-submit="" lay-filter="OpenTable">确认</button>
+        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+    </div>
+    <!-- ▲开台表单 -->
+   </form>
+</div>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script src="~/signalr/hubs"></script>
+<script>
+
+//获取参数
+isDisable = false; //开台是否可点击  控制器
+layui.use(['element', 'form'], function () {
+    var element = layui.element,
+        form = layui.form;
+
+    $('input[name="PersonNum"]').focus();
+    
+    var tableIds = [window.location.href.substring(window.location.href.indexOf("SpellTable/") + 11)];//台号
+	
+    form.on('submit(OpenTable)', function (data) {
+    	if(isDisable)return false;//阻止多次提交
+    	
+        var name = data.elem.name;
+
+        var formdata = data.field;
+        var Tablelists = $('#Table_lists li');
+        var tabIds = [];
+        for (var i = 0; i < Tablelists.length; i++) {
+            var tableid = Tablelists.eq(i).find('.MealTable-number').text();
+            var Num = Tablelists.eq(i).find('.add_minus input').val();
+            tabIds.push(tableid);
+        }
+        
+        if (formdata.R_Market_Id == 0 || formdata.R_Market_Id == null)
+        {
+            layer.alert("请选择分市！");
+            return false;
+        }
+
+        var chat = $.connection.systemHub;
+        chat.hubName = 'systemHub';
+        chat.connection.start();
+        var para = { req: formdata, TableIds: tableIds };
+        
+        layindex = layer.open({type: 3});
+		isDisable = true;
+        //提交数据
+        $.ajax({
+            url: "/Res/Home/OpenUsingTableCreate",
+            data: JSON.stringify(para),
+            type: "post",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            async: true,
+            success: function (data, textStatus) {
+                var res = data.Data;
+                if(data.Data){
+					layer.confirm('提交完成', {
+						btn: ['跳转新订单','继续操作本订单']
+					}, function(index, layero){
+						$.ajax({
+					        type: "post",
+					        url: "/Res/Order/UpdateOrderTableIsControl",
+					        dataType: "json",
+					        data: {ordertableIds: parent.OrderTableIds,isControl: false},
+					        async: false,
+					        success: function (data, textStatus) {
+					            if (data.Data == true) {
+									$.connection.hub.start().done(function() {
+										chat.server.notifyResServiceRefersh(true);
+										parent.location.replace("/Res/MHome/BatchChoseProject?OrderTableIds=" + res.OrderTableIds[0]);
+									});
+					            } else {
+					                layer.alert(data.Message);
+					            }
+					        }
+					    });
+					}, function(index){
+						$.connection.hub.start().done(function () {//通知刷新工作台界面
+		                    chat.server.notifyResServiceRefersh(true);
+		                    parent.layer.closeAll();
+		                });
+					});
+					
+                }
+            }
+        });
+        return false;
+
+    });
+	
+	
+	//更多按钮
+	$('#moreInfoBtn').on('click',function(){
+		if($(this).hasClass('disable'))return;
+		var _this = $(this)
+		var $moreDiv = $('.more-info');
+		$moreDiv.slideToggle(200);
+		$(this).addClass('disable');
+		if($(this).hasClass('expand')){
+			$(this).removeClass('expand');
+		}else{
+			$(this).addClass('expand');
+		}
+		setTimeout(function(){_this.removeClass('disable')},200)
+	})
+	
+	//更多   提示信息
+	hintTips($('#moreInfoBtn legend'),"展开更多信息");
+	
+});
+</script>
+</body>
+</html>

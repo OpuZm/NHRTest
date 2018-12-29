@@ -1,0 +1,131 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Edit</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-form-item .layui-input-inline{left:0 !important;}
+    </style>
+</head>
+<body>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+	    	<form class="layui-form form-col-two" id="SubmitForm">
+	            <div class="layui-row">
+	                <div class="layui-form-item" style="width: 100%;">
+	                    <label class="layui-form-label">类型：</label>
+                        <div class="layui-input-inline">
+                            <select id="CauseType" name="CauseType" lay-verify="required" lay-filter="Category_Id" lay-required-msg="请选择类别" lay-search>
+                                <option value="">请选择</option>
+                                <option value="1">赠菜</option>
+                                <option value="2">退菜</option>
+                            </select>
+                        </div>
+	                </div>                 
+	                <div class="layui-form-item" style="width: 100%;">
+	                    <label class="layui-form-label">理由：</label>
+	                    <div class="layui-input-block">
+	                    	<input type="text" class="layui-input" id="Remark" name="Remark" placeholder="请输入理由" lay-verify="required" lay-required-msg="请输入理由">
+	                    </div>
+	                </div>
+	                
+	                <div class="layer-btns-bottom">
+	            		<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+	                    <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+	                </div>
+	
+	            </div>
+	        </form>
+	    </div>
+    </div>
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+	@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+	@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+	@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+	@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+	<script>
+		var id = getUrlParam('id') || 0;
+		layui.use(['element', 'form', 'layer', 'layedit'], function () {
+	        var element = layui.element,
+	            layer = layui.layer,
+	            layedit = layui.layedit,
+	            form = layui.form;
+			
+			
+	        if(id > 0){
+	        	$.ajax({
+	                type: "get",
+	                url: "/Res/OrderDetailCause/GetModel",
+	                dataType: "json",
+	                //contentType: "application/json; charset=utf-8",
+	                data: {id:id},
+	                async: false,
+	                beforeSend: function (XMLHttpRequest) {
+	                    layindex = layer.open({type: 3});
+	                },
+	                complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+	                success: function (data, textStatus) {
+	                	if(data.Data){
+	                		$('#CauseType').val(data.Data.CauseType)
+		                	$('#Remark').val(data.Data.Remark)
+		                	form.render();
+	                	}else{
+	                		layer.alert(data.Message)
+	                	}
+	                }
+	            });
+	        }
+	        
+	        
+	
+	        //基本要求提交
+	        form.on('submit(form1)', function (data) {
+	        	var Rate = $('#DiscountRate input');
+	            var value = Rate.val();
+	            var sorted = $("#Sorted").val();
+	            var params = data.field;
+	            if(id > 0)params.id = id;
+	            $.ajax({
+	                type: "post",
+	                url: "/Res/OrderDetailCause/Edit",
+	                dataType: "json",
+	                //contentType: "application/json; charset=utf-8",
+	                data: params,
+	                async: false,
+	                beforeSend: function (XMLHttpRequest) {
+	                    layindex = layer.open({type: 3});
+	                },
+	                success: function (data, textStatus) {
+	                    if (data["Data"] == true) {
+	                        parent.layer.msg('提交完成')
+	                        var curr = parent.isEdIT ? parent.location.hash.replace('#!fenye=', '') : 1;
+				            parent.location.hash = '#!fenye=' + curr;
+				            parent.table.reload('table', {
+				                where: parent.para
+				                ,page: {
+								    curr: curr //重新从第 1 页开始
+								}
+				            });
+							parent.layer.close(parent.layer.getFrameIndex(window.name));
+	                        //parent.Refresh();
+	                    } else {
+	                        layer.alert(data["Message"]);
+	                    }
+	                }
+	            });
+	            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+	        });
+	    })
+	</script>
+</body>
+</html>

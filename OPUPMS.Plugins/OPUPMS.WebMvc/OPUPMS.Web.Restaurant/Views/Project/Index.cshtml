@@ -1,0 +1,213 @@
+﻿
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    var Categorys = ViewBag.Categorys;
+    ViewBag.Title = "餐饮项目管理";
+}
+
+<div class="container-fluid">
+    <ol class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">
+        <li>首页</li>
+        <li>餐饮管理</li>
+        <li>餐饮项目管理</li>
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </ol>
+    <div id="toolbar" class="btn-group">
+        <button type="button" data-id="0" class="btn btn-default add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加</button>
+    </div>
+    <div class="page-container">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="">类别选择:</label>
+                <select id="Category" name="Category" class="form-control">
+                    <option value="0">全部</option>
+                    @{
+                        if (Categorys != null)
+                        {
+                            foreach (var item in Categorys)
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">名称:</label>
+                <input type="text" id="Name" name="Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="Search()" class="btn btn-primary search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+            </div>
+        </div>
+        <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+    </div>
+</div>
+@section FooterScripts{
+<script type="text/javascript">
+        $(function () {
+            var pageJs = restaurant.Create();
+            pageJs.init();
+        })
+
+        var restaurant = {
+            Create: function () {
+                var bindModel = {};
+                var layindex;
+
+                var bindAction = function () {
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Project/GetProjects',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: true,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            params.Category = $("#Category").val();
+                            params.Name = $("#Name").val();
+                            return params;
+                        },//传递参数（*）
+                        sidePagination: "server",      //分页方式：client客户端分页，server服务端分页（*）
+                        pageNumber: 1,            //初始化加载第一页，默认第一页
+                        pageSize: 10,            //每页的记录行数（*）
+                        pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                        strictSearch: true,
+                        //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                        uniqueId: "ID",           //每一行的唯一标识，一般为主键列
+                        cardView: false,          //是否显示详细视图
+                        buttonsAlign: "left",
+                        exportDataType: "basic",
+                        columns: [{
+                            field: 'Name',
+                            title: '名称'
+                        }, {
+                            field: 'CostPrice',
+                            title: '成本价'
+                        }, {
+                            field: 'Price',
+                            title: '销售价'
+                        }, {
+                            field: 'Category',
+                            title: '类别'
+                        }, {
+                            field: 'IsOnSale',
+                            title: '上架',
+                            formatter: changeBool
+                        }, {
+                            field: 'IsDiscount',
+                            title: '可打折',
+                            formatter: changeBool
+                        },{
+                            field: 'IsGive',
+                            title: '可赠送',
+                            formatter: changeBool
+                        }, {
+                            field: 'IsRecommend',
+                            title: '推荐',
+                            formatter: changeBool
+                        }, {
+                            field: 'IsCustomer',
+                            title: '自定义',
+                            formatter: changeBool
+                        },  {
+                            field: 'IsStock',
+                            title: '使用库存',
+                            formatter: changeBool
+                        }, {
+                            field: 'Stock',
+                            title: '库存',
+                            sortable: true
+                        }, {
+                            field: 'action',
+                            title: '操作',
+                            formatter: controlEdit
+                        }]
+                    })
+
+                    function stockShow(value, row, index) {
+                        var isStock = row["IsStock"];
+                        var stock = row["Stock"];
+                        if (isStock) {
+                            return "是 数量:"+stock;
+                        } else {
+                            return "否";
+                        }
+                    }
+
+                    function controlEdit(value, row, index) {
+                        var id = row["Id"];
+                        return new Array(
+                            "<a class='btn btn-default add' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>编辑</a>",
+                            "<a class='btn btn-default unitEdit' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-yen'></span>规格设置</a>",
+                            "<a class='btn btn-default pictureEdit' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-picture'></span>图片设置</a>"
+                            ).join(" ");
+                    }
+
+                    function changeBool(value, row, index) {
+                        return value>0 ? "是" : "否";
+                    }
+
+                    $(document).on("click", ".add", function () {
+                        var id = $(this).attr("data-id");
+                        var height = $(document).height() - 100;
+                        layer.open({
+                            type: 2,
+                            title: "餐饮项目编辑",
+                            area: ["800px", height+"px"],
+                            content: "/Res/Project/Edit?id="+id,
+                            maxmin: false
+                        });
+                    })
+
+                    $(document).on("click", ".unitEdit", function () {
+                        var id = $(this).attr("data-id");
+                        var height = $(document).height() - 100;
+                        layer.open({
+                            type: 2,
+                            title: "规格设置编辑",
+                            area: ["800px", height + "px"],
+                            content: "/Res/Project/Specification?id=" + id,
+                            maxmin: false
+                        });
+                    })
+
+                    $(document).on("click", ".pictureEdit", function () {
+                        var id = $(this).attr("data-id");
+                        var height = $(document).height() - 100;
+                        layer.open({
+                            type: 2,
+                            title: "图片设置编辑",
+                            area: ["800px", height + "px"],
+                            content: "/Extend/Edit?id=" + id,
+                            maxmin: false
+                        });
+                    })
+                }
+
+                bindModel.init = function () {
+                    bindAction();
+                }
+
+                return bindModel;
+            }
+        }
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+
+        function Search() {
+            $("#tablist").bootstrapTable('refreshOptions', { pageNumber: 1 });
+        }
+</script>
+}
+
+

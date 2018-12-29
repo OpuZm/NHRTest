@@ -1,0 +1,345 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "多桌点餐";
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>多桌点餐</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "MPublicStyle")
+    <style>
+    	.layui-form{width:calc(100% - 400px)}
+    	.layui-table{border:0;}
+    	.layui-table th,.layui-table td{text-align: center;padding:5px;}
+    	
+    	#OrderTableProjects tr.checked{background:#5FB878;color:#fff;} 
+    </style>
+</head>
+<body>
+
+    <div class="layui-form" action="">
+        <div class="StartDesk-form flex-item" style="padding-left: 10px;margin-right:0;">
+            <blockquote class="label-title">选择菜品</blockquote>
+            <div class="MealTable-lists">
+                <ul id="OrderTableProjects_view" style="padding-right:10px;">
+                    <script id="OrderTableProjects_tpml" type="text/html">
+                    	<table class="layui-table table-head layui-table-header" lay-skin="line" style="margin: 0;">
+							<colgroup>
+								<col width="30%">
+								<col width="45%">
+								<col width="20%">
+							</colgroup>
+							<thead>
+								<tr>
+									<th class="tl">菜名</th>
+									<th>数量</th>
+									<th>单价</th>
+								</tr>
+							</thead>
+						</table>
+                    	<div class="table-body" style="max-height:362px;overflow-y:auto;margin-top:-1px;">
+							<table class="layui-table" lay-skin="line" style="margin: 0;">
+								<colgroup>
+									<col width="30%">
+									<col width="45%">
+									<col width="20%">
+								</colgroup>
+								<tbody id="OrderTableProjects">
+									{{#  layui.each(d, function(index, item){ }}
+			                            {{# var jnum=0; if(item.OrderDetailRecordCount){   }}
+				                                {{#  layui.each(item.OrderDetailRecordCount, function(index, item){ }}
+				                                   {{#  if(item.CyddMxCzType!=3){ jnum+=item.Num }} {{#  } }}
+				                                {{#  }); }}
+			                            {{#  }; }}
+			                        {{#  if(item.Num-jnum > 0){   }}
+									<tr data-id="{{ item.Id }}">
+										<td class="tl">{{ item.ProjectName }}</td>
+										<td>
+											<div class="layui-btn-group add_minus">
+												<a href="javascript:void(0)" class="layui-btn layui-btn-primary layui-btn-sm minus" style="width:34px;"><i class="layui-icon">-</i></a>
+												<input type="text" style="width:60px !important;height:30px;padding:0;line-height:30px;" min="0.01" max="{{ item.Num-jnum }}" value="{{ item.Num-jnum }}" class="layui-btn layui-btn-primary layui-btn-small num" disabled="disabled">
+												<a href="javascript:void(0)" class="layui-btn layui-btn-primary layui-btn-sm plus" style="width:34px;"><i class="layui-icon">+</i></a>
+											</div>
+										</td>
+										<td>{{ item.Price }}</td>
+									</tr>
+									{{#  }; }}
+                        			{{#  }); }}
+								</tbody>
+							</table>
+						</div>
+                    </script>
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- ▲开台表单 -->
+    <!-- ▼右侧 添加餐台 -->
+    <div class="Panel-side" style="top:0;">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="height:calc(100% - 20px);margin-top:0;">
+            <div class="ClassTab-head" style="height:30px;">
+                <blockquote class="label-title">选择桌台</blockquote>
+            </div>
+            <div class="MealTable-lists" style="height:calc(100% - 20px);">
+                <ul id="Tables_view" style="height: calc(100% - 65px);overflow-y: auto;">
+                    <script id="Tables_tpml" type="text/html">
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li id="Table_{{ item.Id }}" data-id="{{ item.Id }}" data-areaId="{{ item.AreaId }}" {{#  if(item.IsLock == true){  }} class="disabled" {{#  }; }}>
+                            <a href="javascript:void(0);">
+                                <div class="MealTable-head flex">
+                                    <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                                    {{#  if(item.IsLock == true){  }}
+                                        <span class="item tr flex-item">锁定</span>
+                                    {{#  }; }}
+                                </div>
+                                <div class="MealTable-title">
+                                    {{ item.Name }}
+                                </div>
+                            </a>
+                        </li>
+                        {{#  }); }}
+                    </script>
+                </ul>
+            </div>
+            <div class="actions-box">
+
+                <button onclick="Tablesdata()" class="layui-btn layui-btn-normal layui-btn-big">确定</button>
+                <a href="javascript:void(0);" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));" class="layui-btn layui-btn-primary layui-btn-big">取消</a>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- ▲右侧 添加餐台 -->
+    </div>
+
+	<div id="loading"><div class="layui-layer-content"></div></div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "MPublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var inidata;
+        var thisOrderTableId = '';
+        var chat = $.connection.systemHub;
+        chat.hubName = 'systemHub';
+        chat.connection.start();
+        
+        layui.use(['element', 'form', 'laytpl'], function () {
+            var element = layui.element,
+                form = layui.form,
+                laytpl = layui.laytpl;
+            orderTableId = getUrlParam('orderTableId');
+           // restaurantId = getUrlParam('restaurantId');
+
+            $.ajax({
+                url: "/Res/Project/InitChoseTableInfo",
+                data: { orderTableId: orderTableId },
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    inidata = data;
+                    //渲染 可选桌台
+                    var getTpl = Tables_tpml.innerHTML
+                        , view = document.getElementById('Tables_view');
+                    laytpl(getTpl).render(inidata.Tables, function (html) {
+                        view.innerHTML = html;
+                    });
+                    
+//                  //处理渲染菜品数量
+//                  var OrderTableProjects=[];
+//                  for (var i = 0; i < inidata.OrderTableProjects.length; i++) {
+//                  	var item=inidata.OrderTableProjects[i];
+//                  	var DetailRecordnum=0;
+//                  	//赠、退、转出数量
+//                  	if(item.OrderDetailRecordCount){
+//                  		for (var j = 0; j < item.OrderDetailRecordCount.length; j++) {
+//                  			if (item.OrderDetailRecordCount[j].CyddMxCzType!=3) {
+//                  				DetailRecordnum+=item.OrderDetailRecordCount[j].Num;
+//                  			}
+//                  		}
+//                  	}
+//                  	inidata.OrderTableProjects[i].OrderDetailRecordCount=DetailRecordnum;
+//                  }
+
+                    //渲染 可选菜品
+                    var getTpl = OrderTableProjects_tpml.innerHTML
+                        , view = document.getElementById('OrderTableProjects_view');
+                    laytpl(getTpl).render(inidata.OrderTableProjects, function (html) {
+                        view.innerHTML = html;
+                    });
+
+                    //监听数量加减的点击
+                    $('#OrderTableProjects_view').delegate('.add_minus a', 'click', function (event) {
+                        event.stopPropagation();//阻止冒泡
+                        var aindex = $(this).index();
+                        var threshold = 0.5;
+
+                        if (aindex == 0) {//减
+                            var inputdom = $(this).next('input');
+                            var newval = parseFloat(inputdom.val()) - threshold;
+                        } else if (aindex == 2) {//加
+                            var inputdom = $(this).prev('input');
+                            var newval = parseFloat(inputdom.val()) + threshold;
+                        }
+                        var min = parseFloat(inputdom.attr('min'));
+                        var max = parseFloat(inputdom.attr('max'));
+                        if (newval && newval > min && newval <= max) {
+                            inputdom.val(newval);
+                        }
+                    })
+
+                    //监听数量的输入是否正确
+                    $('.add_minus input').blur(function (e) {
+
+                        var value = parseFloat($(this).val());
+                        var min = parseFloat($(this).attr('min'));
+                        var max = parseFloat($(this).attr('max'));
+                        if (!isNaN(value)) {
+                            if (!value || value < min || value > max) {
+                                layer.msg('输入错误!');
+                                $(this).val(max);
+                                return false;
+                            }
+                        } else {
+                            layer.msg('请输入数字!');
+                            $(this).val(max);
+                            return false;
+                        }
+                    })
+
+//                  //菜品的选中--多选
+//                  $('#OrderTableProjects_view').delegate('li', 'click', function (event) {
+//                      var thisli = $(this);
+//                      if(thisli.hasClass('disabled')){
+//                  		return false;
+//                  	}
+//                      if (thisli.hasClass('checked')) {
+//                          thisli.removeClass('checked');
+//                      } else {
+//                          thisli.addClass('checked');
+//                      }
+//                  })
+                    
+                    //菜品的选中--多选
+                    $('#OrderTableProjects').delegate('tr', 'click', function (event) {
+                        var thisli = $(this);
+                        if (thisli.hasClass('checked')) {
+                            thisli.removeClass('checked');
+                        } else {
+                            thisli.addClass('checked');
+                        }
+
+                    })
+
+
+                    //桌台的选中--多选
+                    $('#Tables_view').delegate('li', 'click', function (event) {
+                    	var thisli = $(this);
+                    	if (thisli.hasClass('layui-this')) {
+                            thisli.removeClass('layui-this');
+                        } else {
+                            thisli.addClass('layui-this');
+                        }
+                    })
+					
+					//初始化动作全部完成时
+        			$('#loading').remove();
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                }
+            });
+        })
+
+        //提交数据
+        function Tablesdata() {
+        	var thisOrderTableIds = [];
+            var ProjectsArr = [];
+            TableChecked = $('#Tables_view li.layui-this');
+            ProjectsChecked = $('#OrderTableProjects tr.checked');
+            if (TableChecked.length < 1) {
+                layer.msg('请选择点餐的桌台!');
+                return false;
+            }
+            if (ProjectsChecked.length < 1) {
+                layer.msg('请选择点餐菜品!');
+                return false;
+            }
+            //取得选中的菜品数组
+
+            for (var i = 0; i < ProjectsChecked.length; i++) {
+                var itemId = parseFloat(ProjectsChecked.eq(i).attr('data-id'));
+                var itemNum = parseFloat(ProjectsChecked.eq(i).find('.add_minus').find('input').val());
+                for (var j = 0; j < inidata.OrderTableProjects.length; j++) {//循环菜品
+                    if (itemId == inidata.OrderTableProjects[j].Id) {
+                        inidata.OrderTableProjects[j].Num = parseFloat(itemNum);
+                        ProjectsArr.push(inidata.OrderTableProjects[j]);
+                    }
+                }
+            }
+
+            //获得选中桌台数据
+            //var TableId = TableChecked.attr('data-id');
+            
+            for (var i = 0; i < TableChecked.length; i++) {
+            	var tableid=TableChecked.eq(i).attr('data-id');
+            	
+            	for (var j = 0; j < inidata.Tables.length; j++) {
+	                if (tableid == inidata.Tables[j].Id) {
+	                    thisOrderTableIds.push(inidata.Tables[j]);
+	                }
+	            }
+            	
+            }
+
+           
+
+            var para = { req: ProjectsArr, tables: thisOrderTableIds };
+            $.ajax({
+                type: "post",
+                url: "/Res/Home/ChoseProjectTable",
+                data: JSON.stringify(para),
+                //headers: headers,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+                success: function (data, textStatus) {
+                    if (data.Data == true) {
+                        $.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                            layer.msg("提交成功")
+                            parent.location.reload();
+                        })
+                    }
+                    else {
+                        layer.alert(data.Message);
+                    }
+                }
+            })
+
+        }
+
+     
+
+       
+
+
+
+    </script>
+
+</body>
+</html>

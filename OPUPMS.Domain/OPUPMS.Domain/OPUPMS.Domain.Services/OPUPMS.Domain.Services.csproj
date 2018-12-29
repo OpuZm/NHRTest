@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{361CC697-B74D-4F94-94D9-A10EE6400DF2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.Domain.Services</RootNamespace>
+    <AssemblyName>OPUPMS.Domain.Services</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.FastCrud, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.FastCrud.2.4.1\lib\net45\Dapper.FastCrud.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.Dapper.Repository.UnitOfWork, Version=0.4.6294.20582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.Dapper.Repository.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.Dapper.Repository.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.UnitOfWork, Version=0.4.6294.20580, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\StringInterpolationBridge.0.9.1\lib\net40\StringInterpolationBridge.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="UserDomainService.cs" />
+    <Compile Include="IocManagerMoudles\DomainServiceIocManagerModule.cs" />
+    <Compile Include="TestModelDomainService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Common\OPUPMS.Infrastructure.Common.csproj">
+      <Project>{68fa3e1c-9c35-4ee4-89f0-2fccb510f85c}</Project>
+      <Name>OPUPMS.Infrastructure.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Dapper\OPUPMS.Infrastructure.Dapper.csproj">
+      <Project>{b7f79bca-a547-482c-94e4-bc33674287cf}</Project>
+      <Name>OPUPMS.Infrastructure.Dapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\Starts2000\Starts2000.csproj">
+      <Project>{980612cf-5145-4b66-9632-ba465daed5c0}</Project>
+      <Name>Starts2000</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OPUPMS.Domain.Base\OPUPMS.Domain.Base.csproj">
+      <Project>{92CFCDBE-99DF-460B-9375-9DE7C431145C}</Project>
+      <Name>OPUPMS.Domain.Base</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

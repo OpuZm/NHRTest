@@ -1,0 +1,323 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "预定订单";
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    var Restaurants = ViewBag.Restaurants;
+    var resId = ViewBag.RestaurantId;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>预订管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <header class="container-head" style="padding-top: 15px;">
+        <div class="layui-form">
+            <a class="layui-btn add layui-btn-normal" href="/Res/Order/NewReserve">
+                <span class="layui-icon" style="font-size: 24px; color: #fff;">&#xe654;</span>添加预订
+            </a>
+
+            <div class="layui-form-item" style="float: right; padding-top: 5px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 30px;">餐厅</label>
+                    <div class="layui-input-inline">
+                        <select class="form-control" id="Restaurant" name="Restaurant" lay-search>
+                            @{
+                                if (Restaurants != null)
+                                {
+                                    foreach (var item in Restaurants)
+                                    {
+                                        <option value="@item.Id" @(item.Id == resId ? "selected='selected'" : "")>@item.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">预订日期</label>
+                    <div class="layui-input-inline" style="width: 100px;">
+                        <input type="text" id="fromdate" placeholder="" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-form-mid">-</div>
+                    <div class="layui-input-inline" style="width: 100px;">
+                        <input type="text" id="todate" placeholder="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">联系人</label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="contact" lay-verify="email" autocomplete="off" class="layui-input">
+                    </div>
+                    <button class="layui-btn layui-btn-primary" style="float: left;" id="SearchSubmit">查询</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-right: 20px;">
+        <table id="table" lay-filter="table"></table>
+    </div>
+    <footer class="footer-copyright">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+    </footer>
+</body>
+</html>
+
+
+<script type="text/html" id="bartable">
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="edit"><i class="iconfont">&#xe633;</i> 编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="open">开台</a>
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="cancel">取消预订</a>
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="deposit">定金管理</a>
+    <!--<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="record">操作记录</a>-->
+</script>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script src="~/signalr/hubs"></script>
+<script type="text/javascript">
+    var form;
+    layui.use(['element', 'table', 'layer', 'laydate','form'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            table = layui.table;
+            form=layui.form;
+
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#fromdate' //指定元素
+            , type: 'date'
+            , format: 'yyyy-MM-dd'
+        });
+
+        laydate.render({
+            elem: '#todate' //指定元素
+            , type: 'date'
+            , format: 'yyyy-MM-dd'
+        });
+
+        var winw = $(window).width() - 50;
+        table.render({
+            elem: '#table' //指定原始表格元素选择器（推荐id选择器）
+            , url: "/Res/Order/OrderReserveListSearch"
+            , where: { ListType: '1', Restaurant: @resId, IsReserveList: true }
+            , height: 'full-141' //容器高度
+            , request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            }
+            , response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            }
+            , cols: [[ //标题栏
+                //{ field: 'Id', title: 'ID', width: 70 }
+                { field: 'OrderNo', title: '单号', width: winw * 0.12, sort: true }
+                , { field: 'ContactPerson', title: '联系人', width: winw * 0.10 }
+                , { field: 'ContactTel', title: '联系电话', width: winw * 0.12 }
+                , { field: 'TablesName', title: '台号', width: winw * 0.08 }
+                , { field: 'ReserveDate', title: '预订用餐时间', width: winw * 0.15, sort: true }
+                , { field: 'PersonNum', title: '人数', width: winw * 0.05 }
+                , { field: 'BookingAmount', title: '订金', width: winw * 0.05 }
+                , { field: 'orderStatus', title: '订单状态', width: winw * 0.06 }
+                , { field: 'SourceTypeName', title: '客源类型', width: winw * 0.08, sort: true }
+                , { field: 'RestaurantName', title: '餐厅', width: winw * 0.10 }
+                , { field: 'Remark', title: '备注', width: winw * 0.15 }
+                , { field: '', title: '操作', width: 330, fixed: 'right', toolbar: '#bartable' }
+            ]]
+            , even: true
+            , page: true //是否显示分页
+            , limits: [5, 10, 15, 20]
+            , limit: 10 //每页默认显示的数量
+            , id: 'tableReload'
+            , done: function (res, curr, count) {
+
+            }
+        });
+
+
+        //监听工具条
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            var id = data.Id;
+            if (obj.event === 'edit') {
+                //layerBox('/Res/Order/NewReserve', id, '预订编辑');
+                location.href = '/Res/Order/NewReserve?id=' + id;
+            }
+            else if (obj.event === 'open') {
+                openTable(id);
+            }
+            else if (obj.event === 'cancel') {
+                cancelReserve(id);
+            }
+            else if (obj.event === 'record') {
+                layer.open({
+                    type: 2,
+                    title: "<h5>" + data.OrderNo + " 订单-操作记录 </h5>",
+                    area: ['800px', '500px'],
+                    content: "/Res/Order/OrderRecord?id=" + id,
+                    maxmin: false
+                });
+            }
+            else if (obj.event === 'deposit') {
+                layer.open({
+                    type: 2,
+                    title: "<h5>" + data.OrderNo + " 订单-定金管理 </h5>",
+                    area: ['90%', '500px'],
+                    content: "/Res/Order/DepositList?orderId=" + id,
+                    maxmin: false
+                });
+            }
+        });
+
+        //监听排序点击
+        table.on('sort(table)', function (obj) {
+            var rid = $('#Restaurant').val();
+            var beginDate = $('#fromdate').val();
+            var endDate = $('#todate').val();
+            var contactTel = $('#contact').val();
+            table.reload('tableReload', {
+                initSort: obj
+                , where: { //请求参数
+                    ListType: '1'
+                    , sort: obj.field //排序字段
+                    , order: obj.type //排序方式
+                    , Restaurant: rid
+                    , beginDate: beginDate
+                    , endDate: endDate
+                    , ContactPerson: contactTel
+                    , IsReserveList: true
+                }
+            });
+        });
+
+        //select条件筛选
+        $('#SearchSubmit').click(function () {
+            var rid = $('#Restaurant').val();
+            var beginDate = $('#fromdate').val();
+            var endDate = $('#todate').val();
+            var contactTel = $('#contact').val();
+            table.reload('tableReload', {
+                where: { //请求参数
+                    ListType: '1'
+                    , Restaurant: rid
+                    , beginDate: beginDate
+                    , endDate: endDate
+                    , ContactPerson: contactTel
+                    , IsReserveList: true
+                }
+                ,page: {
+				    curr: 1 //重新从第 1 页开始
+				}
+            });
+        });
+
+
+    });
+
+    function Refresh() {
+        $('#SearchSubmit').click();
+    }
+
+    function openTable(id) {
+        if (id == 0) {
+            layer.alert("请先选择操作的订单！");
+            return;
+        }
+
+        layer.confirm("确定开台吗？", { title: '开台提示', btn: ['确定', '返回'] }, function () {
+            var para = { orderId: id };
+            var chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            $.ajax({
+                type: "post",
+                url: "/Res/Home/ReserveToOpen",
+                dataType: "json",
+                data: JSON.stringify(para),
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    var res = data.Data;
+                    if (res != null && res.OrderId > 0) {
+                        $.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                        });
+                        layer.confirm("餐台：" + res.TablesName+"，开台成功！", {
+                            btn: ['确定', '取消'] //按钮
+                        }, function () {
+                        	layer.open({type: 3});
+                            location.href = "/Res/Home/NewWelcome";
+                        }, function () {
+                            Refresh();
+                        });
+
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+        });
+    }
+
+    function cancelReserve(id) {
+        layer.confirm("继续取消预订单吗？取消后不可恢复", { title: '取消预订提示', btn: ['确认取消', '返回'] }, function () {
+            var para = { orderId: id };
+
+            var chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            $.ajax({
+                type: "post",
+                url: "/Res/Home/CancelOrder",
+                dataType: "json",
+                data: JSON.stringify(para),
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    var res = data.Data;
+                    if (res == true) {
+                        $.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                        });
+                        layer.alert("取消预订订单成功", function () {
+                            Refresh();
+                            layer.closeAll();
+                        });
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+        });
+    }
+</script>
+

@@ -1,0 +1,332 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "加台";
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>加台</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.MealTable-lists ul {padding:0;}
+    	.MealTable-lists li{height:84px !important;}
+    	.MealTable-lists li .MealTable-footer{line-height:24px;}
+    </style>
+</head>
+<body>
+    <div class="layer-form-box">
+        <div class="layui-form" action="">
+            <div class="flex-item" style="padding-left: 10px;padding-top:10px;">
+                <div class="ClassTab-head">
+                    <div class="class-group" id="AreaList_view" style="margin-left:-3px;padding-bottom: 10px;"></div>
+                    <script id="AreaList_tpml" type="text/html">
+                        <a href="javascript:void(0)" data-area="0" class="layui-btn layui-btn-primary layui-this">全部</a>
+                        {{#  layui.each(d, function(index, item){ }}
+                        <a href="javascript:void(0)" data-area="{{ item.Id }}" class="layui-btn layui-btn-primary">{{ item.Name }}</a>
+                        {{#  }); }}
+                    </script>
+                </div>
+
+                <div class="MealTable-lists flex-item" style="overflow: hidden;overflow-y: scroll;">
+                    <ul id="TableList_view"></ul>
+                    <script id="TableList_tpml" type="text/html">
+                        {{# if(d.length !== 0){ }}
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li data-no="{{item.Id}}">
+                            <div class="MealTable-head flex"> <span class="item MealTable-number flex-item">{{ item.Id }}</span></div>
+                            <div class="MealTable-title">{{ item.Name }}</div>
+                            {{# if(item.CurrentOrderList.length > 1){ }}
+                            <div class="MealTable-footer flex">
+	                       	 	<span class="MealTable-price">{{ item.CurrentOrderList.length }} 个订单</span>
+			               	</div>
+			               	{{# } }}
+                        </li>
+                        {{#  }); }}
+                        {{# } }}
+                    </script>
+                </div>
+            </div>
+            <div class="layer-btns-bottom">
+                <!--<button class="layui-btn layui-btn-normal" lay-submit="" lay-filter="form1" onclick="newthisOrderTableId()">立即提交</button>-->
+                <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                <!--滚动按钮  开始-->
+	            <div class="layerScrollBtn">
+	            	<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+	            	<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+	            </div>
+	            <!--滚动按钮  结束-->
+            </div>
+
+        </div>
+        <!-- ▲右侧 添加餐台 -->
+    </div>
+
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+	@ScriptsEx.Render(Plugin.Instance.Name, "isScrollconfigJS")
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var inidata;
+        var thisOrderTableId = '';
+        var thisTableArr = '';
+        var ProjectsArr = [];
+        
+        var winW = $(window).width();
+		var winH = $(window).height();
+
+        layui.use(['element', 'form', 'laytpl'], function () {
+            var element = layui.element,
+                form = layui.form,
+                laytpl = layui.laytpl;
+
+            TableId = getUrlParam('TableId');//台号ID
+            restaurantId = getUrlParam('restaurantId');//餐厅ID
+            orderId = getUrlParam('orderId');//订单ID
+            orderTableId = getUrlParam('orderTableId');//订单ID
+            
+			
+            chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            var AreaListTpl = AreaList_tpml.innerHTML,
+                AreaList_view = document.getElementById('AreaList_view'),
+                TableListTpl = TableList_tpml.innerHTML,
+                TableList_view = document.getElementById('TableList_view');
+
+
+
+            $.ajax({
+                url: "/Res/Project/InitChangeTableInfo",
+                data: { RestaurantId: restaurantId, OrderTableId: orderTableId },
+                type: "post",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data) {
+                    inidata = data;
+                    //渲染 切换区域切换按钮
+                    laytpl(AreaListTpl).render(inidata.Areas, function (html) {
+                        AreaList_view.innerHTML = html;
+                    });
+
+                    //渲染 桌台
+                    laytpl(TableListTpl).render(inidata.Tables, function (html) {
+                        TableList_view.innerHTML = html;
+                        tableListAuto();//自适应
+                    });
+                    
+                    //桌台高度设置
+                    $('#TableList_view').parent().height(Math.floor((winH - $('.ClassTab-head').outerHeight() - 59)/68)*68);
+                    
+					
+                    TableClick(inidata.Tables);
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                }
+            });
+
+            //区域选择按钮
+            $(document).on('click', '#AreaList_view a', function () {
+                if ($(this).hasClass('layui-this')) return;
+                var areaId = $(this).attr('data-area');
+                var listdata = [];//所选区域的桌台数组
+
+
+                var tables = inidata.Tables;//所有可选桌台
+
+                $(this).addClass('layui-this').siblings().removeClass('layui-this');
+                if (areaId == 0) {// 区域全部、状态全部
+                    listdata = tables
+                } else {
+                    for (var i = 0; i < tables.length; i++) {
+                        if (tables[i].AreaId == areaId) {
+                            listdata.push(tables[i]);
+                        }
+                    }
+                }
+
+                //渲染 桌台
+                laytpl(TableListTpl).render(listdata, function (html) {
+                    TableList_view.innerHTML = html;
+                    tableListAuto();//自适应
+                });
+
+                TableClick(listdata)
+            })
+            
+            
+            //菜品向下滚动 一页
+	        $(document).on('mousedown touchstart','.layerScrollBtn .scrollBottomBtn',function(){
+	        	var list = $('#TableList_view').parent();
+	        	var listH = list.height();
+	        	var h = list.scrollTop();
+	    		list.scrollTop(h + listH)
+	        })
+	        
+	        //菜品向上滚动 一页
+	        $(document).on('mousedown touchstart','.layerScrollBtn .scrollTopBtn',function(){
+	        	var list = $('#TableList_view').parent();
+	        	var listH = list.height();
+	        	var h = list.scrollTop();
+	        	if(h < listH){
+	        		list.scrollTop(0)
+	        	}else{
+	        		list.scrollTop(h - listH)
+	        	}
+	        })
+
+
+            //桌台选择
+            function TableClick(data) {
+                var table_li = $('#TableList_view li');
+                table_li.off('click');
+                table_li.on('click', function () {
+                	var Id = parseInt($(this).attr('data-no'));
+                	var IdIndex;
+                	for(var i=0;i< inidata.Tables.length;i++){
+                		if(inidata.Tables[i].Id == Id){
+                			IdIndex = i;
+                			break;
+                		}
+                	}
+                	//当前桌台只有一个订单
+                	if(inidata.Tables[IdIndex].CurrentOrderList.length < 2){
+                		layer.confirm('是否选择桌台( '+ inidata.Tables[IdIndex].Name +' )并台？', {
+			                btn: ['确认', '取消'] //按钮
+			            }, function (i) {
+			            	layer.close(i)
+		            		if(inidata.Tables[IdIndex].CurrentOrderList[0].IsControl){
+		            			parent.layer.confirm('该桌台（ '+inidata.Tables[IdIndex].Name+' ）的订单（ '+inidata.Tables[IdIndex].CurrentOrderList[0].OrderNo+' ）正在被操作,是否确认要合并到该桌台?', {icon: 3, title:'提示'}, function(z){
+			            			parent.layer.close(z)
+			            			GetTablesdata(IdIndex,0);
+								});
+		            		}else{
+		            			GetTablesdata(IdIndex,0);
+		            		}
+			            });
+                	}else{
+                		var aHtml = "";
+                		for (var i = 0; i < inidata.Tables[IdIndex].CurrentOrderList.length; i++) {
+		                	var orderTableId = inidata.Tables[IdIndex].CurrentOrderList[i].Id;
+		                	var $class= inidata.Tables[IdIndex].CurrentOrderList[i].IsLock ? 'IsLock' : '';
+		                	
+		                	
+		                    aHtml += '<li data-id="'+ orderTableId +'" class="'+$class+'"><a href="javascript:;">'
+		                        + '<h4>单号：' + inidata.Tables[IdIndex].CurrentOrderList[i].OrderNo;
+		                    if($class !='')aHtml += "<span class='LockTextColor'>( 锁定 )</span>"
+		                        
+		                    aHtml += '<span class="time">时间：' + inidata.Tables[IdIndex].CurrentOrderList[i].CreateDate + '</span></h4><p>人数：' + inidata.Tables[IdIndex].CurrentOrderList[i].PersonNum;
+		                        
+		                    if(inidata.Tables[IdIndex].CurrentOrderList[i].ContactPerson)aHtml += '<strong>联系人：' + inidata.Tables[IdIndex].CurrentOrderList[i].ContactPerson  + '</strong>'
+		                    
+		                    if(inidata.Tables[IdIndex].CurrentOrderList[i].ContactTel)aHtml += '<strong>电话：' + inidata.Tables[IdIndex].CurrentOrderList[i].ContactTel  + '</strong>'
+		                    
+		                    if($class ==''){
+		                    	aHtml += '<span>选中订单</span></p></a></li>';
+		                    }else{
+		                    	aHtml += '</p></a></li>';
+		                    }
+		                }
+		                layer.open({
+		                    type: 1,
+		                    title: "选择操作订单",
+		                    area: ["600px", "500px"],
+		                    content: '<ul class="chosen-order">' + aHtml + '</ul>',
+		                    maxmin: false,
+		                    success: function(layero,index){
+		                    	layero.find('li').on('click',function(){
+		                    		var id = $(this).attr('data-id');
+		                    		var $index = $(this).index();
+		                    		if(inidata.Tables[IdIndex].CurrentOrderList[$index].IsLock){
+		                    			parent.layer.msg('该订单已被锁定，不能进行操作');
+		                    			return false;
+		                    		}
+		                    		if(inidata.Tables[IdIndex].CurrentOrderList[$index].IsControl){
+		                    			parent.layer.confirm('该桌台（ '+inidata.Tables[IdIndex].Name+' ）中的第'+($index + 1)+'个订单（ '+ inidata.Tables[IdIndex].CurrentOrderList[$index].OrderNo +' ）正在被操作,是否确认要进入该桌台点餐?', {icon: 7, title:'提示',btn: ['确认', '取消']}, function(z){
+		                    				parent.layer.close(z);
+		                    				GetTablesdata(IdIndex,$index);
+		                    			});
+		                    		}else{
+		                    			parent.layer.confirm('是否确认选择桌台（ '+inidata.Tables[IdIndex].Name+' ）中的第'+($index + 1)+'个订单（ '+ inidata.Tables[IdIndex].CurrentOrderList[$index].OrderNo +' ）进行并台操作?', {icon: 3, title:'提示',btn: ['确认', '取消']}, function (i) {
+							            	GetTablesdata(IdIndex,$index);
+							            });
+		                    		}
+		                    	})
+		                    }
+		                });
+                	}
+                });
+                
+                //桌台选中渲染
+            }
+        })
+		
+
+		//提交数据
+        function GetTablesdata(index,ListIndex) {
+        	var list = inidata.Tables[index].CurrentOrderList[ListIndex];
+        	//循环添加的桌台  构造数组
+			var para = {};
+			para.FromTableObj = {TableId:TableId,OrderId:orderId,OrderTableId:orderTableId};
+			para.ToTableObj = {TableId:list.TableId,OrderId:list.OrderId,OrderTableId:list.Id};
+            $.ajax({
+                url: "/Res/Home/JoinTableSubmit",
+                data: JSON.stringify(para),
+                type: "post",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                	
+                    if(data.Successed){
+                    	$.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                            parent.parent.layer.close(parent.parent.layer.getFrameIndex(parent.window.name));
+                        	parent.parent.layer.msg('并台成功')
+                        });
+                    }else{
+                    	layer.alert(data.Message);
+                    }
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                },
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            }
+            });
+
+
+        }
+
+
+		//桌台自适应
+		function tableListAuto(){
+			var $mealTable = $('#TableList_view');
+			var $mealTable_w = $mealTable.width();
+			line_sum = Math.floor($mealTable_w / 130);
+			$mealTable_li_w = $mealTable_w / line_sum - 12; //130为最小宽度(包含padding margin border)
+			$mealTable.children('li').css('width',$mealTable_li_w);
+		}
+    </script>
+
+</body>
+</html>

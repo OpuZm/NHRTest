@@ -1,0 +1,187 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Login";
+}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+	<!--@StylesEx.Render(Plugin.Instance.Name, "PublicStyle")-->
+	@StylesEx.Render(Plugin.Instance.Name, "MPublicStyle")
+	@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    
+    <style>
+    	
+    	/*header.ClassTab-head{margin:25px 0 5px 22px;height:46px;overflow: hidden;padding:0;}
+    	.ClassTab-head .class-group{height:63px;overflow-x:auto;width:calc(100% - 172px);white-space: nowrap;}
+    	.class-group-list{height:48px;}
+    	.right-side, .Panel-side{top:78px;}
+    	.MealTable-Screen li {line-height: 40px;}
+		.MealTable-Screen .ScreenMealTable-icon{margin-top:7px;}
+		.MealTable-Data p{line-height:35px;}
+		
+		.MealTable-lists li{height:80px;}
+		.MealTable-lists li .MealTable-title {font-size: 18px;line-height: 26px;height: 26px;}
+		.MealTable-lists li .MealTable-head, .MealTable-lists li .MealTable-footer{line-height:16px;}
+		
+		.BatchEmpty{padding:10px 10px;}*/
+		html,body{height:100%;overflow: hidden;}
+		.console-list{height: calc(100% - 80px);}
+		#TableList_view{height:100%;overflow: hidden;overflow-y: auto;}
+		
+		.userInfo{position: absolute;right: 0;top: 25px;height: 48px;line-height: 48px;font-size: 20px;}
+		.userInfo a{display: inline-block;}
+		.userInfo .iconfont{font-size: 20px;padding: 0 40px 0 10px;}
+		#RestaurantName_view{padding:10px 0 10px 10px;}
+		#RestaurantName_view h3{display: flex;}
+		#RestaurantName_view h3 span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+		#RestaurantName_view h3 i{margin-top:3px;}
+		
+    </style>
+</head>
+<body>
+	
+<header class="ClassTab-head">
+    <div class="class-group" id="AreaList_view">
+    </div>
+    <script id="AreaList_tpml" type="text/html">
+    	<div class="class-group-list">
+	        <!--<a href="javascript:void(0)" data-area="0" class="layui-btn layui-btn-primary layui-this">全部</a>-->
+	        {{#  layui.each(d, function(index, item){ }}
+	        <a href="javascript:void(0)" data-area="{{ item.Id }}" class="layui-btn layui-btn-primary">{{ item.Name }}</a>
+	        {{#  }); }}
+        </div>
+    </script>
+    <div class="userInfo">
+    	<span id="userName"></span>
+    	<a href="javascript:void(0);" title="退出登录" onclick="LoginOut()"><i class="icon iconfont">&#xe679;</i></a>
+    </div>
+</header>
+<div class="container flex console-list">
+    <!-- ▼餐台列表 -->
+    <div class="MealTable-lists flex-item" style="height:100%;">
+      	<ul id="TableList_view" class="clearfix">
+          
+      	</ul>
+      	<script id="TableList_tpml" type="text/html">
+            {{#  layui.each(d, function(index, item){ }}
+              <li  class="{{#  if(item.CythStatus > 1){ }} InUse {{#  } }} 
+              	         {{#  if(item.CythStatus == 1){ }} empty {{#  } }} 
+                         {{#  if(item.CythStatus == 2){ }} add {{#  } }} 
+                         {{#  if(item.CythStatus == 3){ }} dirty {{#  } }} " >
+                         
+                <a  href="javascript:void(0);" data-no="{{  index }} ">
+                   <div class="MealTable-head flex">
+                     <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                     <span class="item MealTable-usernum tc"><i class="iconfont">&#xe660;</i>{{ item.SeatNum }}</span>
+                     <span class="item MealTable-time"><i class="iconfont">&#xe735;</i>{{ item.FirstOrderTime }}</span>
+                     
+                   </div>
+                   <div class="MealTable-title">
+                     {{ item.Name }}
+                   </div>
+                    <div class="MealTable-state">
+                   	  {{#  layui.each(item.OrderList, function(index, item){ }}
+                   	     {{# if(item.MarketId == inidata.LoginMarketId){ }}
+                   	   		<p><span class="layui-badge badge-one">{{ item.MarketName }}</span>{{ item.ContactPerson }} ({{ item.PersonNum }}人)</p>
+                   	     {{# } }}
+                   	  {{#  }) }}
+                    </div>
+                   {{#  if(item.OrderNow.length < 1){ }} 
+                   
+                   {{#  } else if(item.OrderNow.length == 1){ }} 
+		               <div class="MealTable-footer flex">
+		                 <span class="MealTable-icon color-green">{{ item.OrderNow[0].OrderStatusDesc }}</span>
+		                 <span class="MealTable-price flex-item">￥{{ item.SumCurrentOrderAmount }}</span>
+		               </div>
+                   {{#  } else { }}
+                       <div class="MealTable-footer flex">
+                       	 <span class="MealTable-price">{{ item.OrderNow.length }} 个订单</span>
+		                 <span class="MealTable-price flex-item">￥{{ item.SumCurrentOrderAmount }}</span>
+		               </div>
+                   {{#  } }}
+                   
+                  
+                   
+                </a>
+              </li>
+            {{#  }); }}
+          </script>
+        <footer class="footer-copyright">
+            <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+        </footer>
+    </div>
+    <!-- ▲餐台列表 -->
+    
+    <!-- ▼餐台右侧 筛选/数据 -->
+    <div class="right-side">
+    	<div class="media-data" id="RestaurantName_view">
+          	<h3 class="media-title" title="切换餐厅" id="SetRestaurant">
+          		<i class="layui-icon">&#xe625;</i>
+          	</h3>
+          	<p class="media-intro"></p>
+       	</div>
+        <div class="MealTable-Screen">
+            <ul  id="TableStatusList_view">
+
+            </ul>
+            <script id="TableStatusList_tpml" type="text/html">
+                {{#  layui.each(d, function(index, item){ }}
+
+                <li class="{{#  if(index == 0){ }} layui-this {{#  } }}" data-key="{{ item.Key }}">
+                    {{#  if(item.Key == 0){ }} 
+                        <i class="ScreenMealTable-icon all" data-key="all"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 1){ }} <i class="ScreenMealTable-icon empty" data-key="empty"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 2){ }} <i class="ScreenMealTable-icon add" data-key="add"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 3){ }} <i class="ScreenMealTable-icon dirty" data-key="dirty"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                </li>
+                {{#  }); }}
+            </script>
+
+        </div>
+        <div class="MealTable-box">
+        	<a href="javascript:void(0);" onclick="BatchEmpty();" class="layui-btn layui-btn-primary full">批量置空</a>
+        </div>
+        <div class="MealTable-Data" id="MealTableData_view">
+            
+        </div>
+        <script id="MealTableData_tpml" type="text/html">
+            <p>总客数<span class="num">{{ d.CurrentTotalGuestNum }}</span></p>
+            <p>上座率<span class="num">{{ d.CurrentTableUsedRate }}%</span></p>
+            <div class="DataPanel">
+                <h3>￥{{ d.CurrentTotalAmount }}</h3>
+                <p>总金额</p>
+            </div>
+            <!--<div class="side-user" id="UserName_view" style="text-align: center;"><a href=""><i class="icon iconfont">&#xe60e;</i><span> admin</span></a></div>-->
+        </script>
+		
+        <div class="SysTime">
+            <!--<p id="current-date"></p>
+            <h3 id="current-time"></h3>-->
+            <div class="blue" id="Date_view">
+            </div>
+            <script id="Date_tpml" type="text/html"><p>营业日期</p><p>{{ d }}</p></script>
+        </div>
+    </div>
+    <!-- ▲餐台右侧 筛选/数据 -->
+</div>
+<div id="loading"><div class="layui-layer-content"></div></div>
+@ScriptsEx.Render(Plugin.Instance.Name, "FastClick")
+@ScriptsEx.Render(Plugin.Instance.Name, "MHomeJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script src="~/signalr/hubs"></script>
+</body>
+</html>

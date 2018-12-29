@@ -1,0 +1,284 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = null;
+    ProjectCreateDTO Project = ViewBag.Project;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+		.layui-table-edit{text-align: center;}
+		.wrap .layui-table-header tr{background-color: #ddd;}
+		.layui-table-body .layui-btn{line-height:34px;}
+		.layui-table-view{padding-bottom:10px;box-sizing: initial;}
+	</style>
+</head>
+<body>
+    <div class="wrap" style="padding:10px;">
+		<blockquote class="label-title" id="labelTitle_view"></blockquote>
+		<script id="labelTitleTpl" type="text/html">
+			名称:{{d.Name}} 
+			<span> 成本: </span>
+			<span class="color-red">{{d.CostPrice}}</span>
+			<span> 总价: </span>
+			<span class="color-red">{{d.Price}}</span>
+			<a class="layui-btn" lay-event="add" onclick='addSpecification()' style="margin-left:20px;">添加</a>
+		</script>
+		<table class="layui-table" lay-filter="table-demo" lay-skin="line">
+			<thead>
+				<tr>
+					<th lay-data="{field:'Unit', edit: 'text',align:'center'}">单位</th>
+					<th lay-data="{field:'UnitRate', width:120, edit: 'text',align:'center'}">倍率</th>
+					<th lay-data="{field:'CostPrice', edit: 'text', align:'center'}">成本价</th>
+					<th lay-data="{field:'Price',  edit: 'text',align:'center'}">售价</th>
+					<th lay-data="{field:'btn',align:'center'}">操作</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody_view"></tbody>
+		</table>
+		<script id="tableBodyTpl" type="text/html">
+			{{#  layui.each(d, function(index, item){  }}
+				<tr>
+					<td>{{item.Unit}}</td>
+					<td>{{item.UnitRate}}</td>
+					<td>{{item.CostPrice}}</td>
+					<td>{{item.Price}}</td>
+					<td><a class="layui-btn layui-btn-danger" lay-event="del">删除</a></td>
+				</tr>
+			{{#  }); }}
+		</script>
+		<div class="layer-btns-bottom">
+        	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+        </div>
+	</div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+
+    layui.use(['element', 'form', 'layer','layedit','table','laytpl'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+	            
+        layedit = layui.layedit,
+        table = layui.table,
+        laytpl = layui.laytpl,
+        form = layui.form;
+        
+        tableBody = tableBodyTpl.innerHTML,
+        tableBodyView = document.getElementById('tableBody_view'),
+        labelTitle = labelTitleTpl.innerHTML,
+        labelTitleView = document.getElementById('labelTitle_view');
+        
+        
+            
+        var para = { id:'@ViewBag.Id' };
+        $.ajax({
+            type: "get",
+            url: "/Res/Project/GetModel",
+            data: para,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                if (data.Data!=null) {
+					dataJson = data.Data.Details;
+					dataTitle = data.Data
+					tableInit();//渲染表单
+					//渲染表头
+					laytpl(labelTitle).render(dataTitle, function (html) {
+			            labelTitleView.innerHTML = html;
+			        });
+                } else {
+                    layer.msg('不存在此商品', {
+                        time: 2000
+                    });
+                }
+            }
+        })
+			
+			
+		//规格 删除
+		$(document).on('click','.layui-table-view .layui-btn[lay-event=del]',function(){
+			var $this = $(this)
+			layer.confirm("是否确认删除", {
+                btn: ['确认', '取消'] //按钮
+            }, function (index) {
+                var Index = $this.closest('tr').index();
+                dataJson.splice(Index,1)
+                tableInit()
+			    layer.close(index);
+            });
+		})
+		
+		//修改 监控
+		table.on('edit(table-demo)', function(obj){
+		    var value = obj.value //得到修改后的值
+		    ,data = obj.data //得到所在行所有键值
+		    ,field = obj.field; //得到字段
+		    switch(obj.field)
+			{
+				case 'Unit'://修改单位
+					dataJson[obj.data['LAY_TABLE_INDEX']].Unit = value;
+					break;
+				case 'UnitRate'://修改倍率
+					unitRateChange(obj)
+					break;
+				case 'CostPrice'://修改成本价
+					costPriceChange(obj)
+					break;
+				case 'Price'://修改售价
+					priceChange(obj)
+					break;
+				default:
+			}
+		});
+		
+		//提交
+		form.on('submit(form1)', function (data) {
+			if (dataJson.length<=0) {
+	            layer.msg("至少保留一个规格");
+	            return false;
+	        }
+			//验证单位
+	        if(!UnitValidate())return false;
+	        
+	        
+	        var para = { cyxmId:'@ViewBag.Id', list: dataJson };
+	        $.ajax({
+	            type: "post",
+	            url: "/Res/Project/SpecificationSubmit",
+	            dataType: "json",
+	            contentType: "application/json; charset=utf-8",
+	            data: JSON.stringify(para),
+	            async: false,
+	            beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            success: function (data, textStatus) {
+	                if (data.Data == true) {
+	                    parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+	                    //parent.Refresh();
+	                } else {
+	                    layer.alert(data["Message"]);
+	                }
+	            }
+	        });
+		})
+    });
+    
+    //当改变倍率时
+	function unitRateChange(obj){
+		var index = obj.data['LAY_TABLE_INDEX'];
+		var val = obj.value;
+		if(isNumberValidate(val,'倍率')){
+			dataJson[index].UnitRate = val;
+			dataJson[index].CostPrice = dataTitle.CostPrice * val
+			dataJson[index].Price = dataTitle.Price * val;
+		}
+		tableInit();
+	}
+	
+	//当改变成本价时
+	function costPriceChange(obj){
+		var index = obj.data['LAY_TABLE_INDEX'];
+		var val = obj.value;
+		if(isNumberValidate(val,'成本价')){
+			dataJson[index].CostPrice = val;
+		}
+	}
+	
+	//当改变售价时
+	function priceChange(obj){
+		var index = obj.data['LAY_TABLE_INDEX'];
+		var val = obj.value;
+		if(isNumberValidate(val,'售价')){
+			dataJson[index].Price = val;
+		}
+	}
+	
+	
+	//规格 添加
+	function addSpecification(){
+		dataJson.push({ Unit: "", UnitRate: 1, Price: dataTitle.Price, CostPrice: dataTitle.CostPrice })
+		tableInit();
+		$('.layui-table-body').animate({scrollTop: $('.layui-table-body>table').height()}, 300); 
+		$('.layui-table-view').find('.layui-table-body tr:last td:first').click()
+	}
+	
+	//单位验证
+	function UnitValidate(){
+		var n = "";
+		$.each(dataJson,function(i,item){
+			if(item.Unit == ""){
+				n = i;
+				layer.msg('单位不能为空', {icon: 5,shift: 6})
+				return false;
+			}
+		})
+		tableInit();
+		if(n !==""){
+			var tableBody = $('.layui-table-body');
+			tableBody.animate({scrollTop:44 * (n+1)  - tableBody.height() + 1}, 100); 
+			tableBody.find('tr:eq(' + n + ') td:first').click()
+			return false
+		}
+		return true;
+	}
+	
+	//数字验证
+	function isNumberValidate(val,tagetVal){
+		var msg;
+		var t = true;
+		if(isNaN(val) || val.indexOf('.') + 1 === val.length){
+			t = false;
+			msg = '必须是数字';
+		}else if(val < 0){
+			t = false;
+			msg = '必须大于0';
+		}else if(val.split(".")[1] && val.split(".")[1].length > 2){
+			t = false;
+			msg = '最多只能有两位小数';
+		}
+		msg = tagetVal + msg;
+		if(!t)layer.msg(msg, {icon: 5,shift: 6})
+		
+		return t;
+	}
+	
+	//重新渲染表单
+	function tableInit(){
+		var top = $('.layui-table-body').scrollTop()
+		laytpl(tableBody).render(dataJson, function (html) {
+            tableBodyView.innerHTML = html;
+            
+            table.init('table-demo', { //转化静态表格
+        		height: 'full-140'
+        		,limit: 999999
+		    }); 
+		    $('.layui-table-body').scrollTop(top)
+		    
+        });
+	}
+</script>

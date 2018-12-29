@@ -1,0 +1,82 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "预定预测";
+    string beginDate = ViewBag.beginDate;
+    string endDate = ViewBag.endDate;
+
+    string RestaurantName = ViewBag.RestaurantName;
+}
+
+<div class="container-fluid">
+    <ol class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">
+        <li>首页</li>
+        <li>收支统计</li>
+        <li>预定预测</li>
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </ol>
+    <div class="form-inline">
+
+
+        <div class="form-group">
+            <label for="">餐厅名称:</label>
+            <input type="text" value="@RestaurantName" class="form-control" id="RestaurantName" readonly="readonly" name="RestaurantName" style="width:150px" />
+        </div>
+
+        <div class="form-group">
+            <label for="">预定日期:</label>
+
+            <input type="text" class="form-control datetimepicker" id="BeginDate" value="@beginDate" name="beginDate" style="width:100px" />
+            -
+            <input type="text" class="form-control datetimepicker" id="EndDate" value="@endDate" name="endDate" style="width:100px" />
+        </div>
+
+
+
+        <div class="form-group">
+            <button type="button" onclick="Search()" class="btn btn-primary search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+        </div>
+    </div>
+    <div class="page-container">
+        <table id="tablist" class="table table-condensed table-hovered sortableTable">
+            @*<tr><td rowspan="2">姓名</td><td rowspan="2">年龄</td><td colspan="2">10-16（一）</td><td colspan="2">10-17（二）</td></tr>
+
+                <tr><td>早</td><td>晚</td><td>早</td><td>晚</td></tr>*@
+        </table>
+    </div>
+</div>
+@section FooterScripts{
+    <script type="text/javascript">
+        var date = new Date();
+        $('#BeginDate,#EndDate').datetimepicker(
+            {
+                language: "zh-CN",
+                format: "yyyy-mm-dd",
+                todayBtn: true,
+                clearBtn: true,// 自定义属性,true 显示 清空按钮 false 隐藏 默认:true
+                startView: 2,
+                minView: 2,
+                weekStart: 1,
+                todayHighlight: 1,
+                autoclose: 1,
+                forceParse: 0
+            }
+        );
+
+
+        function Search() {
+            $("#tablist").html("");
+            var BeginDate = $('#BeginDate').val();
+            var EndDate = $('#EndDate').val();
+
+            $.getJSON("/Res/Order/ForecastSearch/", { BeginDate: BeginDate, EndDate: EndDate }, function (data) {
+                if (data != "") {
+                    $("#tablist").html(data);
+                }
+            });
+        }
+
+    </script>
+}
+
+

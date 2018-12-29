@@ -1,0 +1,208 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Login";
+}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+	@StylesEx.Render(Plugin.Instance.Name, "MPublicStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "mUserLoginStyle")
+	@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+</head>
+<body>
+<div id="loading"><div class="layui-layer-content"></div></div>
+<div class="wrap">
+	<div class="container" style="padding-left:0;">
+		<div class="login-form">
+			<form action="">
+				<div class="form-item">
+					<label for="txtAccount"><i class="iconfont">&#xe60e;</i></label>
+					<input type="text" id="txtAccount" name="username" id="" lay-verify="required" placeholder="请输入账号" autocomplete="off" class="login-input">
+				</div>
+				<div class="form-item">
+					<label for="txtPassword"><i class="iconfont">&#xe677;</i></label>
+					<input type="password" id="txtPassword" name="username" lay-verify="required" placeholder="请输入密码" autocomplete="off" class="login-input">
+				</div>
+				<div class="btns">
+					<button type="submit" id="btnLogin" lay-filter="login" class="layui-btn layui-btn-normal">登录</button>
+					<button type="button" id="userMode" class="layui-btn layui-btn-danger" onclick="location.replace('/Res/Flat');">用户模式</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+	isAction = getUrlParam('action');
+	if(isAction)$('#userMode').hide();
+	
+	layui.use(['layer', 'form'], function () {
+    	var layer = layui.layer,
+	        $ = layui.jquery,
+	        form = layui.form;
+
+	    
+	    var isSubmit = false;//是否进行时
+        
+        $('.form-item').click(function(){
+        	$(this).children('input').focus();
+        })
+        
+		$(".login-form form").submit(function(e){
+			$('.form-item input').blur();
+			if(isSubmit)return false;
+			var txtAccount = $('#txtAccount').val().trim();
+			var txtPassword = $('#txtPassword').val().trim();
+			
+			isSubmit = true;
+			$("#btnLogin").attr('disabled', 'disabled').html("loading...");
+			var para = { Account: txtAccount, PassWord: txtPassword };
+			var shoplist = "";
+			
+			$.ajax({
+                url: "/Res/Account/LoginIn",
+                data: JSON.stringify(para),
+                type: "post",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data.Successed && data.Data != null) {
+                        var list = data.Data;
+                        if (list.length > 0) {
+                            for (var i = 0; i < list.length; i++) {
+
+                                var marketList = '<option value="" >请选择</option>';
+                                for (var j = 0; j < list[i].MarketList.length; j++) {
+                                    var selected = list[i].MarketList[j].IsDefault == true ? 'selected' : '';
+                                    marketList += '<option value="' + list[i].MarketList[j].Id + '" ' + selected
+                                        + '>' + list[i].MarketList[j].Name + '</option>';
+                                }
+                                shoplist += '<li>'
+                                    + '<h4>' + list[i].Name + '</h4>'
+                                    + '<div>'
+                                    + '<div class="layui-input-inline" style="width:60%;margin-top:6px;">'
+                                    + '<select name="Market" lay-verify="Market">' + marketList + '</select>'
+                                    + '</div>'
+                                    + '<a href="javascript:void(0);" data-id="' + list[i].Id
+                                    + '" class="ok">进入餐厅</a>'
+                                    + '</div>'
+                                    + '</li>';
+                            }
+
+                            layer.open({
+                                type: 1,
+                                closeBtn: 0,
+                                shadeClose: true,
+                                title: "选择操作的餐厅",
+                                area: ["90%", "90%"],
+                                content: '<ul class="choice-shop layui-form">' + shoplist + '</ul>',
+                                maxmin: false,
+                                success: function(layero, index){
+                                	//进入餐厅点击
+		                            $('.choice-shop a.ok').click(function () {
+		                                var Marketid = $(this).prev('.layui-input-inline').find('select[name="Market"]').val();
+		                                var shopid = $(this).attr('data-id');
+		                                if (!Marketid) {
+		                                    layer.msg('请选择餐厅分市!');
+		                                } else {
+		                                    entrySys(shopid, Marketid);
+		                                }
+		                            })
+								},
+								end: function(){
+									isSubmit = false;
+									$("#btnLogin").attr('disabled', false).html("登录");
+								}
+                            });
+                            form.render('select');
+
+                        }
+                    } else {
+                        isSubmit = false;
+						$("#btnLogin").attr('disabled', false).html("登录");
+                       
+                        layer.msg(data.Message, { offset: '455px' });
+                    }
+                }
+            });
+		    return false;
+		});
+		
+		var login_error = top.$.cookie('opupms_login_error');
+        if (login_error != null) {
+            switch (login_error) {
+                case "overdue":
+                    layer.msg('系统登录已超时,请重新登录！', { icon: 2, offset: '455px' });
+                    break;
+                case "OnLine":
+                    layer.msg('您的帐号已在其它地方登录,请重新登录！', { icon: 2, offset: '455px' });
+                    break;
+                case "-1":
+                    layer.msg('系统未知错误,请重新登录！', { icon: 2, offset: '455px' });
+                    break;
+            }
+            top.$.cookie('opupms_login_error', '', { path: "/", expires: -1 });
+        }
+        
+        //初始化动作全部完成时
+        $('#loading').remove();
+   	})
+	
+	
+	function entrySys(id, marketId) {
+        $.ajax({
+            type: "post",
+            url: "/Res/Account/SelectRestaurant",
+            data: JSON.stringify({ id: id, marketId: marketId }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                if (data.Data == true) {
+                    $("#btnLogin").find('span').html("登录成功，正在跳转...");
+                    
+                    layindex = layer.open({type: 3});
+                    
+                    window.setTimeout(function () {
+	                    if(isAction){
+	                    	window.location.href = "/Res/MHome/Reserve?action=r";
+	                    }else{
+	                    	window.location.href = "/Res/MHome/Index";
+	                    }
+                    }, 200);
+                } else {
+                    layer.alert(data.Message);
+                }
+            }
+        });
+    }
+	
+	//获取URL参数
+	function getUrlParam(name) {
+	    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+	    var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+	    if (r != null) return unescape(r[2]); return null; //返回参数值
+	}
+	
+	
+</script>
+</body>
+</html>

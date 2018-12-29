@@ -1,0 +1,170 @@
+﻿@{ 
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>餐厅</title>
+@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+@StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<style>
+	.scrollBtn{bottom:10px;right:-146px;}
+	.scrollBtn .layui-btn{height:38px;}
+	
+	.console .MealTable-lists{overflow: hidden;}
+	#TableList_view{overflow-y: scroll;}
+	
+	.layui-layer-loading .layui-layer-content{height: 60px!important;}
+	
+</style>
+<body>
+<header class="ClassTab-head" style="margin-right:160px;position:relative;">
+    <div class="class-group" id="AreaList_view">
+    </div>
+    <script id="AreaList_tpml" type="text/html">
+        <a href="javascript:void(0)" data-area="0" class="layui-btn layui-btn-primary layui-this">全部</a>
+        {{#  layui.each(d, function(index, item){ }}
+        <a href="javascript:void(0)" data-area="{{ item.Id }}" class="layui-btn layui-btn-primary">{{ item.Name }}</a>
+        {{#  }); }}
+    </script>
+    <!--滚动按钮  开始-->
+    <div class="scrollBtn HeaderScrollBtn">
+    	<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+    	<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+		<div class="layui-btn layui-btn-normal menuBtn"><i class="layui-icon">&#xe649;</i></div>
+    </div>
+    <!--滚动按钮  结束-->
+</header>
+<style>
+	::-webkit-scrollbar{width:0px;}
+</style>
+
+<div class="container console flex">
+    <!-- ▼餐台列表 -->
+    <div class="MealTable-lists flex-item">
+      	<ul id="TableList_view">
+          
+      	</ul>
+      	<script id="TableList_tpml" type="text/html">
+            {{# layui.each(d, function(index, item){ }}
+              	<li  class="{{# if(item.CythStatus > 1){ }} InUse {{#  } }}
+              		{{# if(item.OrderNow.length > 0 && item.OrderNow[0].IsLock){ }} lock {{# }else{ }}
+              			{{#  if(item.OrderNow[0] && item.OrderNow[0].IsWeiXin ){ }} wx {{#  }else{ }}
+		          	        {{#  if(item.CythStatus == 1){ }} empty {{#  } }} 
+		                    {{#  if(item.CythStatus == 2){ }} add {{#  } }} 
+		                    {{#  if(item.CythStatus == 3){ }} dirty {{#  } }}
+		                {{# } }}
+	                {{# } }}" >
+	                
+                         
+            	<a  href="javascript:void(0);" data-no="{{ index }} ">
+                   	<div class="MealTable-head flex">
+                     	<span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                     	<span class="item MealTable-usernum tc"><i class="iconfont">&#xe660;</i>{{ item.SeatNum }}</span>
+                     	<span class="item MealTable-time"><i class="iconfont">&#xe735;</i>{{ item.FirstOrderTime }}</span>
+                   	</div>
+                   	<div class="MealTable-title">
+                    	{{ item.Name }}
+                  	</div>
+				   	{{# if(pWinW > 1024){ }}
+	                    <div class="MealTable-state">
+	                   	  {{#  layui.each(item.OrderList, function(index, item){ }}
+	                   	     {{# if(item.MarketId == inidata.LoginMarketId){ }}
+	                   	   		<p><span class="layui-badge badge-one">{{ item.MarketName }}</span>{{ item.ContactPerson }} ({{ item.PersonNum }}人)</p>
+	                   	     {{# } }}
+	                   	  {{#  }) }}
+	                    </div>
+                   		{{#  if(item.OrderNow.length < 1){ }} 
+                   
+	                   	{{#  } else if(item.OrderNow.length == 1){ }} 
+			               <div class="MealTable-footer flex">
+			                 	<span class="MealTable-icon color-green" style="text-align: left;">{{ item.OrderNow[0].OrderStatusDesc }}</span>
+			                 	<span class="MealTable-price flex-item">￥{{ item.SumCurrentOrderAmount }}</span>
+			               </div>
+	                   	{{#  } else { }}
+	                       	<div class="MealTable-footer flex">
+	                       	 	<span class="MealTable-price">{{ item.OrderNow.length }} 个订单</span>
+			                 	<span class="MealTable-price flex-item">￥{{ item.SumCurrentOrderAmount }}</span>
+			               	</div>
+	                   	{{#  } }}
+                   	{{# } }}
+                  
+                   
+                </a>
+              </li>
+            {{#  }); }}
+          </script>
+        <!--<footer class="footer-copyright">
+            <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+        </footer>-->
+    </div>
+    <!-- ▲餐台列表 -->
+    
+    <!-- ▼餐台右侧 筛选/数据 -->
+    <div class="right-side console-right-side">
+        <div class="MealTable-Screen">
+            <ul  id="TableStatusList_view">
+
+            </ul>
+            <script id="TableStatusList_tpml" type="text/html">
+                {{#  layui.each(d, function(index, item){ }}
+
+                <li class="{{#  if(index == 0){ }} layui-this {{#  } }}" data-key="{{ item.Key }}">
+                    {{#  if(item.Key == 0){ }} 
+                        <i class="ScreenMealTable-icon all" data-key="all"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 1){ }} <i class="ScreenMealTable-icon empty" data-key="empty"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 2){ }} <i class="ScreenMealTable-icon add" data-key="add"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                    {{#  if(item.Key == 3){ }} <i class="ScreenMealTable-icon dirty" data-key="dirty"></i> {{ item.Text }}
+                        <span class="num">{{ item.Value }}</span>{{#  } }}
+
+                </li>
+                {{#  }); }}
+            </script>
+
+        </div>
+        <div class="MealTable-box">
+        	<a href="javascript:void(0);" onclick="BatchEmpty();" class="layui-btn layui-btn-primary full">批量置空</a>
+        </div>
+        <div class="MealTable-Data" id="MealTableData_view">
+            
+        </div>
+        <script id="MealTableData_tpml" type="text/html">
+            <p>总客数<span class="num">{{ d.CurrentTotalGuestNum }}</span></p>
+            <p>上座率<span class="num">{{ d.CurrentTableUsedRate }}%</span></p>
+            <div class="DataPanel">
+                <h3>￥{{ d.CurrentTotalAmount }}</h3>
+                <p>总金额</p>
+            </div>
+        </script>
+
+        <div class="SysTime">
+            <p id="current-date"></p>
+            <h3 id="current-time"></h3>
+            <div class="blue">
+            	<p>营业日期</p>
+            	<p id="Date_view"></p>
+            </div>
+            <script id="Date_tpml" type="text/html">{{ d }}</script>
+        </div>
+    </div>
+    <!-- ▲餐台右侧 筛选/数据 -->
+</div>
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "isScrollconfigJS")
+    @ScriptsEx.Render(Plugin.Instance.Name, "HomeJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+</body>
+</html>

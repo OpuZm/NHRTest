@@ -1,0 +1,275 @@
+﻿@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+  <div class="row">
+     <div class="col-md-10 pl-none">
+        <div class="form-room_data layui-form form-title-lt b-fff xian p-sm">
+            <h3 class="tl  label-title">基本信息</h3>
+            <div class="row mt-sm">
+                <div class="col-md-3 plr-none">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">预定类型</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="ydtype" value="散客预定" title="散客预定">
+                            <input type="radio" name="ydtype" value="团队预定" title="团队预定">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">预定人</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">预定单位</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">卡号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公司</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">旅行社</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">订房中心</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">预定号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">中央预定号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 plr-none">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">VIP</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">到达时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required"  autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">天数</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="number" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">离开时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required"  autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="row">
+                       <div class="col-md-6 plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">成人</label>
+                               <div class="layui-input-block">
+                                   <input type="number" name="number" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                       <div class="col-md-6 tr plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">小孩</label>
+                               <div class="layui-input-block">
+                                   <input type="number" name="number" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                    </div>
+                    <div class="row">
+                       <div class="col-md-6 plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">房价码</label>
+                               <div class="layui-input-block">
+                                   <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                       <div class="col-md-6 tr plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">佣金码</label>
+                               <div class="layui-input-block">
+                                   <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                    </div>
+                    
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">销售员</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">包价</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="row">
+                       <div class="col-md-6 plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">客房布置</label>
+                               <div class="layui-input-block">
+                                   <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                       <div class="col-md-6 tr plr-none">
+                           <div class="layui-form-item">
+                               <label class="layui-form-label">特殊要求</label>
+                               <div class="layui-input-block">
+                                   <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                               </div>
+                           </div>
+                       </div>
+                    </div>
+
+                </div>
+                <div class="col-md-3 plr-none">
+                    <div class="row">
+                       <div class="col-md-6 plr-none">
+                         <div class="layui-form-item">
+                             <label class="layui-form-label"></label>
+                             <div class="layui-input-block">
+                                 <input type="checkbox" name="" title="确认预定" checked>
+                             </div>
+                         </div>
+                         <div class="layui-form-item">
+                             <label class="layui-form-label"></label>
+                             <div class="layui-input-block">
+                                 <input type="checkbox" name="" title="固定房价" checked>
+                             </div>
+                         </div>
+                         <div class="layui-form-item">
+                             <label class="layui-form-label"></label>
+                             <div class="layui-input-block">
+                                 <input type="checkbox" name="" title="房价保密" checked>
+                             </div>
+                         </div>
+                       </div>
+                       <div class="col-md-6 plr-none">
+                           <div class="icon-state"></div>
+                       </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">电&nbsp;&nbsp;&nbsp; 话</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">手&nbsp;&nbsp;&nbsp; 机</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">传&nbsp;&nbsp;&nbsp; 真</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">邮&nbsp;&nbsp;&nbsp; 政</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 plr-none">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">卡&nbsp;&nbsp;&nbsp; 号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+      <div class="col-md-2 xian b-fff pt-sm">
+          <div class="room_screen">
+              <a href="javascript:void(0);" class="panel-tabs_title active tabs-n_title"><i class="icon-Help"></i><span>帮助和服务</span></a>
+              <div class="tabs-n_centent show">
+                  <div class="help-container">
+                      <div class="help-body_title">实时房态是什么?</div>
+                      <div class="help-body_body">
+                          实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态。
+                      </div>
+                      <div class="help-body_list">
+                          <a href="#">如何操作开房？</a>
+                          <a href="#">会员如何开房？</a>
+                          <a href="#">怎样查看入住信息？</a>
+                          <a href="#" class="text-right">更多 <i class="icon-Arrow_line_right"></i></a>
+                      </div>
+                  </div>
+                  <div class="help-container">
+                      <div class="help-body_title">奥普在线客服</div>
+                      <div class="help-body_service">
+                          <div class="media">
+                              <div class="media-left">
+                                  <img class="media-object" src="@Url.Content(Plugin.Instance.GetContentPath("Images/ewm.jpg"))" alt="奥普官网二维码">
+                              </div>
+                              <div class="media-body">
+                                  <h4 class="media-heading"><i></i>400-0773-021</h4>
+                                  <p>有问题来问我哦123456！</p>
+                              </div>
+                          </div>
+                          <a class="btn m-b-xs w-xs btn-border" href="#">400 在线客服</a>
+
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>  
+
+    @ScriptsEx.Render(Plugin.Instance.Name, "BookingDetailJs")
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.loader-box').remove();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+﻿@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/GroupTemplate.cshtml"));
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>OPU-PMS 一站式快捷管理系统</title>
+
+    @*@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle")
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs")*@
+
+</head>
+
+<body style="background:#f1f1f1; ">
+    <div>
+        <div>
+            <!-- Nav tabs -->
+
+            <div id="page_home" >
+                <div style="margin-left:25%; margin-top:15%;">
+                    <table>
+                        <tr>
+                            <td height="50px" width="120px"><button type="button" onclick="getGroupLsit()">集团列表</button></td>
+                            <td height="50px" width="120px"><button type="button" onclick="addGroup()">添加集团</button></td>
+                            <td height="50px" width="120px"><button type="button" onclick="hotel()">客房设置</button></td>
+                            <td height="50px" width="120px"><button type="button" onclick="res()">餐饮设置</button></td>
+                        </tr>
+                        <tr>
+                            <td height="50px" width="120px"><button type="button">用户角色设置</button></td>
+                            <td height="50px" width="120px"><button type="button">仓库设置</button></td>
+                            <td height="50px" width="120px"><button type="button">报表设置</button></td>
+                            <td height="50px" width="120px"><button type="button" onclick="logout()">退出系统</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function logout() { window.location.href = "/User/Logout"; }
+        function res() { window.location.href = "/Res/Home/Index"; }
+        function hotel() { window.location.href = "/H/CloudPMS/Index"; }
+        function addGroup() { window.location.href = "/MS/Group/AddGroup"; }
+        function getGroupLsit() { window.location.href = "/MS/Group/List"; }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

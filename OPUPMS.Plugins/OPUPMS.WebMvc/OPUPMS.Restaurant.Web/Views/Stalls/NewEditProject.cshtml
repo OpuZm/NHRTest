@@ -1,0 +1,431 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = null;
+    StallsCreateDTO Stall = ViewBag.Stall ?? new StallsCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+	#CategoryList_view li, .tab-nav-sm li {font-size: 14px;font-weight: 500;padding: 0 5px;}
+	.class-tab .MealTable-lists li .MealTable-title{line-height: 24px;}
+	.MealTable-lists li .MealTable-head, .MealTable-lists li .MealTable-footer{line-height: 16px;}
+	
+	</style>
+</head>
+<body>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="tabgroup">
+        <ul class="layui-tab-title">
+            <li class="layui-this">菜品总单关联设置</li>
+            <li>菜品详情单关联设置</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 540px;padding:0;">
+	            <div class="layui-tab-item layui-show">
+	            	<div class="layui-form" action="">
+						<div class="StartDesk-form flex-item  class-tab" style="padding-left: 10px; margin-right: 0px;">
+							@Html.AntiForgeryToken()
+							<div class="ClassTab-head moveClassTab">
+			                    <div id="CategoryList_view" class="layui-tab layui-tab-brief CategoryListTab" lay-filter="ClassTab" style="width: calc(100vw - 40px); overflow: hidden;"> 
+			                    </div>
+			                    <script id="CategoryList_tpml" type="text/html">
+			                        <ul class="layui-tab-title">
+			                            <li class="layui-this">全部</li>
+			                            {{#  layui.each(d, function(index, item){ }}
+			                            <li>{{ item.Name }}</li>
+			                            {{#  }); }}
+			                            
+			                        </ul>
+			                        <div class="layui-tab-content" >
+			                            <div class="layui-tab-item layui-show">
+			                                <div class="class-group">
+			                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-btn-sm layui-this">全部</a>
+			                                </div>
+			                            </div>
+			                            {{#  layui.each(d, function(index, item){ }}
+			                            <div class="layui-tab-item">
+			                            	<a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-left"><i class="layui-icon">&#xe65a;</i></a>
+			                                <div class="class-group">
+			                                     <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this">全部</a>{{#  if(item.ChildList.length > 0){ }}{{#  layui.each(item.ChildList, function(index, item){ }}<a href="javascript:void(0);" class="layui-btn layui-btn-primary ">{{ item.Name }}</a>{{#  }); }}{{#  }  }}
+			                                </div>
+			                                <a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-right"><i class="layui-icon">&#xe65b;</i></a>
+			                            </div>
+			                            {{#  }); }}
+			                        </div>
+			                    </script>
+			                </div>
+			                <!-- ▼菜品列表 -->
+			                <div class="MealTable-lists flex-item" style="margin-right: 0;height: 430px; overflow: auto;">
+			                    <ul id="ProjectAndDetails_view"></ul>
+			                    <script id="ProjectAndDetails_tpml" type="text/html">
+			                        {{#  layui.each(d.ProjectsArr, function(index, item){ var checked=""; }}
+			                            {{#  layui.each(d.checkedArr, function(findex, fitem){ }}
+			                               {{# if(fitem.R_Project_Id == item.Id && fitem.BillType ==BillType  ){ checked="class=checked"; } }}
+			                            {{#  }); }}
+				                        <li data-id="{{ item.Id }}" data-CyddMxType="{{ item.CyddMxType }}"  {{ checked }} >
+				                            <a href="javascript:void(0);">
+				                                <div class="MealTable-head flex">
+				                                    <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+				                                </div>
+				                                <div class="MealTable-title">
+				                                    {{ item.Name }}
+				                                </div>
+				                            </a>
+				                        </li>
+			                        {{#  }); }}
+			                    </script>
+			                </div>
+					
+						</div>
+					</div>
+					<div class="layer-btns-bottom layui-form">
+							<div style="float: left;"><input type="checkbox" name="allcheck" id="allcheck" lay-filter="allcheck" title="全选"></div>
+	                    	<button class="layui-btn layui-btn-normal" lay-submit="" lay-filter="form1">立即提交</button>
+	                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+	                   </div>
+            </div>
+           
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+	var inidata,
+	    ProjectsArr,
+	    checkedArr,
+		laytpl,
+		form,
+		BillType=2;
+    layui.use(['element', 'form', 'layer','laytpl'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+            form = layui.form;
+            laytpl=layui.laytpl;
+
+        //获取参数
+      
+        $.ajax({
+            type: "get",
+            url: "/Res/Stalls/GetStallProjects?id=@Stall.Id",
+        
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                inidata=data;
+                ProjectsArr=data.ProjectAndDetails;
+                checkedArr=data.model.ProjectStallList;
+                //渲染 菜品分类
+	            var getTpl = CategoryList_tpml.innerHTML
+	                , view = document.getElementById('CategoryList_view');
+	            laytpl(getTpl).render(data.CategoryList, function (html) {
+	                view.innerHTML = html;
+	            });
+	            element.init();
+	            
+	            //渲染菜品列表数据
+	            newProjectsList();
+	            
+	            //类型切换
+	            element.on('tab(tabgroup)', function(data){
+	            	if (data.index==0) {
+	            		BillType=2;
+	            	}else{
+	            		BillType=1;
+	            	}
+	            	newProjectsList();
+	            	
+	            });
+	            
+	            
+	            //全选/全不选
+	            form.on('checkbox(allcheck)', function (data) {
+	                var list = $('#ProjectAndDetails_view li');
+	                if (data.elem.checked == true) {//全选
+	                    list.addClass('checked');
+	                    var newarr=[];
+	                    for (var i = 0; i < list.length; i++) {
+	                    	var id=list.eq(i).attr('data-id');
+	                    	var is=true;
+	                    	for (var j = 0; j < checkedArr.length; j++) {
+	                    		var item=checkedArr[j];
+	                    		if (id==item.R_Project_Id && item.BillType==BillType) {
+	                    			is=false;
+	                    		}
+	                    	}
+	                    	if (is) {//数组不存在
+	                    		var arr={BillType:BillType,Id:0,R_Project_Id:id,R_Stall_Id:@Stall.Id};
+	                    		newarr.push(arr);
+	                    		checkedArr.push(arr);
+	                    	}
+	                    }
+	                 
+	                } else {
+	                    list.removeClass('checked');
+
+	                    for (var i = 0; i < list.length; i++) {
+	                    	var id=list.eq(i).attr('data-id');
+	                    	var is=true;
+	                    	for (var j = 0; j < checkedArr.length; j++) {
+	                    		var item=checkedArr[j];
+	                    		if (id==item.R_Project_Id && item.BillType==BillType) {
+	                    			is=false;
+	                    			checkedArr.splice(j,1);
+	                    		}
+	                    	}
+	                   }
+	                }
+	                newProjectsList();
+	
+	            });
+	            
+				//一级分类点击
+	            element.on('tab(ClassTab)', function(data){
+	            	//判断是否需要显示  滚动按钮
+					var $content = data.elem.find('.layui-tab-content');
+					var maxWidth = $content.width();
+					var a_width = 0;
+					$.each($content.find('.layui-tab-item').eq(data.index).find('.class-group a'),function(i){
+						a_width += $(this).outerWidth();
+						if(i > 0)a_width += 10;
+					})
+					$content.hasClass('expand') ? maxWidth += 90 : maxWidth ;
+					maxWidth >= a_width ? $content.removeClass('expand') : $content.addClass('expand');
+	            	
+	            	//点击的分类
+	            	var newsArr=[];
+	            	if(data.index==0){//全部
+	            		newsArr=inidata.ProjectAndDetails;
+	            	}else{
+		            	var CategoryList=inidata.CategoryList[data.index-1];
+		            	if(CategoryList.ChildList.length>0){//有子分类
+		            		for (var i = 0; i < CategoryList.ChildList.length; i++) {
+		            			classid=CategoryList.ChildList[i].Id;
+		            			for (var j = 0; j < inidata.ProjectAndDetails.length; j++) {
+		            				var item=inidata.ProjectAndDetails[j];
+		            				if(classid==item.Category){//成立
+							  	 		newsArr.push(item);
+							  	 	}
+		            			}
+							}
+
+		            		$('#CategoryList_view .layui-tab-content .layui-tab-item.layui-show .class-group a.layui-btn').eq(0).addClass('layui-this').siblings('a').removeClass('layui-this');
+		            	}else{//没有子分类的
+		            		for (var j = 0; j < inidata.ProjectAndDetails.length; j++) {
+	            				var item=inidata.ProjectAndDetails[j];
+	            				if(CategoryList.Id==item.Category){//成立
+						  	 		newsArr.push(item);
+						  	 	}
+		            		}
+		            	}
+	            	}
+	            	
+	            	ProjectsArr=newsArr;
+	            	newProjectsList();
+				});
+				//二级分类点击
+				$('#CategoryList_view .class-group').delegate('a.layui-btn', 'click', function(event) {
+					var classno=$(this).parent('.class-group').parent('.layui-tab-item').index();
+					$(this).addClass('layui-this').siblings('a').removeClass('layui-this');
+					var newsArr=[];
+					if (classno==0) {//全部--全部
+						newsArr=inidata.ProjectAndDetails;
+					}else{
+						var btnno=$(this).index();
+						if (btnno==0) {//分类下的全部
+							$('#CategoryList_view .layui-tab-title .layui-this').click();
+							return false;
+						}else{
+							var classdata=inidata.CategoryList[classno-1];
+							var classid=classdata.ChildList[btnno-1].Id;
+							for (var j = 0; j < inidata.ProjectAndDetails.length; j++) {
+	            				var item=inidata.ProjectAndDetails[j];
+	            				if(classid==item.Category){//成立
+						  	 		newsArr.push(item);
+						  	 	}
+	            		}
+							
+							ProjectsArr=newsArr;
+	            			newProjectsList();
+							
+						}
+					}
+				})
+				
+				//菜品选择
+				$('#ProjectAndDetails_view ').delegate('li', 'click', function(event) {
+					var id=$(this).attr('data-id');
+				    
+				    
+				    if ($(this).hasClass('checked')) {
+				    	//var newarr=[];
+				    	for (var i = 0; i < checkedArr.length; i++) {
+				    	   if (checkedArr[i].R_Project_Id ==id && checkedArr[i].BillType==BillType ) {
+				    	   	  // newarr.push(checkedArr[i]);
+				    	   	   checkedArr.splice(i,1);
+				    	   }
+				    	}
+				    	//checkedArr=newarr;
+				    	newProjectsList();
+				    	$(this).removeClass('checked');
+				    }else{
+				    	$(this).addClass('checked');
+				    	var id=$(this).attr('data-id');
+				    	var arr={BillType:BillType,Id:0,R_Project_Id:id,R_Stall_Id:@Stall.Id};
+				    	checkedArr.push(arr);
+				    	newProjectsList();
+				    }
+				})
+                
+                
+                
+            }
+        })
+        
+        
+        form.on('submit(form1)', function(data){
+        	var token = $('@Html.AntiForgeryToken()').val();
+            var headers = {};
+            headers["__RequestVerificationToken"] = token;
+            
+		    var para = { id: '@Stall.Id', req: checkedArr };
+		    $.ajax({
+                type: "post",
+                url: "/Res/Stalls/EditProjectNew",
+                dataType: "json",
+                headers: headers,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(para),
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        layer.confirm("提交完成", {
+                            btn: ['继续操作', '关闭'] //按钮
+                        }, function () {
+                            location.reload();
+                        }, function () {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        });
+                        
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            })
+		  return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+		});
+        
+
+      
+    });
+    
+    //监控滚动条   向左滚动
+    $(document).on('mousedown touchstart','.layui-tab .move-btn.move-left',function(){
+    	var $group = $(this).siblings('.class-group');
+    	var isScoll = true;//是否继续滚动
+        $(this).on('mouseup touchend',function(){
+        	isScoll = false;
+            $(this).off('mouseup touchend');
+            $(this).off('mouseleave');
+        })
+        
+        $(this).on('mouseleave',function(){
+        	isScoll = false;
+            $(this).off('mouseleave');
+            $(this).off('mouseup touchend');
+        })
+        
+        setTimeout(moving,15);
+        function moving(){
+        	if(isScoll){
+    			var x = $group.scrollLeft();
+    			x - 10 > 0 ? x -= 10 : x = 0;
+    			if(x <= 0){
+    				$group.scrollLeft(0);
+    				scolling = false;
+    			}else{
+    				$group.scrollLeft(x)
+    				setTimeout(moving,15);
+    			}
+    		}
+        }
+    })
+
+    //监控滚动条   向左滚动
+    $(document).on('mousedown touchstart','.layui-tab .move-btn.move-right',function(){
+    	var $group = $(this).siblings('.class-group');
+    	var isScoll = true;//是否继续滚动
+    	var x = $group.scrollLeft();
+    	maxScroll = 0;
+        $(this).on('mouseup touchend',function(){
+        	isScoll = false;
+            $(this).off('mouseup touchend');
+            $(this).off('mouseleave');
+        })
+        
+        $(this).on('mouseleave',function(){
+        	isScoll = false;
+            $(this).off('mouseleave');
+            $(this).off('mouseup touchend');
+            
+        })
+        
+        setTimeout(moving,15);
+        function moving(){
+        	if(isScoll){
+    			var x = $group.scrollLeft();
+    			x + 10 > 0 ? x += 10 : x = 0;
+    			if(maxScroll == x)return;
+    			maxScroll = x;
+				$group.scrollLeft(x)
+				setTimeout(moving,15);
+    		}
+        }
+    })
+    
+    
+    function newProjectsList(){
+    	//渲染 菜品
+    	var data={ProjectsArr:ProjectsArr,checkedArr:checkedArr};
+        var getTpl = ProjectAndDetails_tpml.innerHTML
+            , view = document.getElementById('ProjectAndDetails_view');
+        laytpl(getTpl).render(data, function (html) {
+            view.innerHTML = html;
+        });
+        var linum=$('#ProjectAndDetails_view li').length;
+        var checknum=$('#ProjectAndDetails_view li.checked').length;
+        if (checknum==linum) {
+        	$('input[name="allcheck"]').each(function(){this.checked=true;});
+        }else{
+        	$('input[name="allcheck"]').each(function(){this.checked=false;});
+        }
+        form.render('checkbox');
+    }
+</script>
+
+

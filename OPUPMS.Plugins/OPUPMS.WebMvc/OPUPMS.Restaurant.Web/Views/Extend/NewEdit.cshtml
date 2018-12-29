@@ -1,0 +1,159 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout =null;
+    ExtendCreateDTO Extend = ViewBag.Extend ?? new ExtendCreateDTO();
+    var Category = ViewBag.Category;
+    var ExtendType = ViewBag.ExtendType;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>商品特殊要求管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                @Html.AntiForgeryToken()
+                <div class="layui-row">
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">类型：</label>
+                        <div class="layui-input-inline">
+                            <select id="CyxmKzType" name="CyxmKzType" lay-verify="required" lay-required-msg="请选择类型" lay-search>
+                                <option value="">请选择</option>
+                                @{
+                                    if (Category != null)
+                                    {
+                                        foreach (var item in Category)
+                                        {                                       
+                                            <option value="@item.Key" @((int)Extend.CyxmKzType == item.Key ? "selected='selected'" : "")>@item.Value</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">扩展类别：</label>
+                        <div class="layui-input-inline">
+                            <select id="ExtendType" name="ExtendType" lay-verify="required" lay-required-msg="请选择扩展类别" lay-search>
+                                <option value="">请选择</option>
+                                @{
+                                    if (ExtendType != null)
+                                    {
+                                        foreach (var item in ExtendType)
+                                        {
+                                            <option value="@item.Id" @(Extend.ExtendType == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" value="@Extend.Name">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">价格：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Price" name="Price" placeholder="请输入价格" value="@Extend.Price" lay-verify="number|required|ServerRate" lay-required-msg="请输入价格">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">单位：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Unit" name="Unit" placeholder="请输入单位" value="@Extend.Unit">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">描述：</label>
+                        <div class="layui-input-block">
+                            <textarea id="Description" name="Description" class="layui-textarea" rows="10">@Extend.Description</textarea>
+                        </div>
+                    </div>
+
+                    <div class="layer-btns-bottom">
+                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                    <input type="hidden" id="Id" name="Id" value="@Extend.Id" />
+
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer', 'layedit', 'laydate'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            form = layui.form;
+
+        var textDescription = layedit.build('Description', {tool: ['strong','italic','underline','del','|','left','center','right','link','unlink','face' ], height: 150 });
+        
+        
+        form.verify({
+			ServerRate: function(value, item){
+				if(value < 0 ){
+					return '价格必须是正数';
+				}
+				if(value.split(".")[1] && value.split(".")[1].length > 2){
+					return '价格最多只能有两位小数'
+				}
+			}
+		});      
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+            var textVal = layedit.getContent(textDescription);
+            var params = data.field;
+            params.Description = textVal;
+            $.ajax({
+                type: "post",
+                url: "/Res/Extend/Edit",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: params,
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+                    layindex = layer.open({type: 3});
+                },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+    })
+        
+</script>

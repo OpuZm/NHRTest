@@ -1,0 +1,421 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = null;
+    DiscountCreateDTO Discount = ViewBag.Discount ?? new DiscountCreateDTO();
+    List<RestaurantListDTO> Restaurants = ViewBag.Restaurants;
+    List<CategoryListDTO> Categorys = ViewBag.Categorys;
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    string dc = Discount.CyxmZkCp != null ? string.Join(",", Discount.CyxmZkCp.Select(p => p.R_Category_Id)) : "";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>自定义折扣管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                @Html.AntiForgeryToken()
+                <div class="layui-row">
+                   
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" value="@Discount.Name">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">餐厅：</label>
+                        <div class="layui-input-inline">                        
+                                <select id="Restaurant" name="Restaurant" lay-filter="Restaurant" lay-verify="required" lay-required-msg="请输入餐厅" lay-search>
+                                    <option value="">请选择</option>
+                                    @{
+                                        if (Restaurants != null)
+                                        {
+                                            foreach (var item in Restaurants)
+                                            {
+                                                <option value="@item.Id" @(Discount.Restaurant == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">分市：</label>
+                        <div class="layui-input-inline">
+                            <select id="Market" name="Market" >                            
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">区域：</label>                 
+                            <div class="layui-input-inline">
+                                <select id="Area" name="Area" >                                
+                                </select>
+                            </div>
+                        </div>                    
+                 
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">是否启用：</label>
+                        <div class="layui-input-block">                           
+                            <input type="checkbox" name="IsEnable" value="1" lay-skin="switch" @(Discount.IsEnable ? "checked" : "")  lay-text="开启|关闭">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="width: 100%;">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">开始时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="StartDate" name="StartDate" placeholder="请输入开始时间" value="@Discount.StartDateStr">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">结束时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="EndDate" name="EndDate" placeholder="请输入结束时间" value="@Discount.EndDateStr">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="width:80%;">
+                        <label class="layui-form-label">菜品类别：</label>    
+                        <div class="layui-input-block">
+                                <table class="layui-table" lay-skin="line" > 
+                                	<colgroup>
+									    <col width="248">
+									    <col>
+									</colgroup>
+                                    <tbody id="CyxmZkCp"> 
+                                        @{
+                                            if (Discount.CyxmZkCp != null)
+                                            {
+                                                foreach (var item in Discount.CyxmZkCp)
+                                                {
+                                                    var categoryName = Categorys.FirstOrDefault(p => p.Id == item.R_Category_Id);
+                                                    <tr data-id="@item.R_Category_Id"> 
+                                                        @{
+                                                            if (categoryName != null)
+                                                            {
+                                                                <td>@categoryName.Name</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td>全部菜品</td>
+                                                            }
+                                                        }
+                                                        <td colspan="2">折扣率： @item.DiscountRate</td>
+                                                        
+                                                    </tr>
+                                                                }
+                                                            }
+                                        }   
+      
+                                </tbody>  
+                                    
+                            </table>
+                            <a class="layui-btn layui-btn-primary"  id="AddCategory"  lay-filter="AddCategory">
+                                                      <i class="layui-icon">&#xe608;</i> 添加                                                   
+                            </a>
+                            
+                        </div>
+                    </div>
+
+
+                    <div class="layer-btns-bottom">
+	                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+	                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                    <input type="hidden" name="Id" value="@Discount.Id" />
+                </div>
+            </form>
+            <select id="category" style="display: none;">
+                    <option value="0">全部菜品</option>
+                    @{
+                        foreach (var item in Categorys)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    }
+            </select>
+        </div>
+    </div>
+</body>
+</html>
+
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'table', 'layer', 'laydate', 'layedit'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            form = layui.form,
+            layedit = layui.layedit,
+            table = layui.table;
+
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        
+        laydate.render({ 
+			elem: '#StartDate'
+			,type: 'datetime'
+			,format: 'yyyy-MM-dd'
+		});
+        
+        laydate.render({ 
+			elem: '#EndDate'
+			,type: 'datetime'
+            , format: 'yyyy-MM-dd'
+		});
+        
+        //添加类别
+        $('#AddCategory').click(function(){
+        	var select=$('#category');
+   
+        	var str='<tr data-id="0" class="add">'
+        	       +   '<td>'
+        	       +       '<select class="category" >'+select.html()+'</select>'
+        	       +   '</td>'
+        	       +   '<td><input type="text" class="zk layui-input" placeholder="请输入折扣率" value="" /></td>'
+        	       +   '<td><a href="javascript:void(0);" class="btn-del"><i class="layui-icon">&#x1006;</i></a></td>'
+        	       +'</tr>';
+        	$('#CyxmZkCp').append(str);   
+        	form.render('select');
+        	       
+        })
+        
+        //监听菜品分类选择
+        form.on('select', function(data){
+        	$(data.elem).parent('td').parent('tr').attr('data-id',data.value);
+		});    
+        
+        //删除添加的菜品类别
+        $('#CyxmZkCp').delegate('tr a.btn-del', 'click', function(event) {
+        	$(this).parent('td').parent('tr').remove();
+        })
+        
+        
+
+        //提交
+        form.on('submit(form1)', function (data) {
+            
+            if ($('#StartDate').val() === ""){
+        		layer.msg('请输入开始时间', {icon: 5,shift: 6})
+        		return false;
+        	}
+            if ($('#EndDate').val() === ""){
+        		layer.msg('请输入结束时间', {icon: 5,shift: 6})
+        		return false;
+        	}
+            
+
+            
+            if (data.field.IsEnable=="1") {
+                data.field.IsEnable = true;
+            } else 
+            {
+                data.field.IsEnable = false;
+            }
+            var params = data.field;  
+            
+            var bodydom=$('#CyxmZkCp').find('tr');
+            
+            
+            if(!isNumberValidate(bodydom.find('input.zk')))return false;
+            
+            var CyxmZkCpids=[];
+            var iscf=false;
+            var isall=false;
+            
+            //验证
+            for (var i = 0; i < bodydom.length; i++) {
+            	var DiscountRate=bodydom.eq(i).find('input.zk').val();
+            	var R_Category_Id=bodydom.eq(i).attr('data-id');
+            	if (R_Category_Id==0) {
+            		isall=true;
+            	}
+            	if ($.inArray(R_Category_Id, CyxmZkCpids)>=0) {//已存在
+            		iscf=true;
+            	} else{
+	            	CyxmZkCpids.push(R_Category_Id);
+            	}
+            }
+            if (iscf) {
+            	layer.alert('你菜品选择重复了，请检查后再提交！');
+                return false;
+            }
+            //是否存在全部菜品选项并且有其它菜品
+            if($.inArray('0', CyxmZkCpids)>=0 && CyxmZkCpids.length>1){
+            	layer.alert('你选择了全部菜品时，不能在同时选择其他单个菜品，切勿重复操作！');
+                return false;
+            }
+            
+            
+            //新增的数组
+            var CyxmZkCp=[];
+            var addbodydom=$('#CyxmZkCp').find('tr.add');
+            for (var i = 0; i < addbodydom.length; i++) {
+            	var DiscountRate=addbodydom.eq(i).find('input.zk').val();
+            	var R_Category_Id=addbodydom.eq(i).find('select.category').val();
+            	var Arr={DiscountRate:DiscountRate,Id:0,R_Category_Id:R_Category_Id,R_Discount_Id:data.field.Id}
+	            CyxmZkCp.push(Arr);
+            }
+            if(CyxmZkCp.length === 0 && @Discount.Id == 0){
+            	layer.msg('请选择折扣菜品类别');
+            	return false;
+            }
+            
+            params['CyxmZkCp']=CyxmZkCp;
+            $.ajax({
+                type: "post",
+                url: "/Res/Discount/Edit",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: params,
+                beforeSend: function (XMLHttpRequest) {
+                    layindex = layer.open({type: 3});
+                },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        
+        var RestaurantArea = '', RestaurantAreaStr = '', AreaID = '@Discount.Area';
+        $.ajax({
+            type: "get",
+            url: "/Res/Api/GetAreas",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                layindex = layer.open({type: 3});
+            },
+            success: function (data, textStatus) {
+                if (data.Data != null) {
+                    RestaurantArea = data.Data;
+                    RestaurantAreaSelect(RestaurantArea, $('#Restaurant').val(), AreaID, form);
+                }
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            }
+        })
+
+
+        
+        function RestaurantAreaSelect(RestaurantArea, id, areaID, form) {
+            RestaurantAreaStr = '<option  value="0">请选择</option>';
+            var selected = '';
+            for (var i = 0; i < RestaurantArea.length; i++) {
+                if (RestaurantArea[i].RestaurantId == id) {
+                    if (RestaurantArea[i]['Id'] == areaID) {
+                        selected = 'selected'
+                    } else {
+                        selected = '';
+                    }
+                    RestaurantAreaStr += "<option " + selected + " value=" + RestaurantArea[i]['Id'] + ">" + RestaurantArea[i]['Name'] + "</option>";
+                }
+            }
+            $('#Area').html(RestaurantAreaStr);
+            form.render('select');
+        }
+
+
+
+
+        //*******根据餐厅，加载分市信息
+   var RestaurantMarket = '', RestMarketStr = '', MarketID = '@Discount.Market';
+        $.ajax({
+            type: "get",
+            url: "/Res/Api/GetMarkets",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (xhr) {
+                layindex = layer.open({type: 3});
+            },
+            success: function (data, textStatus) {
+                if (data.Data != null) {
+                    RestaurantMarket = data.Data;
+                    RestaurantMarketSelect(RestaurantMarket, $('#Restaurant').val(), MarketID, form);
+                }
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            }
+       })
+
+
+     
+
+        function RestaurantMarketSelect(RestaurantMarket, id, areaID, form) {
+            RestMarketStr = '';
+            var selected = '';
+            for (var i = 0; i < RestaurantMarket.length; i++) {
+                if (RestaurantMarket[i].RestaurantId == id) {
+                    if (RestaurantMarket[i]['Id'] == areaID) {
+                        selected = 'selected'
+                    } else {
+                        selected = '';
+                    }
+                    RestMarketStr += "<option " + selected + " value=" + RestaurantMarket[i]['Id'] + ">" + RestaurantMarket[i]['Name']
+
++ "</option>";
+                }
+            }
+          
+            $('#Market').html(RestMarketStr);
+            form.render('select');
+        }
+
+
+        form.on('select(Restaurant)', function (data) {
+            RestaurantAreaSelect(RestaurantArea, data.value, AreaID, form);
+            RestaurantMarketSelect(RestaurantMarket, data.value, MarketID, form);
+        });
+        
+        
+        //数字验证
+		function isNumberValidate(ele){
+			var t = true,value;
+			$.each(ele,function(){
+				value = $(this).val()
+				if(value < 0  || value.indexOf('.') + 1 === value.length){
+					layer.msg('必须大于等于0', {icon: 5,shift: 6});
+					$(this).focus();
+					t = false;
+					return false;
+				}
+				if(value.split(".")[1] && value.split(".")[1].length > 2){
+					layer.msg('最多只能有两位小数', {icon: 5,shift: 6});
+					$(this).focus();
+					t = false;
+					return false
+				}
+			})
+			return t
+		}
+    });
+
+</script>
+

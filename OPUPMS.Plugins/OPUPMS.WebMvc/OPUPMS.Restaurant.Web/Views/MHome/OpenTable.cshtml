@@ -1,0 +1,324 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "开台";
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    TableCreateDTO Table = ViewBag.Table;
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    List<AreaListDTO> Areas = ViewBag.Areas;
+    List<TableListDTO> TableList = ViewBag.TableList;
+    var SellerList = ViewBag.SellerList;
+    var UserName = ViewBag.UserName;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>开台</title>
+@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+@StylesEx.Render(Plugin.Instance.Name, "MPublicStyle")
+<!--<style>
+	.Panel-side{top:20px;}
+	
+	.Panel-side .ClassTab-head{margin:5px 20px 5px 15px;height:46px;overflow: hidden;padding:0;}
+	.Panel-side .ClassTab-head .class-group{height:63px;overflow-x:auto;overflow-y:hidden;width:100%;white-space: nowrap;padding:0;}
+	.Panel-side .class-group-list{height:48px;}
+	
+	.StartDesk-form .layui-form-label{width:60px;padding:7px 10px;}
+	.StartDesk-form .layui-form-item .layui-input-inline {width: 180px;}
+	
+	.StartDesk-form .layui-input,.StartDesk-form .layui-select,.StartDesk-form .layui-textarea{height: 34px;line-height: 34px\9;}
+	
+	.Panel-side .MealTable-lists ul{height: calc(100vh - 150px);}
+	.Panel-side .MealTable-lists li, .MealTable-lists.box-sm li{height: 40px;}
+	.Panel-side .MealTable-lists li .MealTable-title {font-size: 16px;height: 16px;line-height: 16px;}
+	.MealTable-lists li .MealTable-title {line-height: 20px;height: 20px;}
+</style>-->
+<style>
+	#moreInfoBtn{padding: 0 10px 15px;;cursor:pointer;user-select:none;}
+	#moreInfoBtn fieldset{border-width:1px 0 0;border-color: #ddd;border-style:solid;padding:0;}
+	#moreInfoBtn legend{padding:0 10px;text-align:right;color:#666;}
+	#moreInfoBtn i{color:#666;display:inline-block;-webkit-transition: all .2s;
+	-moz-transition: all .2s;
+	-ms-transition: all .2s;
+	-o-transition: all .2s;
+	transition: all .2s;}
+	#moreInfoBtn.expand i{-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	transform: rotate(90deg);}
+</style>
+</head>
+<body>
+<div class="container flex">
+    <!-- ▼开台表单 -->
+    <form class="layui-form" action="" style="width:100%:">
+    <div class="StartDesk-form flex-item" style-"    width: calc(100% - 410px);">
+      	<input type="hidden" value="@Table.RestaurantId" name="R_Restaurant_Id"/>
+        <blockquote class="label-title">基础信息</blockquote>
+        <div class="layui-row">
+                
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">就餐人数</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="PersonNum" placeholder="请输入就餐人数" lay-required-msg="请输入就餐人数" lay-verify="required" class="layui-input">
+                    <span class="required"></span>
+                </div>
+                </div>
+            </div>
+
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">分市</label>
+	                <div class="layui-input-inline">
+	                    <select name="R_Market_Id" lay-verify="required" lay-required-msg="请选择分市">
+	                    @{          
+                            if (Markets != null)
+                            {
+                                if (!Markets.Where(x => x.IsDefault).Any())
+                                {
+                                <option value="0">请选择</option>
+                                }
+                                foreach (var item in Markets)
+                                {
+	                            <option value="@item.Id" @(item.IsDefault ? "selected='selected'" : "")>@item.Name</option>
+                                }
+                            }
+                        }
+	                    </select>  
+	                    <span class="required"></span>
+	                </div>
+                </div>
+            </div>
+            
+
+            @*<div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">业务部门</label>
+                    <div class="layui-input-inline">
+                        <select name="BillDepartMent" lay-verify="required" lay-required-msg="请选择业务部门" lay-search>
+                            @{
+                                if (SellerList != null)
+                                {
+                                    <option value="">请选择</option>
+                                    foreach (var item in SellerList)
+                                    {
+                                        <option value="@item.SysCode">@item.SysCodeName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        <span class="required"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">业务员</label>
+                    <div class="layui-input-inline">
+                        <select name="BillingUser" lay-verify="">
+                            @{
+                                if (SellerList != null)
+                                {
+                                    <option value="0">请选择</option>
+                                    foreach (var item in SellerList)
+                                    {
+                                        <option value="@item.UserId">@item.UserName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+        </div>
+        <div id="moreInfoBtn">
+        	<fieldset class="">
+  				<legend>更多<i class="layui-icon">&#xe623;</i></legend>
+			</fieldset>
+        </div>
+    	<!--更多信息填写-->
+    	<div class="more-info layui-row" style="display:none;">
+    		<div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">客源类型</label>
+                <div class="layui-input-inline">
+                    <select name="CyddOrderSource" lay-verify="">
+                        @{
+                            if (CustomerSources != null)
+                            {
+                                foreach (var item in CustomerSources)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                <label class="layui-form-label">联系人</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ContactPerson" id="name" placeholder="请输入联系人" class="layui-input">
+                </div>
+                </div>
+            </div>
+
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户</label>
+                    <div class="layui-input-inline">
+                        <select name="CustomerId" lay-verify="" lay-search>
+                            @{
+                                if (Customers != null)
+                                {
+                                    foreach (var item in Customers)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                	<label class="layui-form-label">联系电话</label>
+	                <div class="layui-input-inline">
+	                    <input type="text" name="ContactTel" placeholder="请输入联系电话" class="layui-input">
+	                </div>
+                </div>
+            </div>
+            
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+	                <label class="layui-form-label">订单类型</label>
+	                <div class="layui-input-inline">
+	                	<select name="OrderType" lay-verify="">
+                            @{
+                                if (OrderTypes != null)
+                                {
+                                    foreach (var item in OrderTypes)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+	                </div>
+	            </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">操作员</label>
+                    <div class="layui-input-inline">
+                        <div disabled class="layui-input" style="line-height: 32px;">@UserName</div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs12">
+                <div class="layui-form-item">
+	                <label class="layui-form-label">备注</label>
+	                <div class="layui-input-inline">
+	                    <textarea name="Remark" placeholder="请输入内容" class="layui-textarea"></textarea>
+	                </div>
+	            </div>
+            </div>
+    	</div>
+    	
+        <div class="layui-row">
+            <blockquote class="label-title">开台餐桌</blockquote>
+            <div class="MealTable-lists ">
+                <ul id="Table_lists">
+                    <li>
+                        <div class="MealTable-head flex">
+                            <span class="item MealTable-number flex-item">@Table.Id</span>
+                        </div>
+                        <div class="MealTable-title">
+                            @Table.Name
+                        </div>
+                        <a href="javascript:;" class="btn-del"><i class="layui-icon">&#x1006;</i></a>
+                    </li>
+                </ul>
+            </div>                  
+        </div>
+              
+        
+    </div>
+    <!-- ▲开台表单 -->
+    
+    <!-- ▼右侧 添加餐台 -->
+    <div class="Panel-side">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <div class="ClassTab-head">                 
+                <div class="class-group" id="TableAreas">
+                	<div class="class-group-list">
+                		
+                    <!--<a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-id="0">全部</a>-->
+                    @{
+                        if (Areas != null)
+                        {
+                            foreach (var item in Areas)
+                            {
+                                <a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-id="@item.Id">@item.Name</a>
+                            }
+                        }
+                    }
+                    </div>
+                </div>
+            </div>
+            <div class="MealTable-lists">
+                <ul id="AddTable">
+                    @{
+                        if (TableList != null)
+                        {
+                            foreach (var item in TableList)
+                            {
+                            <li id="Table_@item.Id" @(item.Id == Table.Id ? "class=layui-this": "") data-areaId="@item.AreaId" >
+                                <a href="javascript:void(0);">
+                                    <div class="MealTable-head flex">
+                                        <span class="item MealTable-number flex-item">@item.Id</span>
+                                    </div>
+                                    <div class="MealTable-title">
+                                        @item.Name
+                                    </div>
+                                </a>
+                            </li>
+                            }
+                        }
+                    } 
+                </ul>
+            </div>
+            <div class="actions-box">
+                
+                <button lay-submit lay-filter="OpenTable" name="order" class="layui-btn layui-btn-normal layui-btn-big">开台点菜</button> 
+                
+                <button lay-submit lay-filter="OpenTable" name="return" class="layui-btn layui-btn-success layui-btn-big">仅开台</button> 
+                <a href="javascript:;" onClick="javascript :history.back(-1);" class="layui-btn layui-btn-primary layui-btn-big">返回</a>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- ▲右侧 添加餐台 -->
+   </form>
+</div>
+<div id="loading"><div class="layui-layer-content"></div></div>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "FastClick")
+@ScriptsEx.Render(Plugin.Instance.Name, "MPublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "MOpenTableJs")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script src="~/signalr/hubs"></script>
+</body>
+</html>

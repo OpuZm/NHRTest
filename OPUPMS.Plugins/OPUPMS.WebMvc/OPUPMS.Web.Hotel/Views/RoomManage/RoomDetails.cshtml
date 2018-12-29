@@ -1,0 +1,1269 @@
+﻿@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    @StylesEx.Render(Plugin.Instance.Name, "RoomInfoStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "RoomStateStyle")
+
+</head>
+<body>
+
+   <div class="row">
+  
+        <div class="tabslist pl-none">
+            <!-- <div class="nav-tabs_left"> -->
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                1001房间
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body p-none">
+                            <ul class="list-group xian-none">
+                                <li class="list-group-item active"><a href="#"> 黄岗</a></li>
+                                <li class="list-group-item"><a href="#"> 黄岗2</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                1002房间
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body p-none">
+                            <ul class="list-group xian-none">
+                                <li class="list-group-item"><a href="#"> 黄岗</a></li>
+                                <li class="list-group-item"><a href="#"> 黄岗2</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                1003房间
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                        <div class="panel-body p-none">
+                            <ul class="list-group xian-none">
+                                <li class="list-group-item"><a href="#"> 黄岗</a></li>
+                                <li class="list-group-item"><a href="#"> 黄岗2</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- </div> -->
+        </div>
+
+      <div class="row" style="margin-left: 170px;">
+        <!--房间详情主体-->
+        <div class="col-md-10 pop_rightbody plr-none">
+            <div class="room-data">
+                <!-- <div class="panel-heading font-bold title-xian">房间数据</div> -->
+                <div class="room-state_data open xian ov data-sm b-fff">
+                    <div class="text-center pt-md pb-md row">
+                        <div class="col-sm-8 col-xs-8 pt-md room-state_data_right">
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">653551</div>
+                                    <div class="room-state_data_title">账号 </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">599</div>
+                                    <div class="room-state_data_title">今日房价 </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">6778</div>
+                                    <div class="room-state_data_title">已开票据 </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">1000.00</div>
+                                    <div class="room-state_data_title">预付金 </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">1000.00</div>
+                                    <div class="room-state_data_title">余额 </div>
+                                </a>
+                            </div>
+                            <div class="col-sm-2 col-xs-2 room-state_data_group">
+                                <a href="#">
+                                    <div class="h3 m-b-sm color">1000.00</div>
+                                    <div class="room-state_data_title">余额 </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-sm-4  room-state_data_left text-left">
+                            <div class="col-sm-6 col-xs-6 room-state_data_group">
+                                <div class="room-state_data_title">入住类型</div>
+                                <div class="h5 color">散客</div>
+                                <div class="room-state_data_title mt-xs">房间类型</div>
+                                <div class="h5 m-b-xs color">豪华大床房</div>
+
+                            </div>
+                            <div class="col-sm-6 room-state_data_group">
+                                <div class="room-state_data_title">入住时间</div>
+                                <div class="h5 color">2017-01-20 20:00</div>
+                                <div class="room-state_data_title mt-xs">离店时间</div>
+                                <div class="h5 m-b-xs color">2017-01-21 14:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="xian p-sm mt-sm b-fff">
+                    <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                      <ul class="layui-tab-title">
+                        <li class="layui-this">入住详细</li>
+                        <li>账务详情</li>
+                        <li>联房管理</li>
+                        <li>操作日志</li>
+                        <li>寄存管理</li>
+                        <li>外借管理</li>
+                        <li>预授权管理</li>
+                        <li>发票管理</li>
+                      </ul>
+                      <div class="layui-tab-content layui-form">
+                        <div class="layui-tab-item layui-show">
+                            <!-- 房间详情表单==同开房表单 -->
+                            <div class="form-room_data mt-sm xian p-sm">
+                                <h3 class="tl  label-title">基本信息</h3>
+                                <div class="row mt-sm">
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">房&nbsp;&nbsp;&nbsp; 号</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="roomid" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">卡&nbsp;&nbsp;&nbsp; 号</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">客&nbsp;&nbsp;&nbsp; 户</label>
+                                            <div class="layui-input-block">
+                                                <select name="kehu">
+                                                    <option value=""></option>
+                                                    <option value="0">散客</option>
+                                                    <option value="1">会员</option>
+                                                    <option value="2">携程网</option>
+                                                    <option value="3">美团网</option>
+                                                    <option value="4">去哪儿网</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">客&nbsp;&nbsp;&nbsp; 类</label>
+                                            <div class="layui-input-block">
+                                                <select name="kehu">
+                                                    <option value=""></option>
+                                                    <option value="0">系统内部</option>
+                                                    <option value="1">客类二</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">价&nbsp;&nbsp;&nbsp; 类</label>
+                                            <div class="layui-input-block">
+                                                @Html.DropDownList("ddlRoomPriceCategoryList", (IEnumerable<SelectListItem>)ViewBag.RoomPriceCategoryList)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">市&nbsp;&nbsp;&nbsp; 场</label>
+                                            <div class="layui-input-block">
+                                                @Html.DropDownList("ddlClientSourceList", (IEnumerable<SelectListItem>)ViewBag.ClientSourceList)
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row mt">
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">房&nbsp;&nbsp;&nbsp; 价</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入房价" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">价&nbsp;&nbsp;&nbsp; 构</label>
+                                            <div class="layui-input-block">
+                                                @Html.DropDownList("ddlRoomPriceStructureList", (IEnumerable<SelectListItem>)ViewBag.RoomPriceStructureList)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">业务员</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="yewu" placeholder="请输入业务员" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">付款方式</label>
+                                            <div class="layui-input-block">
+                                                @Html.DropDownList("ddlPaymentMethodList", (IEnumerable<SelectListItem>)ViewBag.PaymentMethodList)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">电&nbsp;&nbsp;&nbsp; 话</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入联系电话" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">佣&nbsp;&nbsp;&nbsp; 金</label>
+                                            <div class="layui-input-block">
+                                                <select name="can" lay-verify="required">
+                                                    <option value="0">网络</option>
+                                                    <option value="1">佣金二</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-md-4 plr-none">
+                                        <label class="layui-form-label">账务备注</label>
+                                        <div class="layui-input-block">
+                                            <textarea name="desc" placeholder="请输入账务备注" style="min-height:80px;" class="layui-textarea"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 plr-none">
+                                        <label class="layui-form-label">备注</label>
+                                        <div class="layui-input-block">
+                                            <textarea name="desc" placeholder="请输入备注内容" style="min-height:80px;" class="layui-textarea"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">特服</label>
+                                            <div class="layui-input-block">
+                                                <textarea name="desc" placeholder="请输入特服内容" style="min-height:80px;" class="layui-textarea"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-xs">
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">预订类型</label>
+                                            <div class="layui-input-block">
+                                                <select name="can" lay-verify="required">
+                                                    <option value="0">直接入住</option>
+                                                    <option value="1">担保预定</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">E-mail</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入联系邮箱" class="layui-input">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">小孩人数</label>
+                                            <div class="layui-input-block">
+                                                <input type="number" name="number" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">VIP接待</label>
+                                            <div class="layui-input-block">
+                                                <select name="paytype" lay-verify="required">
+                                                    <option value="">无</option>
+                                                    <option value="0">需要无线网</option>
+                                                    <option value="1">银联</option>
+                                                    <option value="2">微信</option>
+                                                    <option value="2">支付宝</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">挂账限额</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="0为不限" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 plr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">公&nbsp;&nbsp;&nbsp; 司</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="yewu" placeholder="请输入公司名称" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row mt-sm">
+                                    <!-- <input type="checkbox" name=""  title="资料保密">
+                                    <input type="checkbox" name=""  title="房价保密">
+                                    <input type="checkbox" name=""  title="钟点房">
+                                    <input type="checkbox" name="gzwp"  lay-filter="gzwp"  title="贵重物品寄存">
+                                    <input type="checkbox" name=""  title="不可转账">
+                                    <input type="checkbox" name=""  title="设置主房">
+                                    <input type="checkbox" name=""  title="查客史">
+                                    <input type="checkbox" name="service_jsj"  lay-filter="service_jsj"  title="接送机服务">
+                                    <input type="checkbox" name="service_fw"  lay-filter="service_fw"  title="服务">
+                                    <input type="checkbox" name="service_jx"  lay-filter="service_jx"  title="叫醒服务"> -->
+                                </div>
+                            </div>
+
+                            <section id="more_cz" class="b-fff  mt-sm">
+                                <!-- 贵重物品信息 -->
+                                <div id="gzwp" class="row" style="display: none;">
+                                    <div class="col-md-1 pl-none">
+                                        <h3 class="tl label-title" style="line-height: 32px;">贵重物品 </h3>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">联系人</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入联系人姓名" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">联系电话</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入联系人电话" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">物品名称</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入物品名称" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 pr-none">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">备注信息</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="备注内容" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <section id="service_jsj" style="display: none;">
+                                    <!-- 接机信息 -->
+                                    <div id="" class="row">
+                                        <div class="col-md-1 pl-none">
+                                            <h3 class="tl label-title" style="line-height: 32px;">接机 </h3>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">机场</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">航班信息</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" placeholder="请输入航班信息" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">抵时</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">离时</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">车辆</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">司机</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 送机信息 -->
+                                    <div id="service_jsj2" class="row">
+                                        <div class="col-md-1 pl-none">
+                                            <h3 class="tl label-title" style="line-height: 32px;">送机 </h3>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">机场</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">航班信息</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" placeholder="请输入航班信息" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">抵时</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">离时</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">车辆</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 ">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">司机</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="price" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- 添加服务信息 -->
+                                <div id="service_fw" class="row" style="display: none;">
+                                    <div class="col-md-1 pl-none">
+                                        <h3 class="tl label-title" style="line-height: 32px;">服务信息 </h3>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">服务</label>
+                                            <div class="layui-input-block">
+                                                <select name="paytype" lay-verify="required">
+                                                    <option value="">无</option>
+                                                    <option value="0">需要无线网</option>
+                                                    <option value="1">银联</option>
+                                                    <option value="2">微信</option>
+                                                    <option value="2">支付宝</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">服务备注</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入服务备注信息" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 叫醒服务信息 -->
+                                <div id="service_jx" class="row" style="display: none;">
+                                    <div class="col-md-1 pl-none">
+                                        <h3 class="tl label-title" style="line-height: 32px;">叫醒服务 </h3>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">叫醒时间</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 开房客户信息1 -->
+                            <div class="roominfo-user_h xian p-sm row mt-sm">
+                                <h3 class="tl label-title">客户信息 <a href="#" class="fr btn btn-info btn-xs" title="">添加客人</a></h3>
+                                <!-- 开房客户信息1 -->
+                                <div class="row vipdata  mt-sm">
+                                    <div class="col-md-1 p-sm">
+                                        <a href="#" title="扫描身份证">
+                                            <img class="media-object" src="@Url.Content(Plugin.Instance.GetContentPath("Images/usersao.png"))" alt="...">
+                                        </a>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <div class="row">
+                                            <div class="col-md-2 pl-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">姓名</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="name" value="" placeholder="姓名" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1 plr-none">
+                                                <input type="text" name="cardid" placeholder="英文/拼音" class="layui-input">
+                                            </div>
+                                            <div class="col-md-2 pr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">性别</label>
+                                                    <div class="layui-input-block">
+                                                        @Html.DropDownList("ddlGenderList", (IEnumerable<SelectListItem>)ViewBag.GenderList)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 pr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">房价</label>
+                                                    <div class="layui-input-block flex">
+                                                        <input type="text" name="cardid" placeholder="房价" title="房价" class="layui-input flex_item">
+                                                        <a href="javascript:;" class="btn btn-default ml-xs layui-btn-small" title="">每日</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 pr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">天数</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="number" name="number" value="1" lay-verify="number" placeholder="天数" title="天数" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 pr-none">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">离店时间</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="date" id="date" placeholder="离店时间" title="离店时间" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, format: 'MM-DD hh:mm'})">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-1 plr-none">
+                                                @Html.DropDownList("ddlCredentialList", (IEnumerable<SelectListItem>)ViewBag.CredentialList)
+                                            </div>
+                                            <div class="col-md-2 pr-none">
+                                                <input type="text" name="cardid" placeholder="证件号" class="layui-input">
+                                            </div>
+                                            <div class="col-md-4 pr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">地址</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="地址" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-2 pr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">国家</label>
+                                                    <div class="layui-input-block">
+                                                        <select id="ddlCountryList" name="country" lay-verify="" lay-search>
+                                                            @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.CountryList)
+                                                            {
+                                                                if (@item.Selected)
+                                                                {
+                                                                    <option value="@item.Value" selected="selected">@item.Text</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="@item.Value">@item.Text</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1_5 pl-sm">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">籍贯</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="籍贯" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1_5 pl-sm">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">民族</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="民族" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" id="wai_row" style="display: none;">
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">签证类型</label>
+                                                    <div class="layui-input-block">
+                                                        <select name="kehu">
+                                                            <option value="0">旅游签证</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">签证号</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="签证号" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">有效期</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="date" id="date" placeholder="有效期" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, format: 'MM-DD hh:mm'})">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">有效期</label>
+                                                    <div class="layui-input-block">
+                                                        <select name="kehu">
+                                                            <option value="0">天津口岸</option>
+                                                            <option value="1">上海口岸</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">签发</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="签发" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 plr-none">
+                                                <div class="layui-form-item sm">
+                                                    <label class="layui-form-label">事由</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="text" name="cardid" placeholder="事由" class="layui-input">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center ">
+                                <a href="/H/RoomManage/ApplyOpenRoom" class="btn btn-success layui-btn-radius mt-xs layui-btn-big">确认修改</a>
+                            </div>
+                            <!-- 房间详情表单==同开房表单  结束 -->
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="row mt-sm">
+                                <div class="panel panel-default">
+                                    <div class="row wrapper">
+                                        <div class="col-sm-7 m-b-xs">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-default">付款入账</button>
+                                                <button type="button" class="btn btn-default">商品入账</button>
+                                                <button type="button" class="btn btn-default">消费入账</button>
+                                                <button type="button" class="btn btn-default">批量转账</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-5 text-right">
+                                            <input type="checkbox" name="" title="显示所有" lay-skin="primary"> 
+                                            <input type="checkbox" name="" title="合并迷你吧明细" lay-skin="primary"> 
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th style="width:40px;">
+                                                       <input type="checkbox" name="" title="" lay-skin="primary"> 
+                                                    </th>
+                                                    <th>账务日期</th>
+                                                    <th>名称</th>
+                                                    <th>数量</th>
+                                                    <th>单价</th>
+                                                    <th>金额</th>
+                                                    <th>操作员</th>
+                                                    <th>操作时间</th>
+                                                    <th>票据号码</th>
+                                                    <th>摘要</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td><input type="checkbox" name="" title="" lay-skin="primary"> </td>
+                                                    <td>2016-12-20</td>
+                                                    <td>预付金</td>
+                                                    <td>1</td>
+                                                    <td>200</td>
+                                                    <td>200</td>
+                                                    <td>OPU</td>
+                                                    <td>2016-12-20 01:00:00</td>
+                                                    <td>1319</td>
+                                                    <td>过租(6642)20161220</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">转账</a>&nbsp;
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-info ">打单</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab-item" id="Relation">
+
+                            <div class="row wrapper mt-xs set-mainroom_group">
+                                <div class="col-sm-5 m-b-xs">
+                                    <a href="javascript:void(0);" onclick="set_mainroom_show();" class="set-mainroom_xsbtn btn m-b-xs w-xs btn-info">重设主结房</a>
+                                    <a href="javascript:void(0);" onclick="set_mainroom();" class="set-mainroom_btn btn m-b-xs w-xs btn-success">确认设置</a>
+                                    <a href="javascript:void(0);" onclick="set_mainroom_show();" class="set-mainroom_qxbtn btn m-b-xs w-xs btn-default">取消设置</a>
+                                </div>
+                                
+                                <div class="col-sm-7 text-right set-mainroom_check"> 
+                                    <input type="checkbox" name="" title="各自主结" lay-skin="primary"> 
+                                    <input type="checkbox" name="" title="从房帐务转入主结房" lay-skin="primary">
+                                </div>
+                            </div>
+                            <div class="room-state-list room_xs mt-xs Relation">
+                                <ul class="ov">
+                                    <li class="next-room room">
+                                        <h5 class="room-state_title">
+                                            <span class="room-id">1001</span>
+                                            <span class="room-title">从房</span>
+                                        </h5>
+                                        <i class="iconfont icon-Customer"></i>
+                                        <p class="room-state_name">
+                                            <span class="room-username">客户姓名</span>
+                                        </p>
+                                        <div class=" text-center">
+                                            
+                                        </div>
+                                        <div class="Relation-hove">
+                                            <a href="#" class="add_Relation_room">添加</a>
+                                            <a href="#">取消</a>
+                                        </div>
+                                    </li>
+                                    <li class="main-room room">
+                                        <h5 class="room-state_title">
+                                            <span class="room-id">1002</span>
+                                            <span class="room-title">主结房</span>
+                                        </h5>
+                                        <i class="iconfont icon-Customer"></i>
+                                        <p class="room-state_name">
+                                            <span class="room-username">客户姓名</span>
+                                        </p>
+                                        <div class=" text-center">
+                                            
+                                        </div>
+                                        <div class="Relation-hove">
+                                            <a href="#" class="add_Relation_room">添加</a>
+                                            <a href="#">取消</a>
+                                        </div>
+                                    </li>
+                                    <li class="next-room room">
+                                        <h5 class="room-state_title">
+                                            <span class="room-id">1003</span>
+                                            <span class="room-title">从房</span>
+                                        </h5>
+                                        <i class="iconfont icon-Customer"></i>
+                                        <p class="room-state_name">
+                                            <span class="room-username">客户姓名</span>
+                                        </p>
+                                        <div class=" text-center">
+                                            
+                                        </div>
+                                        <div class="Relation-hove">
+                                            <a href="#" class="add_Relation_room">添加</a>
+                                            <a href="#">取消</a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="panel panel-default mt-sm">
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>操作员</th>
+                                                    <th>操作时间</th>
+                                                    <th>操作类型</th>
+                                                    <th>操作原因</th>
+                                                    <th>原始值</th>
+                                                    <th>更新值</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                                <tr class="active">
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 15:33:00</td>
+                                                    <td>续住</td>
+                                                    <td>客人要求</td>
+                                                    <td>2017-06-26 00:00:00</td>
+                                                    <td>2017-06-27 00:00:00</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="layui-tab-item">
+                                <div class="panel panel-default  mt-sm">
+                                    <div class="row wrapper">
+                                        <a href="javascript:void(0);" onclick="addjicun();" class="btn btn-success btn-sm">添加寄存</a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>凭证号</th>
+                                                    <th>物品名</th>
+                                                    <th>寄存人</th>
+                                                    <th>寄存时间</th>
+                                                    <th>寄存操作员</th>
+                                                    <th>领取时间</th>
+                                                    <th>领取操作员</th>
+                                                    <th>状态</th>
+                                                    <th>备注</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td>123456</td>
+                                                    <td>行李箱</td>
+                                                    <td>张三</td>
+                                                    <td>2017-06-26 12:00</td>
+                                                    <td>OPU</td>
+                                                    <td>--</td>
+                                                    <td>--</td>
+                                                    <td>状态</td>
+                                                    <td>17:00来取</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">归还</a>
+                                                    </td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="layui-tab-item">
+
+                         <div class="panel panel-default  mt-sm">
+                                    <div class="row wrapper">
+                                        <a href="javascript:void(0);" onclick="addwaijie();" class="btn btn-success btn-sm">添加外借</a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>凭证号</th>
+                                                    <th>物品名</th>
+                                                    <th>借取人</th>
+                                                    <th>外借时间</th>
+                                                    <th>外借操作员</th>
+                                                    <th>归还时间</th>
+                                                    <th>归还操作员</th>
+                                                    <th>状态</th>
+                                                    <th>备注</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td>123456</td>
+                                                    <td>吹风机</td>
+                                                    <td>张三</td>
+                                                    <td>2017-06-26 12:00</td>
+                                                    <td>OPU</td>
+                                                    <td>--</td>
+                                                    <td>--</td>
+                                                    <td>状态</td>
+                                                    <td>收取100元押金</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-success ">归还</a>
+                                                        
+                                                    </td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+
+                        </div>
+                        <div class="layui-tab-item">
+                           <div class="panel panel-default  mt-sm">
+                                    <div class="row wrapper">
+                                        <a href="javascript:void(0);" class="btn btn-success btn-sm">添加预授权</a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>状态</th>
+                                                    <th>卡号</th>
+                                                    <th>金额</th>
+                                                    <th>授权号</th>
+                                                    <th>有效日</th>
+                                                    <th>操作员</th>
+                                                    <th>操作时间</th>
+                                                    <th>备注</th>
+                                                    <th>取消时间</th>
+                                                    <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td>状态</td>
+                                                    <td>123456</td>
+                                                    <td>99.9</td>
+                                                    <td>4568</td>
+                                                    <td>2017-06-26 12:00</td>
+                                                    <td>OPU</td>
+                                                    <td>2017-06-26 12:00</td>
+                                                    <td>--</td>
+                                                    <td>2017-06-26 13:00</td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class=" text-sm btn btn-xs btn-warning ">取消预授权</a>
+                                                    </td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="layui-tab-item">
+                              <div class="panel panel-default  mt-sm">
+                                    <div class="row wrapper">
+                                        <a href="javascript:void(0);" class="btn btn-success btn-sm">添加开票</a>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="room-accounting" class="table table-striped b-t b-light table-hover table-sm thead-center tbody-center table-bordered">
+                                            <thead class="text-center">
+                                                <tr>
+                                                    <th>日期</th>
+                                                    <th>发票号</th>
+                                                    <th>发票金额</th>
+                                                    <th>操作员</th>
+                                                    <th>备注</th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="active">
+                                                    <td>2017-06-26 12:00</td>
+                                                    <td>123456</td>
+                                                    <td>99.9</td>
+                                                    <td>OPU</td>
+                                                    <td>--</td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <!--房间详情主体 结束-->
+        <!--帮助信息/其它-->
+
+        <div class="col-md-2 pr-none">
+            <div class="room_screen xian b-fff p-sm">
+                <div class="tabs-n_centent show">
+
+                    <div class="help-body_title">相关操作</div>
+                    <div class="row mt-sm">
+                        <ul class="list-group jian layui-form roominfo_cz">
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" lay-skin="switch" title="资料保密"></span>
+                                资料保密:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="房价保密"></span>
+                                房价保密:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="钟点房"></span>
+                                钟点房:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="不可转账"> </span>
+                                不可转账:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="设置主房"></span>
+                                设置主房:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="查客史"> </span>
+                                查客史:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="gzwp" lay-skin="switch" lay-filter="gzwp" title="贵重物品寄存"></span>
+                                贵重物品寄存:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_jsj" lay-skin="switch" lay-filter="service_jsj" title="接送机服务"></span>
+                                接送机服务:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_fw" lay-skin="switch" lay-filter="service_fw" title="服务"> </span>
+                                服务:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_jx" lay-skin="switch" lay-filter="service_jx" title="叫醒服务"></span>
+                                叫醒服务:
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+      </div>
+        <!--帮助信息/其它 结束-->
+
+    </div>
+    <div class="text-center room-data_btn_group">
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">暂离</a>
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">打印登记</a>
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">打印账务</a>
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">虚拟账单</a>
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">制作门卡</a>
+        <a href="#" class="btn m-b-xs w-xs btn-ghost">报查房</a>
+    </div>
+
+    @ScriptsEx.Render(Plugin.Instance.Name, "RoomDetailJs")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            add_relation_room();
+            //$('.loader-box').remove();
+        });
+    </script>
+</body>
+</html>

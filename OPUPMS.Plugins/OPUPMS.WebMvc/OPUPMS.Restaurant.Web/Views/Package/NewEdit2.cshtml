@@ -1,0 +1,792 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos; 
+@using OPUPMS.Domain.Restaurant.Model; 
+@{ 
+    Layout = null;
+    PackageCreateDTO Package = ViewBag.Package ?? new PackageCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+    List <ProjectAndDetailListDTO> Projects = ViewBag.Projects as List<ProjectAndDetailListDTO>;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>套餐管理</title>
+	@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x") @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+	@StylesEx.Render(Plugin.Instance.Name, "webuploaderStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "webuploaderDropStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "dropDadStyle")
+	 @*
+	<style>
+		.morecheck {
+			padding: 5px 5px 5px 0;
+		}
+	</style>*@
+	
+	<style>
+		.class-tab ul.class-tab-nav li a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+		
+		.class-tab .MealTable-lists li{box-sizing: border-box;height:62px;padding:6px;margin:2px;}
+		.MealTable-lists li .MealTable-head, .MealTable-lists li .MealTable-footer{line-height:12px;}
+		.class-tab .MealTable-lists li .MealTable-title{line-height:22px;height:26px;}
+		
+		
+		#searchBtn{position:absolute;top:5px;right:230px;width:190px;}
+		.ProjectNum{width:40px;}
+		.actions-box input{text-align: right;padding:0 10px;}
+		
+		.delIcon{font-size: 32px;display: inline-block;margin-top:11px;color:red;cursor: pointer;}
+		.delIcon:active{color:#cc3636;}
+		
+	</style>
+</head>
+<body>
+	<div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief" style="margin-bottom:0;">
+		<ul class="layui-tab-title">
+			<li class="layui-this">基本资料</li>
+			<li lay-id="detail">所含餐饮项目</li>
+			<li lay-id="photo">图片管理</li>
+            <li lay-id="filePhoto">上传图片</li>
+		</ul>
+
+		<div class="layui-tab-content">
+			<div class="layui-tab-item layui-show">
+				<form class="layui-form form-col-two" id="SubmitForm">
+					@Html.AntiForgeryToken()
+                    <div class="layui-row">
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">名称：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" value="@Package.Name">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">类别</label>
+                            <div class="layui-input-inline">
+                                <select id="R_Category_Id" name="R_Category_Id" lay-verify="required" lay-filter="Category_Id" lay-required-msg="请选择类别" lay-search>
+                                    <option value="">请选择</option>
+                                    @{
+                                        if (Categorys != null)
+                                        {
+                                            foreach (var item in Categorys)
+                                            {
+                                                <option value="@item.Id" discount="@item.IsDiscount" @(Package.R_Category_Id == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item" style="width: 100%;">
+                            <label class="layui-form-label">可打折：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsDiscount" @(Package.IsDiscount > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CytcProperty.是否可打折)" name="IsDiscount" @(Package.IsDiscount > 0 ? "checked='checked'" : "") title="是" />
+                            </div>
+                        </div>
+                        <div class="layui-form-item" style="width: 100%;">
+                            <label class="layui-form-label">可改价：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsChangePrice" @(Package.IsChangePrice > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CytcProperty.是否可改价)" name="IsChangePrice" @(Package.IsChangePrice > 0 ? "checked='checked'" : "") title="是" />
+                            </div>
+                        </div>
+                        <div class="layui-form-item" style="width: 100%;">
+                            <label class="layui-form-label">可赠送：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="0" name="IsGive" @(Package.IsGive > 0 ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="@Convert.ToInt32(CytcProperty.是否可赠送)" name="IsGive" @(Package.IsGive > 0 ? "checked='checked'" : "") title="是" />
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否上架：</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" value="false" name="IsOnSale" @(Package.IsOnSale ? "" : "checked='checked'") title="否" />
+                                <input type="radio" value="true" name="IsOnSale" @(Package.IsOnSale ? "checked='checked'" : "") title="是" />
+                            </div>
+                        </div>
+                        <div class="layui-form-item" style="width: 100%;">
+                            <label class="layui-form-label">描述：</label>
+                            <div class="layui-input-block">
+                                <textarea id="Describe" name="Describe" class="layui-textarea" rows="3">@Package.Describe</textarea>
+                            </div>
+                        </div>
+                        <div class="layer-btns-bottom">
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">下一步</button>
+                            <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                        </div>
+                        <input type="hidden" id="Id" name="Id" value="@Package.Id" />
+                    </div>
+				</form>
+			</div>
+
+			<div class="layui-tab-item">
+				<div class="detail-tips">
+					<h3 class="text-danger">请先填写并提交基本资料</h3>
+				</div>
+				<div class="detail-con" style="display:none;">
+					<div class="layui-form" action="">
+						<input type="text" class="layui-input" id="searchBtn" placeholder="输入检索字母"/>
+						<div class="StartDesk-form flex-item" style="margin-right: 260px;">
+							<div class="select-class-box">
+								<div class="class-tab">
+									<ul class="class-tab-nav">
+										@if (Categorys != null) {
+										<li class="layui-this">
+											<a href="javascript:;" data-id="0">全部</a>
+										</li>
+										foreach (var item in Categorys) {
+										<li>
+											<a href="javascript:;" data-id="@item.Id">@item.Name</a>
+										</li>
+										} }
+									</ul>
+									<div class="MealTable-lists " style="    height: 587px; overflow: hidden; overflow-y: auto; background: #f1f1f1;">
+										<ul id="Tables_view">
+
+										</ul>
+										<script id="Tables_tpml" type="text/html">
+											{{# layui.each(d, function(index, item){ var checkedz=''; }} {{# layui.each(d.thisProject, function(index, item2){ if(item.Id==item2.R_ProjectDetail_Id){ checkedz='checked'; } }); }}
+											<li id="Table_{{ item.Id }}" data-id="{{ item.Id }}" class="{{ checkedz }}">
+												<a href="javascript:void(0);">
+													<div class="MealTable-head flex"><span>{{ item.Unit }}</span></div>
+													<div class="MealTable-title">
+														{{ item.ProjectName }}
+													</div>
+													<div class="MealTable-footer"> 
+														<span style="float:right;color:red;">￥{{ item.Price}} <span style="color:#333">（￥{{item.CostPrice}}）</span></span>
+													</div>
+												</a>
+											</li>
+											{{# }); }}
+										</script>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<!-- ▲开台表单 -->
+					<!-- ▼右侧 添加餐台 -->
+					<div class="Panel-side" style="top:41px;width: 260px;">
+						<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="height:100%;">
+							<div class="ClassTab-head" id="total_view">
+
+							</div>
+							<script id="total_tpml" type="text/html">
+								<blockquote class="label-title">已选: <span class="color-red">{{ d.num }}</span> 成本:<span class="color-red">{{ d.totalCastPrice }}</span> 总价:<span class="color-red">{{ d.totalPrice }}</span></blockquote>
+							</script>
+
+							<div class="MealTable-lists" style="height: calc(100% - 190px);position: relative;  background: #f1f1f1;    overflow: hidden; overflow-y: auto;">
+								<table class="layui-table" lay-size="sm">
+									<thead>
+										<tr>
+											<th>项目名称</th>
+											<th>数量</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody id="Tableslists_view">
+										
+									</tbody>
+								</table>
+								<script id="Tableslists_tpml" type="text/html">
+									{{# layui.each(d.thisProject, function(index, item){ var ProjectName='';var Unit=''; }} {{# layui.each(d.inidata.Projects, function(index, item2){ if(item.R_ProjectDetail_Id==item2.Id){ ProjectName = item2.ProjectName; Unit=item2.Unit } }); }}
+									<tr>
+										<td>
+											{{ ProjectName }} ({{ Unit }})
+										</td>
+										<td>
+											<input type="number" size="6" data-no="{{ index }}" class="layui-input ProjectNum" value="{{ item.Num }}"  style="float:left;"/>
+										</td>
+										<td>
+											<i class="layui-icon delIcon" onclick="delTableList(this)">&#x1007;</i>
+										</td>
+									</tr>
+									{{# }); }}
+								</script>
+
+							</div>
+
+							<div class="actions-box" style="background:#fff;">
+								<table class="layui-table" lay-size="sm" style="    width: 95%;">
+									<tbody id="Price_view">
+
+									</tbody>
+								</table>
+								<script id="Price_tpml" type="text/html">
+									<tr>
+										<td>成本价:<input type="number" size="6" class="layui-input" id="CostPrice" value="{{ d.Package.CostPrice }}" /></td>
+										<td>销售价:<input type="number" size="6" class="layui-input" id="Price" value="{{ d.Package.Price }}" /></td>
+									</tr>
+								</script>
+								<button onclick="SubmitExtend()" class="layui-btn layui-btn-normal layui-btn-big">确定</button>
+								<a href="javascript:void(0);" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));" class="layui-btn layui-btn-primary layui-btn-big">取消</a>
+							</div>
+
+						</div>
+					</div>
+					<!-- ▲右侧 添加餐台 -->
+					<input type="hidden" value="@Package.Id" name="Id" />
+				</div>
+			</div>
+			<div class="layui-tab-item">
+                <div class="detail-tips">
+                    <h3 class="text-danger">请先填写并提交基本资料</h3>
+                </div>
+                <div id="photo-setting" style="display:none;">
+                	<div id="photoContainer_view" class="clearfix">
+                	</div>
+                	<script id="photoContainer_tpml" type="text/html">
+                		{{# layui.each(d, function(index, item){ }}
+                		<div class="item" data-index="{{index}}">
+                			<div class="item-con">
+                				<div class="del">删除</div>
+                				<img src="{{item.FilePath + item.FileName + item.FileExt}}"/>
+                				<div class="enlarge" title="查看大图" data-index="{{index}}" data-img-url="{{item.FilePath + item.FileName + item.FileExt}}"><i class="layui-icon">&#xe615;</i></div>
+                			</div>
+                		</div>
+                		{{# }); }}
+            		</script>
+                    <div class="layer-btns-bottom">
+                    	<span style="float:left;line-height:39px;font-size:16px;font-weight: bold;">提示：图片支持拖拽排序，且第一张默认为封面图</span>
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form3">完成</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="detail-tips">
+                    <h3 class="text-danger">请先填写并提交基本资料</h3>
+                </div>
+                <div id="file-photo" style="display:none;">
+                    <div id="uploader" class="wu-example">
+                        <div class="queueList">
+                            <div id="dndArea" class="placeholder">
+                                <div id="filePicker"></div>
+                                <p>或将照片拖到这里，单次最多可选10张，且每张图片不能大于10M</p>
+                            </div>
+                        </div>
+                        <div class="statusBar" style="display:none;">
+                            <div class="progress">
+                                <span class="text">0%</span>
+                                <span class="percentage"></span>
+                            </div>
+                            <div class="info"></div>
+                            <div class="btns">
+                                <div id="filePicker2"></div>
+                                <div class="uploadBtn">开始上传</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layer-btns-bottom">
+                        <button class="layui-btn" onclick="element.tabChange('docDemoTabBrief', 'photo')">图片管理</button>
+                        <button class="layui-btn layui-btn-normal" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">完成</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>
+
+</html>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(Plugin.Instance.Name, "webuploaderJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "webuploaderDropJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "dropDadJS")
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+
+<script type="text/javascript">
+	var laytpl;
+	var inidata;
+	var AllProjects = [];
+	var thisProject = []; //当前套餐中的菜品；
+	var PackageId = @Package.Id;
+	//图片排序模板
+    var photoContainerTpml = photoContainer_tpml.innerHTML;
+	var	photoContainerView = document.getElementById('photoContainer_view');
+	layui.use(['element', 'form', 'layer', 'layedit', 'laydate', 'laytpl'], function() {
+		var element = layui.element,
+			layer = layui.layer,
+			layedit = layui.layedit,
+			form = layui.form;
+		laytpl = layui.laytpl;
+		var layeditIndex = layedit.build('Describe', {tool: ['strong','italic','underline','del','|','left','center','right','link','unlink','face'], height: 150 });
+		
+		
+		if(PackageId) {
+			GetProjectData(PackageId);
+		}
+
+		//基本要求提交
+		form.on('submit(form1)', function(data) {
+//			if(PackageId){
+//				element.tabChange('docDemoTabBrief', 'detail')
+//			}
+			
+			var textVal = layedit.getContent(layeditIndex);
+			var params = data.field;
+			params.Describe = textVal;
+			$.ajax({
+				type: "post",
+				url: "/Res/Package/Edit",
+				dataType: "json",
+				//contentType: "application/json; charset=utf-8",
+				data: params,
+				async: false,
+				beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+				success: function(data, textStatus) {
+					if(data["Data"]) {
+						element.tabChange('docDemoTabBrief', 'detail')
+						PackageId = data['Data'];
+						GetProjectData(PackageId);
+					} else {
+						layer.alert(data["Message"]);
+					}
+				}
+			});
+			return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+		});
+		
+		//图片上传提交
+	    form.on('submit(form3)', function (data) {
+	    	var ImagesData = [];
+	    	$('#photoContainer_view .item').each(function(i){
+	    		var index = $(this).closest('.item').attr('data-index');
+	    		ImagesData.push(inidata.Images[index]);
+	    		i == 0 ? ImagesData[i].IsCover = true : ImagesData[i].IsCover = false;
+	    		ImagesData[i].Sorted = i;
+	    	})
+	    	
+	    	if(ImagesData.length > 0){
+	    		$.ajax({
+		            type: "post",
+		            url: "/Res/Project/BathUpdateProjectImage",
+		            dataType: "json",
+		            data: {req:ImagesData},
+		            async: false,
+		            beforeSend: function (XMLHttpRequest) {
+		                layindex = layer.open({type: 3});
+		            },
+		            complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+		            success: function (data, textStatus) {
+		            	console.log(data)
+		                if (data["Data"] == true) {
+		                	layer.confirm("提交完成", {
+	                            btn: ['继续操作', '退出']
+	                        }, function (index) {
+	                            layer.close(index);
+	                        }, function () {
+	                            parent.layer.closeAll();
+	                        });
+		                } else {
+		                    data["Message"] && layer.alert(data["Message"]);
+		                }
+		            }
+		        });
+	    	}else{
+	    		layer.confirm("提交完成", {
+	                btn: ['继续操作', '退出']
+	            }, function (index) {
+	                layer.close(index);
+	            }, function () {
+	                parent.layer.closeAll();
+	            });
+	    	}
+	    	
+	        return false;
+	    });
+	    
+	    //图片上传	控件
+	    Sorted = 0;//图片排序用
+	    uploader = '';//用于监控是否创建
+	    element.on('tab(docDemoTabBrief)', function(data){
+	    	if($(this).attr('lay-id') == 'detail'){
+				TablesViewAuto();
+				return false;
+			}
+	    	if($(this).attr('lay-id') == 'filePhoto' && uploader == ""){
+	    		uploader = webUploaderCreate({
+					ele:'#uploader',
+					url:'/Res/Project/ImageUpload',
+					beforSendCallBack(obj,data,headers){
+						data.Id = 0;
+				        data.Source_Id = PackageId;
+				        data.IsCover = Sorted == 0;
+				        data.Sorted = Sorted++;
+				        data.CyxmTpSourceType = 2;
+					},
+					successCallBack:function(file,response){
+						console.log(response)
+					},
+					finishCallBack:function(){
+						$.ajax({
+							type: "get",
+							url: "/Res/Package/GetNewModel",
+							dataType: "json",
+							data: {id: PackageId},
+							beforeSend: function (XMLHttpRequest) {
+				                layindex = layer.open({type: 3});
+				            },
+				            complete: function (XMLHttpRequest, textStatus) {
+				                layer.close(layindex);
+				            },
+							success: function(data, textStatus) {
+								$('#uploader .filelist').empty();//清空已上传图片
+								$('#dndArea').removeClass('element-invisible');
+								$('#filePicker > div').eq(1).css('left',$('#filePicker').width()/2-84);//恢复按钮定位
+								console.log(data)
+								inidata = data;
+	//                      		element.tabChange('docDemoTabBrief', 'photo');
+								
+								Sorted = inidata.Images.length;
+								photoSortUpdate(inidata.Images);
+								
+								layer.msg('上传成功');
+							}
+						})
+					}
+				})
+	    		
+	    	}
+		});
+		
+	});
+
+	function GetProjectData(ID) {
+		PackageId = ID;
+		
+		$.ajax({
+			type: "get",
+			url: "/Res/Package/GetNewModel",
+			dataType: "json",
+			data: {id: PackageId},
+			beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+			success: function(data, textStatus) {
+				inidata = data;
+				if($('.detail-con').is(":hidden")){
+					
+					AllProjects = inidata.Projects;
+					//初始化已选数组
+	
+					if(inidata.Package) {
+						if(inidata.Package.PackageDetails) {
+							thisProject = inidata.Package.PackageDetails;
+						}
+					}
+	
+					NewsProject();
+					var getTpl = Price_tpml.innerHTML,
+						view = document.getElementById('Price_view');
+					laytpl(getTpl).render(inidata, function(html) {
+						view.innerHTML = html;
+					});
+	
+					$('#Tables_view').delegate('li', 'click', function(event) {
+						var thisli = $(this);
+						var id = thisli.attr('data-id');
+						if(thisli.hasClass('checked')) {
+							thisli.removeClass('checked');
+							//删除数组
+							for(var i = 0; i < thisProject.length; i++) {
+								if(thisProject[i].R_ProjectDetail_Id == id) {
+									thisProject.splice(i, 1);
+								}
+							}
+						} else {
+							thisli.addClass('checked');
+							//添加数组
+							for(var i = 0; i < inidata.Projects.length; i++) {
+								if(inidata.Projects[i].Id == id) {
+									var Arr = {
+										R_Package_Id: PackageId,
+										R_ProjectDetail_Id: inidata.Projects[i].Id,
+										IsDelete: false,
+										Num: 1,
+										Id: 0
+									}
+									thisProject.push(Arr);
+								}
+							}
+						}
+						NewsProject();
+					})
+	
+					$('.class-tab-nav').delegate('li a', 'click', function(event) {
+						var thisa = $(this);
+						var id = parseFloat(thisa.attr('data-id'));
+						AllProjects = [];
+						thisa.parent('li').addClass('layui-this').siblings('li').removeClass('layui-this');
+	
+						if(id == 0) { //全部
+							AllProjects = inidata.Projects;
+						} else {
+	
+							for(var i = 0; i < inidata.Projects.length; i++) {
+	
+								if(inidata.Projects[i].Category == id) {
+									AllProjects.push(inidata.Projects[i]);
+								}
+							}
+						}
+						NewsProject();
+					})
+
+				}
+				
+				$('.layui-tab-item .detail-tips').hide().next().show();
+				
+				Sorted = inidata.Images.length;
+				photoSortUpdate(inidata.Images);
+				
+
+			}
+		})
+	}
+
+	//特殊要求提交
+	function SubmitExtend() {
+		
+		//套餐菜品数字验证
+		if(!isNumberValidate($('#Tableslists_view .ProjectNum')))return false;
+		//成本价  销售价  数字验证
+		if(!isNumberValidate($('#Price_view .layui-input')))return false;
+		
+		var modules = thisProject;
+
+		var token = $("input[name='__RequestVerificationToken']").val();
+
+		var para = {
+			"__RequestVerificationToken": token,
+			model: {
+				Id: PackageId,
+				CostPrice: $("#CostPrice").val(),
+				Price: $("#Price").val()
+			},
+			req: modules
+		};
+
+
+		$.ajax({
+			type: "post",
+			url: "/Res/Package/SubmitExtend",
+			dataType: "json",
+			data: para,
+			beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+			success: function(data, textStatus) {
+				if(data["Data"] == true){
+					parent.layer.msg('提交完成')
+                    parent.$('#SearchSubmit').click();
+					parent.layer.close(parent.layer.getFrameIndex(window.name));
+				} else {
+					layer.alert(data["Message"]);
+				}
+			}
+		})
+	}
+	
+	//当前套餐  已选菜品删除
+	function delTableList($this){
+		var index = $($this).closest('tr').index();
+		thisProject.splice(index,1);
+		NewsProject();
+	}
+
+	function NewsProject() {
+		var newdata = {
+			inidata: inidata,
+			thisProject: thisProject,
+			AllProjects: AllProjects
+		}
+		//渲染可选菜品
+		var getTpl = Tables_tpml.innerHTML,
+			view = document.getElementById('Tables_view');
+		laytpl(getTpl).render(newdata.AllProjects, function(html) {
+			view.innerHTML = html;
+			TablesViewAuto();
+		});
+		//渲染已选表单
+		var getTpl = Tableslists_tpml.innerHTML,
+			view = document.getElementById('Tableslists_view');
+		laytpl(getTpl).render(newdata, function(html) {
+			view.innerHTML = html;
+		});
+
+		//渲染已选信息
+		var totalCastPrice = 0;
+		var totalPrice = 0;
+		for(var i = 0; i < thisProject.length; i++) {
+			for(var j = 0; j < inidata.Projects.length; j++) {
+				if(inidata.Projects[j].Id == thisProject[i].R_ProjectDetail_Id) {
+					totalCastPrice = Math.round(totalCastPrice * 100 + inidata.Projects[j].CostPrice * 100 )/100;
+					totalPrice = Math.round(totalPrice * 100 + inidata.Projects[j].Price * 100)/100;
+				}
+			}
+		}
+		var total = {
+			num: thisProject.length,
+			totalCastPrice: totalCastPrice,
+			totalPrice: totalPrice
+		}
+		var getTpl = total_tpml.innerHTML,
+			view = document.getElementById('total_view');
+		laytpl(getTpl).render(total, function(html) {
+			view.innerHTML = html;
+		});
+
+		$('input.ProjectNum').blur(function(e) {
+			var num = parseFloat($(this).val());
+			var no = $(this).attr('data-no');
+			if(!num) {
+				num = 0;
+			}
+			thisProject[no].Num = num;
+
+		});
+	}
+	
+	$('#searchBtn').on('input propertychange',function(){
+		var val = $(this).val();
+		KeyWord(val)
+	})
+	
+	//搜索检索
+	function KeyWord(value) {
+		var newsArr = [];
+		if(!value) {
+			newsArr = inidata.Projects;
+		} else {
+			for(var i = 0; i < inidata.Projects.length; i++) {
+				var item = inidata.Projects[i];
+				//拼接 所有code
+				if(item.CharsetCodeList) { //存在 code
+					var code = '';
+					for(var j = 0; j < item.CharsetCodeList.length; j++) {
+						code += item.CharsetCodeList[j].Code.toUpperCase();
+					}
+					if(code.indexOf(value.toUpperCase()) >= 0) { //成立
+						newsArr.push(item);
+					}
+				}
+			}
+		}
+		var getTpl = Tables_tpml.innerHTML,
+			view = document.getElementById('Tables_view');
+		laytpl(getTpl).render(newsArr, function(html) {
+			view.innerHTML = html;
+			TablesViewAuto();
+		});
+	}
+	
+
+
+
+	
+	//图片排序更新
+	function photoSortUpdate(data){
+		//已上传图片渲染
+		laytpl(photoContainerTpml).render(data, function(html) {
+			photoContainerView.innerHTML = html;
+			
+			$('#photoContainer_view img').on('mousedown',function (e) {
+			    e.preventDefault()
+			})
+			
+			$('#photoContainer_view .del,#photoContainer_view .enlarge').on('mousedown',function(e){
+				e.stopPropagation()
+			})
+			
+			//查看大图
+			$('#photoContainer_view .enlarge').on('click',function(e){
+				var index = $(this).attr('data-index');
+				var $url = $(this).attr('data-img-url');
+				parent.parent.bigPhotoUpdateAndShow(inidata.Images,index)
+			})
+			
+			//拖拽
+			$('#photoContainer_view').dad();
+			
+			$('#photoContainer_view .del').on('click',function(e){
+				var item = $(this).closest('.item');
+				var Id = inidata.Images[item.attr('data-index')].Id;
+				$.ajax({
+	                type: "post",
+	                url: "/Res/Project/DeleteProjectImage",
+	                dataType: "json",
+	                data: {Id:Id},
+	                beforeSend: function (XMLHttpRequest) {
+		                layindex = layer.open({type: 3});
+		            },
+		            complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+	                success: function (data, textStatus) {
+	                    if (data["Data"] == true) {
+	                    	item.remove();
+	                    	Sorted == 0 ? Sorted = 0 : Sorted--;//排序
+	                    	console.log(Sorted)
+	                    	layer.msg('删除成功')
+	                    } else {
+	                        data["Message"] && layer.alert(data["Message"]);
+	                    }
+	                }
+	            });
+			})
+		});
+	}
+	
+
+    //图片上传	结束
+	
+	//菜品自适应
+	function TablesViewAuto(){
+		var list = $('#Tables_view');
+		var list_w = list.width();
+		var line_sum = Math.floor(list_w / 120);
+		var li_w = list_w / line_sum - 4;
+		list.children('li').css('width',li_w);
+	}
+	
+	//数字验证
+	function isNumberValidate(ele){
+		var t = true,value;
+		$.each(ele,function(){
+			value = $(this).val()
+			if(value < 0  || value.indexOf('.') + 1 === value.length){
+				layer.msg('必须大于等于0', {icon: 5,shift: 6});
+				$(this).focus();
+				t = false;
+				return false;
+			}
+			if(value.split(".")[1] && value.split(".")[1].length > 2){
+				layer.msg('最多只能有两位小数', {icon: 5,shift: 6});
+				$(this).focus();
+				t = false;
+				return false
+			}
+		})
+		return t
+	}
+</script>

@@ -1,0 +1,376 @@
+﻿@{ 
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title></title>
+
+        @StylesEx.Render(Plugin.Instance.Name, "RoomStateStyle")
+   
+    </head>
+    <body>
+
+<div class="centent">
+            <div class="room-state_head b-fff">
+                <div class="navbar navbar-default">
+                    <div class="form-group navbar-left">
+                        <div class="input-group border-search">
+                            <input type="text" name="keyword" class="form-control input-sm bg-light no-border rounded padder" placeholder="输入房号查询..." value="" onkeydown="javascript:if (event.keyCode==13) room_search();">
+                            <span class="input-group-btn">
+                                <button type="submit" onclick="room_search();" class="btn btn-sm bg-light rounded"><i class="fa iconfont icon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 ml-md">
+                        <label class="i-checks m-b-none title_and_check">
+                            <input type="checkbox" name="autologon" value="1">
+                            <span></span>查联房
+                        </label>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- <li><a href="#"><i class="icon-form_home"></i>房间状态表</a></li> -->
+                        <li><a href="#"><i class="iconfont icon-room_sort"></i>房态按楼层</a></li>
+                        <li><a href="javascript:void(0);" id="room_state_data_btn" class="active"><i class="iconfont icon-data_Column"></i>房态数据</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-10 plr-none">
+            <div class="room-state_data open mt-sm xian mr-sm">
+                <div class="row text-center">
+                  <div id="RoomListData_View"></div>
+                  <script id="RoomListDataTpl" type="text/html">   
+                    <div class="col-sm-6 col-xs-6 room-state_data_left">
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.TotalRooms }}</div>
+                                <div class="room-state_data_title">总房数</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs">{{ d.MemberGuests }}</div>
+                                <div class="room-state_data_title">会员</div>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.VacantRooms }}</div>
+                                <div class="room-state_data_title">空房</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs">{{ d.NetworkGuests }}</div>
+                                <div class="room-state_data_title">网络</div>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.ExpectArrivalRooms }}</div>
+                                <div class="room-state_data_title">预抵房</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs">{{ d.LockedRooms }}</div>
+                                <div class="room-state_data_title">锁房</div>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.ExpectDepartureRooms }}</div>
+                                <div class="room-state_data_title">预离房</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs">{{ d.HourRooms }}</div>
+                                <div class="room-state_data_title">钟点房</div>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.OutOfOrderRooms }}</div>
+                                <div class="room-state_data_title">维修房</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs">{{ d.ComplimentaryRooms }}</div>
+                                <div class="room-state_data_title">免费</div>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 col-xs-2 room-state_data_group">
+                            <a href="#">
+                                <div class="h3">{{ d.WalkinGuests }}</div>
+                                <div class="room-state_data_title">散客</div>
+                            </a>
+                            <a href="#">
+                                <div class="h3 m-b-xs" data-to="0">{{ d.HouseUseRooms }}</div>
+                                <div class="room-state_data_title">自用房</div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-6 border-left  room-state_data_right">
+                        <div class="col-sm-3 col-xs-3 room-state_data_group">
+                            <a href="#">
+                                <div class="h2 m-b-sm">{{ d.OccupiedRooms }}</div>
+                                <div class="room-state_data_title">在住房 </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-3 col-xs-3 room-state_data_group">
+                            <a href="#">
+                                <div class="h2 m-b-sm ">{{ d.TotalRoomPrices }}</div>
+                                <div class="room-state_data_title">总房价 </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-3 col-xs-3 room-state_data_group">
+                            <a href="#">
+                                <div class="h2 m-b-sm"><span>{{ d.OccupancyRate }}</span>%</div>
+                                <div class="room-state_data_title">出租率 </div>
+                            </a>
+                        </div>
+                        <div class="col-sm-3 col-xs-3 room-state_data_group">
+                            <a href="#">
+                                <div class="h2 m-b-sm">{{ d.AverageRoomPrices }}</div>
+                                <div class="room-state_data_title">平均房价 </div>
+                            </a>
+                        </div>
+                    </div>
+                  </script>
+                </div>
+            </div>
+            
+            <!-- 房态图 -->
+            <div class="room-state-list  room_sm b-fff mt-sm mr-sm xian">
+               <ul class="row">
+                  <div id="RoomList_View"></div>
+                  <script id="RoomListTpl" type="text/html"> 
+                   {{#  layui.each(d, function(index, item){ }}
+                     {{#  if(item.state == 'V'){ }}
+                       <li class="empty_clean room" data-id="{{ item.code }}" data-state="{{ item.state }}" data-number="">
+                     {{#  } }}
+                     {{#  if(item.state == 'O'){ }}
+                       <li class="occupy_clean room" data-id="{{ item.code }}" data-state="{{ item.state }}" data-number="">
+                     {{#  } }}
+                     {{#  if(item.state == 'B'){ }}
+                       <li class="arrivals room" data-id="{{ item.code }}" data-state="{{ item.state }}" data-number="">
+                     {{#  } }}
+                         <div class="room-card" data-title="{{ item.code }}房间详情">
+                            <h5 class="room-state_title"><span class="room-id">{{ item.code }}</span><span class="room-title">{{ item.title }}</span></h5>
+                            <i class="iconfont icon-user_b"></i>
+                            <p class="room-state_name">
+                               <span class="room-username">{{ item.title }}</span>
+                               <span class="room-type"></span>
+                               {{#  if(item.state == 'V'){ }}
+                                 <span class="room-type">空净房</span>
+                               {{#  } }}
+                               {{#  if(item.state == 'O'){ }}
+                                 <span class="room-type">在住房</span>
+                               {{#  } }}
+                               {{#  if(item.state == 'B'){ }}
+                                 <span class="room-type">维修房</span>
+                               {{#  } }}
+                            </p>
+                            <div class="room-state_icon">
+                               <span class="iconfont icon-time_room"></span>
+                               <span class="iconfont icon-clean"></span>
+                               <span class="iconfont icon-Arrow_skew_rt"></span>
+                               <span class="iconfont icon-msg"></span>
+                               <span class="iconfont icon-vip"></span>
+                            </div>
+                         </div>
+                     </li>
+                   {{#  }); }}
+                  </script>
+              </ul>
+            </div>
+            </div>
+            <!-- <div class="col-md-2"> -->
+            <div class="panel_box col-md-2 xian mt-sm b-fff">
+                <div class="panel-r_container slimScrollDiv">
+                    <div class="room_screen">
+                        <a href="javascript:void(0);" class="panel-tabs_title active tabs-n_title"><i class="iconfont icon-screen"></i><span>房间筛选</span></a>
+                        <div class="tabs-n_centent show">
+                            <div class="tabs">
+                                <a href="javascript:void(0);" class="active tabs-n_title">
+                                    <span>按楼层</span><i class="iconfont icon-Arrow_line_right"></i>
+                                </a>
+                                <div class="tabs-n_centent hide">
+                                    <div class="room-screen_list">
+                                        <div id="GalleryList_View"></div>
+                                         <script id="GalleryListTpl" type="text/html">   
+                                         {{# for(var i = 0 ; i < d.length; i++){ }}
+                                             <div class="room-screen_title">{{ d[i].Name }}</div>
+                                             <div class="room-screen_list">
+                                             {{# for(var j = 0; j < d[i].FloorList.length; j++){ }}
+                                                 <a href="javascript:void(0);" class="screen_btn" data-key="{{ d[i].FloorList[j].Name }}" data-key="{{ d[i].FloorList[j].Code }}">{{ d[i].FloorList[j].Name }}</a>
+                                             {{# } }}
+                                             </div>
+                                         {{# } }}
+                                         </script> 
+
+                                    </div>
+                                
+                                </div>
+
+                                <a href="javascript:void(0);" class="active tabs-n_title">
+                                    <span>按房类</span><i class="iconfont icon-Arrow_line_right"></i>
+                                </a>
+                                <div class="tabs-n_centent hide">
+                                    <div class="room-screen_list">
+                                        <div id="RoomTypeList_View"></div>
+                                         <script id="RoomTypeListTpl" type="text/html">   
+                                          {{#  layui.each(d, function(index, item){ }}
+                                             <a href="javascript:void(0);" class="screen_btn" data-key="{{ item.Name }}" data-key="{{ item.Code }}">{{ item.Name }}</a>
+                                           {{#  }); }}
+                                           {{#  if(d.length === 0){ }}
+                                             无数据
+                                           {{#  } }}
+                                         </script> 
+                                    </div>
+                                </div>
+
+                                <a href="javascript:void(0);" class="active tabs-n_title">
+                                    <span>按状态</span><i class="iconfont icon-Arrow_line_right"></i>
+                                </a>
+                                <div class="tabs-n_centent hide">
+                                   <div class="room-screen_list">
+                                    <div id="RoomStateList_View"></div>
+                                    <script id="RoomStateListTpl" type="text/html">   
+                                     {{#  layui.each(d, function(index, item){ }}
+                                        <a href="javascript:void(0);" class="screen_btn" data-key="{{ item.Name }}" data-key="{{ item.Code }}">{{ item.Name }}</a>
+                                     {{#  }); }}
+
+                                     {{#  if(d.length === 0){ }}
+                                       无数据
+                                     {{#  } }}
+                                    </script> 
+                                    </div>
+
+                                  
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room_screen hide">
+                            <a href="javascript:void(0);" class="panel-tabs_title active tabs-n_title"><i class="iconfont icon-Help"></i><span>实时房情</span></a>
+                            <div class="tabs-n_centent hide">
+                                <ul class="list-group jian">
+                                    <li class="list-group-item">
+                                        <span class="badge">98</span>
+                                        总房数:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">1001</span>
+                                        空房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">199.00</span>
+                                        预抵房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">3200</span>
+                                        预离房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        维修房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        散客:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        会员:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        网络:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        锁房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        钟点房:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        免费:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        自用:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        在住:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        总房价:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        出租率:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        平均房价:
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div class="room_screen">
+                            <a href="javascript:void(0);" class="panel-tabs_title active tabs-n_title"><i class="iconfont icon-Help"></i><span>帮助和服务</span></a>
+                            <div class="tabs-n_centent show">
+                                <div class="help-container">
+                                    <div class="help-body_title">实时房态是什么?</div>
+                                    <div class="help-body_body">
+                                        实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态，实时房态是实时显示当前所有房间的基本状态。
+                                    </div>
+                                    <div class="help-body_list">
+                                        <a href="#">如何操作开房？</a>
+                                        <a href="#">会员如何开房？</a>
+                                        <a href="#">怎样查看入住信息？</a>
+                                        <a href="#" class="text-right">更多 <i class="iconfont icon-Arrow_line_right"></i></a>
+                                    </div>
+                                </div>
+                                <div class="help-container">
+                                    <div class="help-body_title">奥普在线客服</div>
+                                    <div class="help-body_service">
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img class="media-object" src="@Url.Content(Plugin.Instance.GetContentPath("Images/ewm.jpg"))" alt="奥普官网二维码">
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading"><i></i>400-0773-021</h4>
+                                                <p>有问题来问我哦123456！</p>
+                                            </div>
+                                        </div>
+                                        <a class="btn m-b-xs w-xs btn-border" href="#">400 在线客服</a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- </div> -->
+
+            </div>
+        </div>
+
+
+        @ScriptsEx.Render(Plugin.Instance.Name, "BasicJs")
+        @ScriptsEx.Render(Plugin.Instance.Name, "RoomStateJs")
+        @*@ScriptsEx.Render(Plugin.Instance.Name, "NumberRollJs")*@
+        <script type="text/javascript">
+            room_state_set();
+            room_state_hover();
+            room_screen_check();
+            room_state_data();
+        </script>
+	</body>
+</html>

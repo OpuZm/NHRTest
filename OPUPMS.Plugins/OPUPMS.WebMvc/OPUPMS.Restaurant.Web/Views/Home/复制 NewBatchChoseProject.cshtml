@@ -1,0 +1,601 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>点菜</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<style>
+	.MealTable-lists li:hover{background:#f1f1f1;opacity: 0.9;}
+	.MealTable-lists li a:hover{color:#333;}
+	
+	.MealTable-lists li.layui-this{background-color: #5FB878;}
+	.MealTable-lists li.layui-this a:hover{color:#fff;}
+
+	
+	
+	#VirtualKeyboardIME{top: 109px!important; right: 0!important;left: inherit!important;}
+	.MealTable-lists .del-icon{border:1px solid red;border-radius: 50%;color:red;cursor:pointer;}
+	.MealTable-lists td,.MealTable-lists th{text-align: center;}
+	.MealTable-lists td:first-child,.MealTable-lists th:first-child{text-align: left;}
+	#select_tc li{width:150px;height:62px;padding:20px 2px 0;}
+	/*.layui-table-header{border-color: #1E9FFF !important;}
+	.layui-table-header tr{background-color:#1E9FFF !important;color:#fff;}*/
+	/*.layui-table-header{border-color: #0060a7 !important;}
+	.layui-table-header tr{background-color:#0060a7 !important;color:#fff;}*/
+	.layui-table tbody tr:hover{background:#e4e4e4}
+	
+	/*中间操作按钮*/
+	.actions-vertical{overflow-x: hidden;}
+	.actions-vertical .actions-vertical-list{overflow: hidden;overflow-y:auto ;width:90px;}
+	.actions-vertical .layui-btn{height:60px;line-height:60px;width:100%;display:none;}
+	.actions-vertical li{width:70px;}
+	
+	.actions-vertical.ms-menu ..actions-vertical-list{width:auto;}
+	.actions-vertical.ms-menu .layui-btn{display: block;}
+	
+	/*滚动按钮样式*/
+	.Panel-form.right{position: relative;overflow-x:hidden;}
+	
+	#TC_CategoryListTab{padding-top:0;}
+	#Tc_ProjectsLists.MealTable-lists li .MealTable-head,#Tc_ProjectsLists.MealTable-lists li .MealTable-footer {line-height: 14px;}
+	
+	.MealTable-lists ul{padding:0;}	
+	
+	.editNameLayer .layui-input{padding-right: 30px;}
+	.editNameLayer .clearInputBtn{position: absolute;right: 4px;top: 6px;font-size: 24px;cursor: pointer;}
+	
+	/*数字键盘样式*/
+	.keyboard-number.layui-form .layui-form-item{padding:6px;margin-bottom: 0;}
+	.Keyboard-input-group input{font-size:14px;line-height:38px;height:38px;}
+	
+</style>
+<body>
+	
+    <div class="container flex chooseOrder">
+        <!-- ▼左侧 点菜列表 -->
+        <div class="Panel-side left">
+            <!-- ▼左侧 点菜头部信息 -->
+            <div class="order-head">
+
+                <table class="layui-table" lay-even lay-skin="nob">
+                    <tbody id="OrderAndTables_view">
+                    </tbody>
+                    <script id="OrderAndTables_tpml" type="text/html">
+                        <tr>
+                            <td width="14%" class="tr">台号:</td>
+                            <td width="24%" class="">
+                                <h5 style="width:100px;" class="sl">{{ d.TableName }}</h5>
+                                <input type="hidden" id="OrderId" value="{{ d.OrderId }}" />
+                            </td>
+                            <td width="18%" class="tr">单号:</td>
+                            <td width="25%" class="">{{ d.OrderNo }}</td>
+                        </tr>
+                        <tr>
+                            <td width="14%" class="tr">人数:</td>
+                            <td width="24%" class="">{{ d.PersonNum }}</td>
+                            <td width="18%" class="tr">客源类型:</td>
+                            <td width="25%" class="">{{ d.OrderSourceType }}</td>
+                        </tr>
+                        <tr>
+                            <td width="14%" class="tr">操作员:</td>
+                            <td width="24%" class="">{{ d.UserName }}</td>
+                            <td width="18%" class="tr">开单时间:</td>
+                            <td width="25%" class="">{{ d.CreateDate }}</td>
+                        </tr>
+                    </script>
+                </table>
+            </div>
+            <!-- ▲左侧 点菜头部信息 -->
+            <!-- ▼左侧 点菜内容 -->
+            <table class="layui-table layui-table-header table-head" lay-skin="line" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th width="">菜名</th>
+                        <th width="13%"><div class="tc">单位</div></th>
+                        <th width="13%"><div class="tc">数量</div></th>
+                        <th width="15%"><div class="tc">单价</div></th>
+                        <th width="17%"><div class="tc">金额</div></th>
+                    </tr>
+                </thead>
+            </table>
+            <!--滚动按钮  开始-->
+            <div class="orderScrollBtn">
+            	<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+            	<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+            </div>
+            <!--滚动按钮  结束-->
+            <div class="order-content sm-scroll-hidden">
+                <table class="layui-table" lay-skin="line" style="margin: 0;">
+                    <tbody id="ProjectLists_view"></tbody>
+                </table>
+                <script id="ProjectLists_tpml" type="text/html">
+                    {{#  layui.each(d, function(index, item){ var totalprice=0; }}
+                    <tr data-id="{{ item.R_Project_Id }}"   data-CyddMxType="{{ item.CyddMxType }}"  {{#  if(index==thisProjectsIndex){  }} class="layui-this" {{#  } }}  {{# if(item.CyddMxType == 2){ }} style="background:#a4f5d4" {{# } }}>
+                        <td>
+                            <div class="prod-title">
+                                <h4>{{#  if(item.DishesStatus==1){  }}
+                                	   <span class="layui-badge layui-bg-blue">即</span> 
+                                	{{#  }else if(item.DishesStatus==2){  }}
+                                	   <span class="layui-badge layui-bg-blue">叫</span> 
+                                	{{#  } }}
+                                	{{#  if(item.Id>0 && item.CyddMxStatus>0){  }}<i class="iconfont color-blue">&#xe60d;</i> {{#  } }}{{ item.ProjectName }}
+                                	{{# if(item.CyddMxType == 2){ }} <span class="layui-badge" style="background:#337ab7;padding:0 4px;">套餐</span> {{# } }}
+                                </h4>
+                                <div class="Extend">
+                                    {{#  if(item.Extend){ var Extend='',ExtendRequire='',ExtendExtra=''; }}
+	                                    {{#  layui.each(item.Extend, function(index, item){ totalprice+=item.Price; if(item.Price>0){ var price=item.Price+'元';  }else{  var price='';  }; }}
+	                                     
+	                                        {{#  if(item.ExtendType==1){ if(Extend){ var fh='、'; }else{ var fh=''; };  Extend+=fh+item.ProjectExtendName+' '+price; }} {{#  } }}
+	                                        {{#  if(item.ExtendType==2){ if(ExtendRequire){ var fh='、'; }else{ var fh=''; }; ExtendRequire+=fh+item.ProjectExtendName+' '+price; }} {{#  } }}
+	                                        {{#  if(item.ExtendType==3){ if(ExtendExtra){ var fh='、'; }else{ var fh=''; };ExtendExtra+=fh+item.ProjectExtendName+' '+price; }} {{#  } }}
+
+	                                    {{#  }); }}
+	                                    
+	                                    {{#  if(Extend){  }}
+		                                    <p class="practice">
+		                                        <label>「做法」</label>
+		                                        <span class="intro">
+		                                        	{{ Extend }}
+		                                        </span>
+		                                    </p>
+	                                    {{#  } }}
+	                                    {{#  if(ExtendRequire){  }}
+		                                    <p class="asked">
+		                                        <label>「要求」</label>
+		                                        <span class="intro">
+		                                            {{ ExtendRequire }}
+		                                        </span>
+		                                    </p>
+	                                    {{#  } }}
+	                                    {{#  if(ExtendExtra){  }}
+		                                    <p class="garnish">
+	                                        <label>「配菜」</label>
+		                                        <span class="intro">
+		                                            {{ ExtendExtra }}
+		                                        </span>
+		                                    </p>
+	                                    {{#  } }}
+	                                {{#  } }}
+	                                {{#  if(item.Remark){  }}
+	                                <p class="garnish">
+	                                        <label>「手写做法」</label>
+	                                        <span class="intro" style="left:80px;">
+	                                            {{ item.Remark }}
+	                                        </span>
+		                            </p>
+                                    {{#  } }}
+                                </div>
+                            </div>
+                            <p class="other">
+                                {{# var totalothernum=0;  if(item.OrderDetailRecordCount){ }}
+	                                {{#  layui.each(item.OrderDetailRecordCount, function(index, item){ }}
+		                                {{#  if(item.CyddMxCzType==1){ totalothernum+= item.Num; }}
+		                                <span class="zt-data"><span class="layui-badge layui-bg-green">赠</span> {{ item.Num }}</span>
+		                                {{#  }else if(item.CyddMxCzType==2){ totalothernum+= item.Num; }}
+		                                <span class="zt-data"><span class="layui-badge">退</span> {{ item.Num }}</span>
+		                                {{#  }else if(item.CyddMxCzType==3){  }}
+		                                <a class="zt-data" onclick="OrderDetailRecordCountTable()"><span class="layui-badge layui-bg-gray">转入</span> {{ item.Num }}</a>
+		                                {{#  }else if(item.CyddMxCzType==4){ totalothernum+= item.Num; }}
+		                                <a class="zt-data" onclick="OrderDetailRecordCountTable()"><span class="layui-badge layui-bg-gray">转出</span> {{ item.Num }}</a>
+		                                {{#  } }}
+	                                {{#  }); }}
+                                {{#  } }}
+                            </p>
+                        </td>
+                        <td class="tc" width="13%"><span class="Unit">{{ item.Unit }}</span></td>
+                        <td class="tc" width="13%"><span class="Num">{{ item.Num }}</span></td>
+                        <td class="tc" width="15%"><span class="Price">{{ item.Price }}</span></td>
+                        <td class="tc" width="17%"><span class="TotalPrice">{{# var totall=(item.Price+totalprice)*item.Num - ((item.Price+totalprice)*totalothernum); }} {{ totall.toFixed(2) }}</span></td>
+                    </tr>
+                    {{#  }); }}
+                </script>
+            </div>
+
+            <!-- ▲左侧 点菜内容 -->
+            <!-- ▼左侧 点菜统计 -->
+            <div class="order-total">
+                <table class="layui-table" lay-even lay-skin="nob">
+                    <tbody>
+                        <tr>
+                            <td width="50%">份数:<span id="totalnum">0</span> (总份量：<span id="sumNum"></span>)</td>
+                            <td width="50%">单桌金额:</td>
+                        </tr>
+                        <tr>
+                            <td width="50%">总金额: <span style="color:red">￥<span id="allTotalprice">0.00</span></span></td>
+                            <td width="50%"><div class="price">￥<span id="totalprice">0.00</span></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- ▲左侧 点菜统计 -->
+
+        </div>
+        <!-- ▲左侧 点菜列表 -->
+        <!-- ▼点菜操作菜单 -->
+        <nav class="actions-vertical">
+        	<div class="layui-btn layui-btn-normal actionsScrollTopBtn" style="margin-bottom:3px"><i class="layui-icon">&#xe619;</i></div>
+        	<div class="actions-vertical-list">
+                <ul class="row" id="operation_lists">
+                    <!--<li><a href="javascript:void(0);" onclick="Package();">套餐</a></li>-->
+                    <li><a onclick="PrintLXD(this)">列印单</a></li>
+                    <li><a onclick="NumberKeyboard('editSum',this);">人数修改</a></li>
+                    <li class="operation_item add"><a href="javascript:void(0);" class="Disable" onclick="EditNum(this,1,'plus');">+1</a></li>
+                    <li class="operation_item minus"><a href="javascript:void(0);" class="Disable" onclick="EditNum(this,1,'minus');">-1</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="NumberKeyboard('editnum',this);">数量</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="NumberKeyboard('editprice',this);">改价</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="ProjectLayer(this);">做法</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="orderReturnBtn('retreat',this);">退菜</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="NumberKeyboard('give',this);">赠送</a></li>
+                    <li class="operation_item"><a href="javascript:void(0);" class="Disable" onclick="EditName(this,'1');">手写菜</a></li>
+                    <!-- <li><a href="javascript:void(0);">叫起</a></li>-->
+                    <!--<li><a href="javascript:void(0);">起菜</a></li>-->
+                    <li><a href="javascript:void(0);" onclick="MoreShow();">更多</a></li>
+                </ul>
+        	</div>
+        	<div class="layui-btn layui-btn-normal actionsScrollBottomBtn" style="margin-top:3px"><i class="layui-icon">&#xe61a;</i></div>
+        </nav>
+        <!-- ▲点菜操作菜单 -->
+        <!-- ▼点菜操作 -->
+        <div class="Panel-form right flex-item order-form">
+            <div class="layui-form" action="">
+                <div class="ClassTab-head">
+                    <div id="CategoryList_view" class="layui-tab moveClassTab layui-tab-brief CategoryListTab clearfix" lay-filter="ClassTab" style="width: calc(100vw - 480px);"> 
+                    </div>
+                    <script id="CategoryList_tpml" type="text/html">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">全部</li>
+                            {{#  layui.each(d, function(index, item){ }}
+                            <li>{{ item.Name }}</li>
+                            {{#  }); }}
+                            
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="class-group">
+                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this">全部</a>
+                                </div>
+                            </div>
+                            {{#  layui.each(d, function(index, item){ }}
+                            <div class="layui-tab-item">
+                            	<a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-left"><i class="layui-icon">&#xe65a;</i></a>
+                                <div class="class-group">
+                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this">全部</a>{{#  if(item.ChildList.length > 0){ }}{{#  layui.each(item.ChildList, function(index, item){ }}<a href="javascript:void(0);" class="layui-btn layui-btn-primary ">{{ item.Name }}</a>{{#  }); }}{{#  }  }}
+                                </div>
+                                <a class="layui-btn layui-btn-normal layui-btn-sm move-btn move-right"><i class="layui-icon">&#xe65b;</i></a>
+                            </div>
+                            {{#  }); }}
+                        </div>
+						<div class="layui-form-item searchInput">
+							<div class="layui-input-inline" style="width:140px;">
+								<input type="text" id="KeyWord" name="KeyWord" placeholder="输入检索字母" title="搜索" value="" data-type="text" data-lang="en" onfocus="ShowKeyboard(this.name)"  class="layui-input search-input" style="font-size:16px;">
+								<a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+							</div>
+						</div>
+						<!--滚动按钮  开始-->
+						<div class="scrollBtn">
+							<div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+							<div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+						</div>
+						<!--滚动按钮  结束-->
+                    </script>
+                </div>
+                <!-- ▼菜品列表 -->
+                
+                <div class="MealTable-lists flex-item sm-scroll-hidden">
+                    <ul id="ProjectAndDetails_view"></ul>
+                    <script id="ProjectAndDetails_tpml" type="text/html">
+                    	{{# 
+							var $mealTable = $('#ProjectAndDetails_view');
+							var $mealTable_w = $mealTable.parent().width() - 5;
+							var maxW = 120;
+							var outW = 12;
+							if(winW <= 1024){
+								maxW = 100;
+								outW = 2;
+							}
+							var line_sum = Math.floor($mealTable_w / maxW);
+							var $mealTable_li_w = $mealTable_w / line_sum - outW;
+							var line_length = winW <= 1024 ? Math.floor($mealTable_li_w/12)*2 : Math.floor($mealTable_li_w/14)*2;
+								
+                    	}}
+                    	
+                    	
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li data-id="{{ item.Id }}" data-CyddMxType="{{ item.CyddMxType }}"  
+                        	{{# var itemClass = "";if(GetLength(item.Name) > line_length){ itemClass += "even ";}}}
+                        	{{# if( item.IsStock==true && inidata.OrderAndTables.CyddStatus !==1 && item.Stock<1 ){ itemClass +="disabled ";} }} 
+                        		
+                        	class="{{itemClass}}"
+                        	style="width:{{$mealTable_li_w + 'px'}}"
+                        	
+                        	>
+                            <a href="javascript:void(0);">
+                            	{{#  if(item.IsRecommend > 0){ }}
+                                	<span class="IsRecommend"></span>
+                                {{#  } }}
+                                <div class="MealTable-head flex">
+                                    <span class="item MealTable-number flex-item">{{# if(item.Code){ }}{{ item.Code }}{{# }else{ }} {{# } }}</span>
+                                </div>
+                                <div class="MealTable-title">
+                                    {{ item.Name }}
+                                </div>
+                                <div class="MealTable-footer flex">
+                                    {{#  if(item.IsStock == false){ var stock='<span>--</span>'; }}  {{#  }else{ var stock='<span class="color-red">'+item.Stock+'</span>'; }} {{#  } }}
+                                    <span class="MealTable-stock"><i class="iconfont">&#xe645;</i>{{ stock }}</span>
+                                    
+                                    {{#  if(item.CyddMxType ==1){ }}
+	                                    {{#  layui.each(item.ProjectDetailList, function(index, item){ }}
+	                                      {{#  if(index==0){ }} 
+	                                        <span class="MealTable-price flex-item">￥{{ item.Price }}</span>
+	                                      {{#  } }}
+	                                    {{#  }); }}
+	                                {{#  }else{ }}
+	                                      <span class="MealTable-price flex-item">￥{{ item.Price }}</span>
+	                                {{#  } }}
+                                </div>
+                            </a>
+                        </li>
+                        {{#  }); }}
+                    </script>
+                </div>
+                <!-- ▲菜品列表 -->
+                <!-- ▼操作 -->
+                <div class="actions-box pbr" id="actionsbtn_view"></div>
+                <script id="actionsbtn_tpml" type="text/html">
+                    {{#  layui.each(d.Actionsbtn, function(index, item){ }}
+                    	{{# if(OrderTableIds.length > 1 && item.isOnly ){ }}
+                    	{{# }else if(item.IsLock && d.OrderAndTables.IsLock){ }}
+                    	{{# }else if(item.CyddStatus && d.OrderAndTables.CyddStatus == item.CyddStatus){ }}
+                    	{{# }else{ }}
+	                    	<a href="javascript:;" class="layui-btn layui-btn-lg" onclick="{{item.Click}}"
+		                   		style="background:{{item.Colour}};border:1px solid #bbb;">{{item.FunctionName}}
+		                    </a>
+                    	{{# } }}
+                    {{# }) }}
+                </script>
+                <!-- ▲操作 -->
+                
+                <!--更多操作的按钮-->
+                <div id="more-btn-group" style="display: none;"></div>
+                <script id="moreBtnGroup_tpml" type="text/html">
+                	{{# if(d.MoreOrderbtn.length > 0){ }}
+	                	<blockquote class="label-title">菜品操作</blockquote>
+	                    {{#  layui.each(d.MoreOrderbtn, function(index, item){ }}
+	                    	{{# if(OrderTableIds.length > 1 && item.isOnly ){ }}
+	                    	{{# }else if(item.IsLock && d.OrderAndTables.IsLock){ }}
+	                    	{{# }else if(item.CyddStatus && d.OrderAndTables.CyddStatus == item.CyddStatus){ }}
+	                    	{{# }else{ }}
+		                    	<a href="javascript:;" class="layui-btn layui-btn-lg" onclick="{{item.Click}}"
+			                   		style="background:{{item.Colour}};border:1px solid #bbb;">{{item.FunctionName}}
+			                    </a>
+	                    	{{# } }}
+	                    {{# }) }}
+                	{{# } }}
+                	{{# if(d.MoreTablebtn.length > 0){ }}
+	                    <blockquote class="label-title">桌台操作</blockquote>
+	                    {{#  layui.each(d.MoreTablebtn, function(index, item){  }}
+	                    	{{# if(OrderTableIds.length > 1 && item.isOnly ){ }}
+	                    	{{# }else if(item.IsLock && d.OrderAndTables.IsLock){ }}
+	                    	{{# }else if(item.CyddStatus && d.OrderAndTables.CyddStatus == item.CyddStatus){ }}
+	                    	{{# }else{ }}
+		                    	<a href="javascript:;" class="layui-btn layui-btn-lg" onclick="{{item.Click}}"
+			                   		style="background:{{item.Colour}};border:1px solid #bbb;">{{item.FunctionName}}
+			                    </a>
+	                    	{{# } }}
+	                    {{# }) }}
+                    {{# } }}
+                </script>
+            </div>
+
+        </div>
+        <!-- ▲点菜操作 -->
+
+
+
+    </div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+    
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Report")
+    
+    @ScriptsEx.Render(Plugin.Instance.Name, "isScrollconfigJS")
+    @ScriptsEx.Render(Plugin.Instance.Name, "ChoseProjectJs")
+
+
+    <script src="~/signalr/hubs"></script>
+
+
+    <script type="text/javascript">
+    	//已选菜品向下滚动 一页
+        $(document).on('mousedown touchstart','.orderScrollBtn .scrollBottomBtn',function(){
+        	var list = $(this).parent().next();
+        	var isScoll = true;//是否继续滚动
+        	var x = list.scrollTop();
+        	maxScroll = 0;
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+                
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = list.scrollTop();
+        			x + 10 > 0 ? x += 10 : x = 0;
+        			if(maxScroll == x)return;
+        			maxScroll = x;
+    				list.scrollTop(x)
+    				setTimeout(moving,15);
+        		}
+            }
+        })
+        
+        //已选菜品向上滚动 一页
+        $(document).on('mousedown touchstart','.orderScrollBtn .scrollTopBtn',function(){
+        	var list = $(this).parent().next();
+        	var isScoll = true;//是否继续滚动
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = list.scrollTop();
+        			x - 10 > 0 ? x -= 10 : x = 0;
+        			if(x <= 0){
+        				list.scrollTop(0);
+        				scolling = false;
+        			}else{
+        				list.scrollTop(x)
+        				setTimeout(moving,15);
+        			}
+        		}
+            }
+        })
+    	
+    	
+		//菜品向下滚动 一页
+        $(document).on('click','.scrollBtn .scrollBottomBtn',function(e){
+        	var list = $(this).closest('.ClassTab-head').siblings('.MealTable-lists');
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	
+    		list.scrollTop(h + listH)
+        })
+        
+        //菜品向上滚动 一页
+        $(document).on('click','.scrollBtn .scrollTopBtn',function(){
+        	var list = $(this).closest('.ClassTab-head').siblings('.MealTable-lists');
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	if(h < listH){
+        		list.scrollTop(0)
+        	}else{
+        		list.scrollTop(h - listH)
+        	}
+        	
+        })
+        
+        //操作栏  向下滚动 一页
+        $(document).on('click','.actions-vertical .actionsScrollBottomBtn',function(){
+        	debugger
+        	var list = $('#operation_lists').parent();
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	list.scrollTop(h + listH)
+        	
+        })
+        
+        //操作栏  向上滚动 一页
+        $(document).on('click','.actions-vertical .actionsScrollTopBtn',function(){
+        	debugger
+        	var list = $('#operation_lists').parent();
+        	var listH = list.height();
+        	var h = list.scrollTop();
+        	if(h < listH){
+        		list.scrollTop(0)
+        	}else{
+        		list.scrollTop(h - listH)
+        	}
+        	
+        })
+        
+        //监控滚动条   向左滚动
+        $(document).on('mousedown touchstart','.layui-tab .move-btn.move-left',function(){
+        	var $group = $(this).siblings('.class-group');
+        	var isScoll = true;//是否继续滚动
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = $group.scrollLeft();
+        			x - 10 > 0 ? x -= 10 : x = 0;
+        			if(x <= 0){
+        				$group.scrollLeft(0);
+        				scolling = false;
+        			}else{
+        				$group.scrollLeft(x)
+        				setTimeout(moving,15);
+        			}
+        		}
+            }
+        })
+        
+        //监控滚动条   向左滚动
+        $(document).on('mousedown touchstart','.layui-tab .move-btn.move-right',function(){
+        	var $group = $(this).siblings('.class-group');
+        	var isScoll = true;//是否继续滚动
+        	var x = $group.scrollLeft();
+        	maxScroll = 0;
+            $(this).on('mouseup touchend',function(){
+            	isScoll = false;
+                $(this).off('mouseup touchend');
+                $(this).off('mouseleave');
+            })
+            
+            $(this).on('mouseleave',function(){
+            	isScoll = false;
+                $(this).off('mouseleave');
+                $(this).off('mouseup touchend');
+                
+            })
+            
+            setTimeout(moving,15);
+            function moving(){
+            	if(isScoll){
+        			var x = $group.scrollLeft();
+        			x + 10 > 0 ? x += 10 : x = 0;
+        			if(maxScroll == x)return;
+        			maxScroll = x;
+    				$group.scrollLeft(x)
+    				setTimeout(moving,15);
+        		}
+            }
+        })
+		
+
+    </script>
+</body>
+</html>

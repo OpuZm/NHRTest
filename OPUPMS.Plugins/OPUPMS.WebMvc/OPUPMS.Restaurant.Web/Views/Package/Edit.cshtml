@@ -1,0 +1,428 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@using OPUPMS.Domain.Restaurant.Model;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    PackageCreateDTO Package = ViewBag.Package ?? new PackageCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+}
+<style>
+    .morecheck {
+        padding: 5px 5px 5px 0;
+    }
+</style>
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#basic" aria-controls="home" role="tab" data-toggle="tab">基本资料</a></li>
+        <li role="presentation"><a href="#special" aria-controls="profile" role="tab" data-toggle="tab">所含餐饮项目</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="basic">
+            <form class="form-horizontal" id="SubmitForm">
+                <div class="form-group">
+                    <label for="Name" class="col-xs-2 control-label">名称:</label>
+                    <div class="col-xs-10">
+                        <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@Package.Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">可打折:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsDiscount" class="radio inline" @(Package.IsDiscount > 0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CytcProperty.是否可打折)" name="IsDiscount" class="radio inline" @(Package.IsDiscount > 0 ? "checked='checked'" : "") />是
+                    </div>
+                    <label for="Unit" class="col-xs-2 control-label">可改价:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="0" name="IsChangePrice" class="radio inline" @(Package.IsChangePrice > 0 ? "" : "checked='checked'") />否
+                        <input type="radio" value="@Convert.ToInt32(CytcProperty.是否可改价)" name="IsChangePrice" class="radio inline" @(Package.IsChangePrice > 0 ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Price" class="col-xs-2 control-label">是否上架:</label>
+                    <div class="col-xs-4">
+                        <input type="radio" value="false" name="IsOnSale" class="radio inline" @(Package.IsOnSale ? "" : "checked='checked'") />否
+                        <input type="radio" value="true" name="IsOnSale" class="radio inline" @(Package.IsOnSale ? "checked='checked'" : "") />是
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="Description" class="col-xs-2 control-label">描述:</label>
+                    <div class="col-xs-10">
+                        <textarea id="Describe" name="Describe" class="form-control" rows="5">@Package.Describe</textarea>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+                <input type="hidden" id="Id" name="Id" value="@Package.Id" />
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="special">
+            @if (Package.Id > 0)
+            {
+                <form class="form-horizontal" id="ExtendForm">
+                    <div class="" id="ProjectList">
+                        <div class="btn-group" role="group" aria-label="...">
+                            @if (Categorys != null)
+                            {
+                                <button type="button" data-id="0" class="btn btn-primary" v-on:click="CategoryChange(0)">全部</button>
+                                foreach (var item in Categorys)
+                                {
+                                    <button type="button" data-id="@item.Id" class="btn btn-primary" v-on:click="CategoryChange(@item.Id)">@item.Name</button>
+                                }
+                            }
+                        </div>
+                        <div class="">
+                            <div class="col-xs-9 bg-info">
+                                <label v-for="(pro,index) in pros" class="morecheck"><input type="checkbox" :value="pro.Id" name="project" v-model="pro.checked" class="checkbox-inline" v-on:change="Add(pro,index)" />{{pro.ProjectName}}({{pro.Unit}})</label>
+                            </div>
+                            <div class="col-xs-3">
+                                <div class="form-group text-danger" style="margin-bottom:0px;">
+                                    <h4>已选:{{selects.length}} 成本:{{totalCostPrice}} 总价:{{totalPrice}}</h4>
+                                </div>
+                                <div class="form-group text-primary">
+                                    <ul class="list-group">
+                                        <li class="list-group-item" v-for="(sel,index) in selects">
+                                            {{sel.ProjectName}} ({{sel.Unit}})
+                                            <input type="number" v-model="sel.Num" class="form-control text-left" style="width:60px; display:inline-block" v-on:change="GetTotal()" step="0.1" min="1" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Name" class="col-xs-5 control-label">成本价:</label>
+                                    <div class="col-xs-7">
+                                        <input type="text" class="form-control" id="CostPrice" name="CostPrice" placeholder="成本价" value="@Package.CostPrice">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Name" class="col-xs-5 control-label">销售价:</label>
+                                    <div class="col-xs-7">
+                                        <input type="text" class="form-control" id="Price" name="Price" placeholder="销售价" value="@Package.Price">
+                                    </div>
+                                </div>
+                                <div class="form-group text-center">
+                                    <button class="btn btn-primary" type="submit">提交</button>
+                                    <button class="btn btn-default closeAll" type="button">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" value="@Package.Id" name="Id" />
+                    @Html.AntiForgeryToken()
+                </form>
+            }
+            else
+            {
+                <h3 class="text-danger">请先填写并提交基本资料</h3>
+            }
+        </div>
+    </div>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    <script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+                var vm = new Vue({
+                    el: '#ProjectList',
+                    data: {
+                        pros: [],
+                        selects: [],
+                        totalCostPrice: 0,
+                        totalPrice:0
+                    },
+                    methods: {
+                        CategoryChange: function (category) {
+                            GetProjectDetails(category);
+                        },
+                        Add: function (pro, index) {
+                            AddSelect(pro,index);
+                        },
+                        Delete: function (index,id) {
+
+                        },
+                        GetTotal: function () {
+                            GetTotal();
+                        }
+                    }
+                })
+
+                function AddSelect(pro,index) {
+                    var bol = true;
+                    vm.totalCostPrice = 0;
+                    vm.totalPrice = 0;
+                    $(vm.selects).each(function (i, o) {
+                        if (o.Id == pro.Id) {
+                            vm.selects.splice(i, 1);
+                            bol = false;
+                            return false;
+                        }
+                    })
+                    if (bol) {
+                        pro.Num = 1;
+                        vm.selects.push(pro);
+                    }
+                    GetTotal();
+                }
+
+                function GetTotal() {
+                    vm.totalCostPrice = 0;
+                    vm.totalPrice = 0;
+                    $(vm.selects).each(function (i, o) {
+                        vm.totalCostPrice += o.CostPrice * o.Num;
+                        vm.totalPrice += o.Price * o.Num;
+                    })
+                }
+
+                function GetProjectDetails(category) {
+                    var para = { category: category, hasPackage:false };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Project/GetProjectDetails",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async:false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDown(data.Data);
+                            } else {
+                                layer.msg('不存在该类别菜品', {
+                                    time: 2000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function GetMyDetails() {
+                    var para = { id: '@Package.Id' };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Package/GetModel",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushInit(data.Data);
+                            } else {
+                                //layer.msg('参数错误', {
+                                //    time: 2000
+                                //}, function () {
+                                //    window.close();
+                                //})
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDown(data) {
+                    vm.pros = [];
+                    $(data).each(function (i, o) {
+                        if (!o.IsDelete) {
+                            var bol = true;
+                            $(vm.selects).each(function (j, obj) {
+                                if (o.Id == obj.Id) {
+                                    o.checked = true;
+                                    bol = false;
+                                    return false;
+                                } else {
+                                    o.checked = false;
+                                    bol = true;
+                                }
+                            })
+                            vm.pros.push(o);
+                        }
+                    })
+                }
+
+                function PushInit(data) {
+                    $(vm.pros).each(function (i, o) {
+                        $(data.PackageDetails).each(function (j, obj) {
+                            if (obj.R_ProjectDetail_Id == o.Id && !obj.IsDelete) {
+                                o.checked = true;
+                                o.tcmxId = obj.Id;
+                                o.Num = obj.Num;
+                                vm.selects.push(o);
+                            }
+                        })
+                    })
+                    GetTotal();
+                }
+
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Name: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var para = $("#SubmitForm").serialize();
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Package/Edit",
+                        dataType: "json",
+                        data: para,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '关闭'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $("#ExtendForm").validate({
+                    rules: {
+                        CostPrice: {
+                            required: true,
+                            isFloatGteZero: true
+                        },
+                        Price: {
+                            required: true,
+                            isFloatGteZero: true
+                        }
+                    },
+                    messages: {
+                        Price: {
+                            isFloatGteZero: "价格必须大于等于0"
+                        },
+                        CostPrice: {
+                            isFloatGteZero: "成本价格必须大于等于0"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        SubmitExtend();
+                    }
+                })
+
+                function SubmitExtend() {
+                    var modules = [];
+                    $(vm.selects).each(function (i, o) {
+                        modules.push({ R_Package_Id: '@Package.Id', R_ProjectDetail_Id: o.Id, IsDelete: false, Num: o.Num, Id: o.tcmxId });
+                    })
+                    var token = $("#ExtendForm input[name='__RequestVerificationToken']").val();
+                    var para = {
+                        "__RequestVerificationToken": token,
+                        model: { Id: '@Package.Id', CostPrice: $("#CostPrice").val(), Price: $("#Price").val() },
+                        req: modules
+                    };
+                    console.log(para);
+                    
+
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Package/SubmitExtend",
+                        dataType: "json",
+                        data: para,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '关闭'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                })
+
+                GetProjectDetails(0);
+                GetMyDetails();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+    </script>
+}

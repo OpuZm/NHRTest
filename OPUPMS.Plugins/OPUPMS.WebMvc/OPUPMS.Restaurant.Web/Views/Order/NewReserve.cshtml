@@ -1,0 +1,682 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+    RestaurantCreateDTO Restaurant = ViewBag.Restaurant;
+    List<AreaListDTO> Areas = ViewBag.Areas;
+    //List<TableListDTO> TableList = ViewBag.TableList;
+    List<TableListDTO> SearchTableList = ViewBag.SearchTableList;
+    var SellerList = ViewBag.SellerList;
+    var OrderInfo = ViewBag.OrderInfo;
+    var ButtonName1 = OrderInfo == null ? "仅预订" : "更新订单";
+    var Sales = ViewBag.Sales;
+    var OrderTableIds = ViewBag.OrderTableIds;  //订单台号字符串，多个以,号隔开
+    var RestaurantList = ViewBag.RestaurantList as List<RestaurantListDTO>;
+    var restaurantid = ViewBag.restaurantid;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>@(OrderInfo != null ? "预订编辑" : "新增预订")</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <header class="container-head flex">
+        <h3 class="flex-item">@(OrderInfo != null ? "预订编辑" : "新增预订")</h3>
+        <a href="/Res/Order/NewOrderReserveList" class="fr">关闭</a>
+    </header>
+    <hr>
+    <div class="container flex">
+        <!-- ▼预订表单 -->
+        <form class="layui-form" action="">
+            <div class="StartDesk-form flex-item">
+                <!--<input type="hidden" value="@(OrderInfo != null ? OrderInfo.R_Restaurant_Id : Restaurant.Id)" name="R_Restaurant_Id" />-->
+                <input type="hidden" value="@(OrderInfo != null ? OrderInfo.Id : 0)" name="Id" />
+                <blockquote class="label-title">基础信息</blockquote>
+                <div class="layui-row">
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">客源类型</label>
+                            <div class="layui-input-inline">
+                                <select name="CyddOrderSource" lay-verify="">
+                                    @{
+                                        if (CustomerSources != null)
+                                        {
+                                            foreach (var item in CustomerSources)
+                                            {
+                                                <option value="@item.Id" @(OrderInfo != null && OrderInfo.CyddOrderSource == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">就餐人数</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="PersonNum" placeholder="点击输入" title="就餐人数"
+                                       value="@(OrderInfo != null ? OrderInfo.PersonNum : "")" data-type="number"
+                                       onfocus="ShowKeyboard(this.name)" lay-verify="required" class="layui-input">
+                                <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                                <span class="required"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">餐厅</label>
+                            <div class="layui-input-inline">
+                                <select id="R_Restaurant_Id" name="R_Restaurant_Id" lay-verify="required" lay-filter="Restaurant_Id">
+                                    @{
+                                        if (RestaurantList != null)
+                                        {
+                                            <option value=""></option>
+                                            foreach (var item in RestaurantList)
+                                            {
+                                                <option value="@item.Id" @(item.Id==restaurantid ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <span class="required"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">分市</label>
+                            <div class="layui-input-inline">
+                                <select id="R_Market_Id" name="R_Market_Id" lay-verify="required" lay-filter="marketId">
+                                	<option value=""></option>
+                                    @{
+                                        if (Markets != null)
+                                        {
+                                            if (!Markets.Where(x => x.IsDefault).Any())
+                                            {
+                                            }
+                                            foreach (var item in Markets)
+                                            {
+                                                <option value="@item.Id" data-RestaurantId="@item.RestaurantId" data-fromtime="@item.StartTime" data-totime="@item.EndTime" @(item.IsDefault ? "selected='selected'" : "")>@item.Name</option>
+                                                }
+                                            }
+                                    }
+                                </select>
+                                <span class="required"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用餐时间</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" placeholder="预订用餐时间"
+                                       id="ReserveDate" name="ReserveDate"
+                                       lay-verify="required" value="@(OrderInfo != null ? OrderInfo.ReserveDate.ToString("yyyy-MM-dd HH:mm") : "")" />
+                                <span class="required"></span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">客户</label>
+                            <div class="layui-input-inline">
+                                <select name="CustomerId" lay-verify="" lay-search>
+                                    @{
+                                        if (Customers != null)
+                                        {
+                                            foreach (var item in Customers)
+                                            {
+                                                <option value="@item.Id" @(OrderInfo != null && OrderInfo.CustomerId == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">联系人</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="ContactPerson" id="name" placeholder="点击输入" title="联系人"
+                                       value="@(OrderInfo != null ? OrderInfo.ContactPerson : "")" data-type="text"
+                                       onfocus="ShowKeyboard(this.name)" class="layui-input" lay-verify="required">
+                                <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                                <span class="required"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">业务员</label>
+                            <div class="layui-input-inline">
+                                <select id="BillingUser" name="BillingUser" lay-verify="" lay-search>
+                                    @{
+                                        if (Sales != null)
+                                        {
+                                            <!--<option value="">请选择</option>-->
+                                            foreach (var item in Sales)
+                                            {
+                                                <option value="@item.UserId" @((OrderInfo != null && OrderInfo.BillingUser == item.UserId) ? "selected='selected'" : "")>@item.UserName</option>
+                                        }
+                                    }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">联系电话</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="ContactTel" placeholder="点击输入" title="联系人"
+                                       value="@(OrderInfo != null ? OrderInfo.ContactTel : "")" data-type="number"
+                                       onfocus="ShowKeyboard(this.name)" class="layui-input" lay-verify="required">
+                                <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                                <span class="required"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">订单类型</label>
+                            <div class="layui-input-inline">
+                                <select name="OrderType" lay-verify="">
+                                    @{
+                                        if (OrderTypes != null)
+                                        {
+                                            foreach (var item in OrderTypes)
+                                            {
+                                                <option value="@item.Id" @((OrderInfo != null && OrderInfo.OrderType == item.Id) ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    @{
+                        if (OrderInfo == null)
+                        {
+                            <div class="layui-col-md6">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">预订订金</label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="DepositAmount" id="DepositAmount"
+                                               placeholder="点击输入" title="预订订金" value="" data-type="number"
+                                               onfocus="ShowKeyboard(this.name)" class="layui-input" lay-verify="">
+                                        <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="layui-col-md6">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">操作员</label>
+                                    <div class="layui-input-inline">
+                                        <div disabled class="layui-input" style="line-height: 32px;">@ViewBag.UserName</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    <div class="layui-col-md6">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">备注</label>
+                            <div class="layui-input-inline">
+                                <textarea name="Remark" placeholder="请输入内容" class="layui-textarea">@(OrderInfo != null ? OrderInfo.Remark : "")</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    @{
+                        if (OrderInfo == null)
+                        {
+                            <div class="layui-col-md6">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">操作员</label>
+                                    <div class="layui-input-inline">
+                                        <div disabled class="layui-input" style="line-height: 32px;">@ViewBag.UserName</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="layui-row">
+                    <blockquote class="label-title">预订餐桌</blockquote>
+                    <div class="MealTable-lists ">
+                        <ul id="Table_lists">
+                            @{
+                                if (OrderInfo != null)
+                                {
+                                    foreach (var item in OrderInfo.Tables)
+                                    {
+                                        <li >
+                                            <div class="MealTable-head flex">
+                                                <span class="item MealTable-number flex-item">@item.Id</span>
+                                            </div>
+                                            <div class="MealTable-title">
+                                                @item.Name
+                                            </div>
+                                            <a href="javascript:;" class="btn-del"><i class="layui-icon">ဆ</i></a>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+
+                <footer class="footer-copyright">
+                    <img src="@Url.Content(Plugin.Instance.GetContentPath("/images/logo-footer.png"))" alt="">
+                </footer>
+            </div>
+            <!-- ▲预订表单 -->
+            <!-- ▼右侧 添加餐台 -->
+            <div class="Panel-side">
+                <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                    <div class="ClassTab-head">
+                        <div class="class-group" id="TableAreas">
+                            <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-id="0">全部</a>
+                            @{
+                                if (Areas != null)
+                                {
+                                    foreach (var item in Areas)
+                                    {
+                                        <a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-id="@item.Id">@item.Name</a>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="MealTable-lists">
+                        <ul id="CanUseTableList">
+                            @{
+                                if (SearchTableList != null && SearchTableList.Count > 0)
+                                {
+                                    foreach (var item in SearchTableList)
+                                    {
+                                        <li id="Table_@item.Id" data-areaId="@item.AreaId" class="@(item.IsSelected == true ? "layui-this" : "")">
+                                            <a href="javascript:void(0);">
+                                                <div class="MealTable-head flex">
+                                                    <span class="item MealTable-number flex-item">@item.Id</span>
+                                                </div>
+                                                <div class="MealTable-title">
+                                                    @item.Name
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
+
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="actions-box">
+                        @{ 
+                            if (OrderInfo == null)
+                            {
+                            <button lay-submit lay-filter="Booking" name="order" 
+                                    class="layui-btn layui-btn-normal layui-btn-big">预订点菜</button>
+                            }
+                            else
+                            {
+                            <a class="layui-btn layui-btn-big" lay-submit lay-filter="EditBooking">编辑预订菜品</a>
+                            }
+                        }
+                        <button lay-submit lay-filter="Booking" name="return" 
+                                class="layui-btn layui-btn-success layui-btn-big">@ButtonName1</button>
+                        <a href="/Res/Order/NewOrderReserveList" class="layui-btn layui-btn-primary layui-btn-big">取消</a>
+                    </div>
+
+
+                </div>
+            </div>
+            <!-- ▲右侧 添加餐台 -->
+        </form>
+    </div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+	@*@ScriptsEx.Render(Plugin.Instance.Name, "ReserveJs")*@
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs">
+    </script>
+
+    <script type="text/javascript">
+//      console.log('@ViewBag.restaurantId');
+        var RestaurantId =@ViewBag.restaurantId;
+        var $R_Market_Id = $(R_Market_Id)
+        layui.use(['element', 'form', 'layer', 'layedit', 'laydate'], function () {
+            var element = layui.element,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                form = layui.form;
+            var textarea = layedit.build('Description');
+
+            var laydate = layui.laydate;
+			
+            reseverDate = $(ReserveDate).val();
+            marketId = $R_Market_Id.val();
+			RestaurantIdChange(true);
+            $('input[name="PersonNum"]').focus();
+            var mintime=gettime();
+            console.log(mintime);
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#ReserveDate' //指定元素
+                , type: 'datetime'
+                , min: mintime
+                , format: 'yyyy-MM-dd HH:mm'
+                , done: function (value, date) {//监听日期被切换
+                    reseverDate = value;
+                    getTables(reseverDate, marketId);
+                }
+            });
+            
+            form.on('select(Restaurant_Id)', function(data){
+            	RestaurantId = data.value;
+            	RestaurantIdChange();
+			}); 
+
+            form.on('select(marketId)', function (data) {
+                marketId = data.value;
+                getTables(reseverDate, marketId);
+            });
+
+            $('input[name="usernum"]').focus();
+
+
+
+            //添加桌台
+            $('.Panel-side .MealTable-lists ul').delegate('li a', 'click', function (event) {
+                if ($(this).parent('li').hasClass('layui-this')) {
+                    return false;
+                }
+                $(this).parent('li').addClass('layui-this');
+                var number = $(this).find('.MealTable-number').text();
+                var title = $(this).find('.MealTable-title').text();
+                var str = '<li>'
+                    + '<div class="MealTable-head flex">'
+                    + '<span class="item MealTable-number flex-item">' + number + '</span>'
+                    + '</div>'
+                    + '<div class="MealTable-title">' + title + '</div>'
+                    + '<a href="javascript:;" class="btn-del"><i class="layui-icon">&#x1006;</i></a>'
+                    + '</li>';
+                $('.StartDesk-form .MealTable-lists ul').append(str);
+            })
+
+            //删除桌台
+            $('.StartDesk-form .MealTable-lists ul').delegate('li a.btn-del', 'click', function (event) {
+                var id = $(this).parent('li').find('.MealTable-number').text();
+                $('#Table_' + id + '').removeClass('layui-this');
+                $(this).parent('li').remove();
+
+            })
+
+            //区域筛选
+            $(document).on('click','#TableAreas a',function(){
+            	var id = $(this).attr('data-id');
+				$(this).addClass('layui-this').siblings().removeClass('layui-this');
+                var tablelist = $('#CanUseTableList li');
+                if (id != 0) {
+                    for (var i = 0; i < tablelist.length; i++) {
+                        var table = tablelist.eq(i);
+                        if (table.attr('data-areaId') == id) {
+                            table.show();
+                        } else {
+                            table.hide();
+                        }
+                    }
+                } else {
+                    tablelist.show();
+                }
+            })
+//          $('#TableAreas').delegate('a', 'click', function (event) {
+//              var id = $(this).attr('data-id');
+//				$(this).addClass('layui-this').siblings().removeClass('layui-this');
+//              var tablelist = $('#CanUseTableList li');
+//              if (id != 0) {
+//                  for (var i = 0; i < tablelist.length; i++) {
+//                      var table = tablelist.eq(i);
+//                      if (table.attr('data-areaId') == id) {
+//                          table.show();
+//                      } else {
+//                          table.hide();
+//                      }
+//                  }
+//              } else {
+//                  tablelist.show();
+//              }
+//          })
+
+            //预定菜品
+            form.on('submit(Booking)', function (data) {
+                var name = data.elem.name;
+
+                var formdata = data.field;
+                var tableList = $('#Table_lists li');
+                var tabIds = [];
+                for (var i = 0; i < tableList.length; i++) {
+                    var tableid = tableList.eq(i).find('.MealTable-number').text();
+                    tabIds.push(tableid);
+                }
+
+                if (formdata.R_Market_Id == 0 || formdata.R_Market_Id == null) {
+                    layer.alert("请选择分市！");
+                    return false;
+                }
+
+                if (formdata.ContactPerson == '') {
+                    layer.alert("请填写联系人！");
+                    return false;
+                }
+
+                if (formdata.ContactTel == '') {
+                    layer.alert("请填写联系人电话！");
+                    return false;
+                }
+
+                if (tabIds.length <= 0) {
+                    layer.msg('请至少选择一个桌号进行预定操作', {
+                        time: 4000
+                    });
+                    return false;
+                }
+
+                if (!formdata.DepositAmount)
+                    formdata.DepositAmount = 0;
+
+                //var chat = $.connection.systemHub;
+                //chat.hubName = 'systemHub';
+                //chat.connection.start();
+
+                var para = { req: formdata, TableIds: tabIds };
+                //提交数据
+                $.ajax({
+                    url: "/Res/Home/ReserveInfoSave",
+                    data: JSON.stringify(para),
+                    type: "post",
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    async: true,
+                    beforeSend: function (xhr) {
+                        layindex = layer.open({ type: 3 });
+                    },
+                    complete: function (XMLHttpRequest, textStatus) {
+                        layer.close(layindex);
+                    },
+                    success: function (data, textStatus) {
+                        var res = data.Data;
+
+                        if (res != null && res.Id > 0) {
+                            //$.connection.hub.start().done(function () {//通知刷新工作台界面
+                            //    chat.server.notifyResServiceRefersh(true);
+                            //});
+
+                            layer.alert('编辑预定成功！', function () {
+                                if (name == 'order') { //预订点餐
+                                    layer.open({ type: 3 });
+                                    var orderTableIds = data.Data.OrderTableIds;
+                                    location.href = "/Res/Home/NewWelcome";
+                                    parent.OpenOrder(orderTableIds);
+                                }
+                                else {
+                                    layer.open({ type: 3 });
+                                    location.href = "/Res/Order/NewOrderReserveList";
+                                }
+                            });
+
+                        } else {
+                            layer.alert(data["Message"]);
+                        }
+
+                    }
+                });
+
+                return false;
+
+            });
+
+
+            //编辑预定菜品
+            form.on('submit(EditBooking)', function (data) {
+                var OrderTableIds = "@OrderTableIds"
+                layer.open({ type: 3 });
+                location.href = "/Res/Home/NewWelcome";
+                parent.OpenOrder(OrderTableIds.split(','));
+            })
+
+        });
+        
+        function RestaurantIdChange(isAjax){
+        	var $option = $R_Market_Id.children();
+        	var $dd = $R_Market_Id.next().find('dd');
+        	
+        	var index = $dd.filter('.layui-this').index()
+        	var j = 0;
+        	//如果没选餐厅	分市只有请选择
+        	if(RestaurantId == ''){
+        		$dd.hide();
+        		$dd.eq(0).show().click();
+        		return false;
+        	}
+        	//如果已经有选择项
+        	if($option.eq(index).attr('data-RestaurantId') == RestaurantId){
+        		marketId = $option.eq(index).attr('value');
+        		j++
+        		$option
+        	}
+        	
+        	for(var i=0;i<$option.length;i++){
+        		var id = $option.eq(i).attr('data-RestaurantId');
+        		if(id == RestaurantId){
+        			$dd.eq(i).show();
+        			if(j == 0){
+        				$dd.eq(i).click();
+        				marketId = $dd.eq(i).attr('lay-value');
+        				j++;
+        			}
+        		}else{
+        			$dd.eq(i).hide();
+        		}
+        	}
+        	if(j==0){
+        		marketId = '';
+        	}else if(!isAjax){
+        		getTables(reseverDate, marketId);
+        	}
+        }
+
+        //根据用餐时间和分市ID，获取台号信息
+        function getTables(reseverDate, marketId) {
+            if (marketId == 0)
+                return;
+
+            if (reseverDate == '')
+                return;
+
+            var tabIds = [];
+
+            var para = {
+                RestaurantId: RestaurantId,
+                ReverDate: reseverDate,
+                Market: marketId
+            };
+            $.ajax({
+                type: "get",
+                url: "/Res/Api/GetReseverChoseTables",
+                data: para,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    $('#Table_lists').html('');
+                    $('#CanUseTableList').html('');
+                    if (data.tables != null) {
+                        var list = data.tables;
+                        var tbHtml = '';
+                        //桌台渲染
+                        for (var i = 0; i < list.length; i++) {
+                            tbHtml += '<li id="Table_' + list[i].Id + '" data-areaId="' + list[i].AreaId + '">'
+                                + '<a href="javascript:void(0);">'
+                                + '<div class="MealTable-head flex">'
+                                + '<span class="item MealTable-number flex-item">' + list[i].Id + '</span>'
+                                + '</div>'
+                                + '<div class="MealTable-title">' + list[i].Name + '</div>'
+                                + '</a></li>';
+                        }
+                        $('#CanUseTableList').html(tbHtml);
+                        
+                        //区域渲染
+                        var areaHtml = '<a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this" data-id="0">全部</a>';
+                        $('#TableAreas').empty();
+                        for(var i=0;i<data.areas.length;i++){
+                        	areaHtml += '<a href="javascript:void(0);" class="layui-btn layui-btn-primary" data-id="'+data.areas[i].Id+'">'+data.areas[i].Name+'</a>';
+                        }
+                        $('#TableAreas').html(areaHtml)
+                    } else {
+                        layer.msg('没有符合条件的桌位可供选择，请设置当前空置桌位', {
+                            time: 4000
+                        });
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

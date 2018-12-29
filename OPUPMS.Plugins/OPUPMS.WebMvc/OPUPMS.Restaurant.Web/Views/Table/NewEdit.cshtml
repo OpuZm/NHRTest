@@ -1,0 +1,284 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+
+@{
+    Layout = null;
+    TableCreateDTO Table = ViewBag.Table ?? new TableCreateDTO();
+    var ListRestaurant = ViewBag.Restaurants;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                @Html.AntiForgeryToken()
+                <div class="layui-row">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" for="RestaurantId">餐厅：</label>
+                        <div class="layui-input-inline">
+                            <select id="RestaurantId" name="RestaurantId" lay-filter="Restaurant" lay-verify="required" lay-required-msg="请选择餐厅" lay-search>
+                                <option value="">请选择</option>
+                                @{
+                                    if (ListRestaurant != null)
+                                    {
+                                        foreach (var item in ListRestaurant)
+                                        {
+                                            <option value="@item.Id" @(Table.RestaurantId == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" for="RestaurantArea">餐厅区域：</label>
+                        <div class="layui-input-inline">
+                            <select id="RestaurantArea" name="RestaurantArea" lay-verify="required" lay-required-msg="请选择餐厅区域" lay-filter="RestaurantArea" lay-search></select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item BoxCon" @(Table.Box > 0 ? "" : "style=display:none") style="width: 100%;">
+                        <label class="layui-form-label" for="Box">选择包厢：</label>
+                        <div class="layui-input-inline">
+                            <select id="Box" name="Box" lay-filter="boxSel" lay-verify="Box" lay-required-msg="请选择包厢" lay-search></select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Name" name="Name" lay-verify="required" lay-required-msg="请输入名称" placeholder="请输入名称" value="@Table.Name">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">座位数：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="SeatNum" name="SeatNum" lay-verify="required|SeatNum" lay-required-msg="请输入座位数" placeholder="请输入座位数" value="@Table.SeatNum">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">服务费率：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="ServerRate" name="ServerRate" lay-verify="required|number|ServerRate" lay-required-msg="请填写费率" placeholder="请输入服务费率" value="@(Table.ServerRate==null?0:Table.ServerRate)">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">排序：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Sorted" name="Sorted" lay-verify="required|number" lay-required-msg="请输入排序" placeholder="请输入排序" value="@Table.Sorted">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">属于包厢：</label>
+                        <div class="layui-input-block">
+                            <input type="radio" lay-filter="boxRadio" name="isBox" value="0" title="否" @(Table.Box > 0 ? "" : "checked='checked'")>
+                            <input type="radio" lay-filter="boxRadio" name="isBox" value="1" title="是" id="radio_true" @(Table.Box > 0 ? "checked='checked'" : "")>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">虚拟台：</label>
+                        <div class="layui-input-block">
+                            <input type="radio" lay-filter="IsVirtual" name="IsVirtual" value="0" title="否" @(Table.IsVirtual ? "" : "checked='checked'")>
+                            <input type="radio" lay-filter="IsVirtual" name="IsVirtual" value="1" title="是" id="radio_true1" @(Table.IsVirtual ? "checked='checked'" : "")>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width:100%;">
+                        <label class="layui-form-label">描述：</label>
+                        <div class="layui-input-block">
+                            <textarea id="Description" name="Description" class="layui-textarea" rows="10">@Table.Description</textarea>
+                        </div>
+                    </div>
+
+                    <div class="layer-btns-bottom">
+                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                    <input type="hidden" value="@Table.Id" id="Id" name="Id" />
+
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer', 'layedit'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            form = layui.form;
+        var textarea = layedit.build('Description', {tool: ['strong','italic','underline','del','|','left','center','right','link','unlink','face'], height: 150 });
+
+        var RestaurantArea = '', RestaurantAreaStr = '', AreaID = '@Table.RestaurantArea', BoxID = '@Table.Box', BoxSelectStr = '', BoxDate = '';
+        $.ajax({
+            type: "get",
+            url: "/Res/Api/GetAreas",
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                if (data.Data != null) {
+                    RestaurantArea = data.Data;
+                    RestaurantAreaSelect(RestaurantArea, $('#RestaurantId').val(), AreaID, form);
+                }
+            }
+        });
+
+        $.ajax({
+            type: "get",
+            url: "/Res/Api/GetBoxs",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                if (data.Data != null) {
+                    BoxDate = data.Data;
+                    BoxSelect(BoxDate, $('#RestaurantId').val(), AreaID, form);
+                }
+            }
+        });
+        
+
+        //是否有包厢 设置选择包厢 select
+        form.on('radio(boxRadio)', function (data) {
+            if (data.value == 1) {
+                $('.BoxCon').css('display', 'block');
+                BoxSelect(BoxDate, $('#RestaurantId').val(), $('#RestaurantArea').val(), form);
+            } else {
+                //$('.BoxCon').css('display','none');
+                data.value == 0 ? $('#Box').html("<option value='0'></option>") : '';
+                form.render('select');
+            }
+        });
+        //餐厅选择 更新区域select
+        form.on('select(Restaurant)', function (data) {
+            RestaurantAreaSelect(RestaurantArea, data.value, '', form);
+            BoxSelect(BoxDate, data.value, $('#RestaurantArea').val(), form);
+        });
+        //区域选择 更新包厢select
+        form.on('select(RestaurantArea)', function (data) {
+            BoxSelect(BoxDate, $('#RestaurantId').val(), data.value, form);
+            var serverrate = $(data.elem).find("option:selected").attr("serverrate");
+            $('#ServerRate').val(serverrate)
+        });
+        //区域Select绑数
+        function RestaurantAreaSelect(RestaurantArea, id, areaID, form) {
+            RestaurantAreaStr = '';
+            var selected = '';
+            for (var i = 0; i < RestaurantArea.length; i++) {
+                if (RestaurantArea[i].RestaurantId == id) {
+                    if (RestaurantArea[i]['Id'] == areaID) {
+                        selected = 'selected';
+                    } else {
+                        selected = '';
+                    }
+                    RestaurantAreaStr += "<option " + selected + " value=" + RestaurantArea[i]['Id'] + " ServerRate=" + RestaurantArea[i]['ServerRate'] + " >" + RestaurantArea[i]['Name'] + "</option>";
+                }
+            }
+            $('#RestaurantArea').html(RestaurantAreaStr);
+            form.render('select');
+        }
+        //包厢Select绑数
+        function BoxSelect(BoxDate, id, areaID, form) {
+            BoxSelectStr = '';
+            var selected = '';
+            if ($("input[name='isBox']:checked").val() == 1) {
+                for (var i = 0; i < BoxDate.length; i++) {
+                    if (BoxDate[i].RestaurantId == id && BoxDate[i].RestaurantAreaId == areaID) {
+                        if (BoxDate[i]['Id'] == BoxID) {
+                            selected = 'selected';
+                        } else {
+                            selected = '';
+                        }
+                        BoxSelectStr += "<option " + selected + " value=" + BoxDate[i]['Id'] + ">" + BoxDate[i]['Name'] + "</option>";
+                    }
+                }
+            } else {
+                BoxSelectStr = "<option value='0'></option>";
+            }
+            $('#Box').html(BoxSelectStr);
+            form.render('select');
+        }
+        
+        form.verify({
+			ServerRate: function(value, item){
+				if(value < 0 || value > 1 || value.indexOf('.') + 1 === value.length){
+					return '费率必须大于等于0小于等于1且是数字';
+				}
+				if(value.split(".")[1] && value.split(".")[1].length > 2){
+					return '费率最多只能有两位小数'
+				}
+			}
+			,SeatNum: [
+				/^([1-9]\d*|[0]{1,1})$/
+				,'座位数必须是正整数'
+			]
+			,integer: [
+				/^[0-9]+$/
+				,'排序必须是正整数'
+			]
+		});      
+        
+        
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+            var textVal = layedit.getContent(textarea);
+            var params = data.field;
+            
+            data.field.IsVirtual = data.field.IsVirtual == 1 ? true : false
+            params.Description = textVal;
+            $.ajax({
+                type: "post",
+                url: "/Res/Table/Edit",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: params,
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+</script>
+
+

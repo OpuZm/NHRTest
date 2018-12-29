@@ -1,0 +1,206 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "预定预测";
+    string beginDate = ViewBag.beginDate;
+    string endDate = ViewBag.endDate;
+	string Date = beginDate+" - "+endDate;
+    string RestaurantName = ViewBag.RestaurantName;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>预定预测</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+    <style>
+        .layui-table td, .layui-table th {
+            border-color: #ddd;
+        }
+
+        .layui-table td {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layui-table-cell {
+            position: initial;
+        }
+
+        .layui-table td .greenBG, .layui-table td .layui-bg-red {
+            position: absolute;
+            top: 0;
+            font-size: 12px;
+            left: 0;
+            padding: 0 3px;
+            height: 100%;
+            line-height: 1.6;
+            width: 100%;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+    <header class="ClassTab-head">
+
+        <div class="layui-form BookNavForm" style="margin-top: 10px;">
+
+            <div class="layui-form-item" style="margin-bottom: 0;">
+                <ul class="BookTable-explain">
+                    <li><span class="explainBox layui-bg-red"></span><span class="explainText">已确认</span></li>
+                    <li><span class="explainBox greenBG"></span><span class="explainText">未确认</span></li>
+                </ul>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">日期范围</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="date" id="Date" autocomplete="off" class="layui-input" value="@Date" placeholder="yyyy-MM-dd">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-primary" onclick="Search()">查询</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+   <table class="reserve" lay-filter="bookTable" lay-data="{cellMinWidth: 80,limit:999999,height:'full-100'}" id="bookTable_view"></table>
+	<script id="bookTableTpl" type="text/html">
+		<thead>
+			<tr>
+		
+				<th rowspan='2' lay-data="{ field: 'th', width: 150,fixed: true,align: 'left'}">台号</th>
+				{{#  layui.each(d.DateList, function(index, item){  }}
+					<th colspan='{{ d.MarketList.length }}' lay-data="{ field: 'th{{index}}',width: {{# if(d.MarketList.length==1){ }} 100 {{# }else{ }} {{ d.MarketList.length*70}} {{# } }},align: 'center'}">{{item.TitleDate}} {{item.DayOfWeekName}}</th>
+				{{#  }); }}
+			</tr>
+			<tr>
+				{{#  layui.each(d.DateList, function(index, item){  }}
+					{{#  layui.each(d.MarketList, function(dIndex, dItem){  }}
+					<td lay-data="{ field: 'fs{{index}}{{dIndex}}', width: 70,align: 'center'}">{{dItem.Name}}</td>
+					{{#  }); }}
+				{{#  }); }}
+			</tr>
+		</thead>
+		<tbody>
+			{{#  layui.each(d.TableList, function(index, item){  }}
+				<tr>
+					<td>{{item.TableId}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.TableName}}</td>
+					{{#  layui.each(item.BookingList, function(dIndex, dItem){  }}
+						{{# if(dItem.OrderId === 0){ }}
+							<td></td>
+						{{# }else{ }}
+							<td>
+								<a onclick="openEditForecast('{{dItem.OrderId}}')" href="javascript:void(0);" class="{{ parseFloat(dItem.BookingAmount) > 0 ? 'layui-bg-red' : 'greenBG'}}">{{dItem.ContactPerson}}<br/>({{dItem.PersonNum}}人)</a>
+							</td>
+						{{# } }}
+					{{#  }); }}
+				</tr>
+			{{#  }); }}
+		</tbody>
+	</script>
+
+</body>
+</html>
+
+
+
+ @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+
+    <script src="~/signalr/hubs"></script>
+
+
+	
+<script>
+	var table;
+    layui.use(['form', 'layedit', 'laydate','table','laytpl'], function () {
+        laydate = layui.laydate;
+        laytpl = layui.laytpl;
+        table = layui.table;
+        
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#Date'
+            ,range: true
+            ,min : 0
+            ,max : 30
+        });
+        
+        Search();
+    });
+
+
+	var bookTable = bookTableTpl.innerHTML,
+    bookTableView = document.getElementById('bookTable_view');
+	
+    function Search() {
+        $("#tablist").html("");
+        var Date = $('#Date').val();
+        if (Date == "")
+        {
+            layer.msg("查询日期不能为空！");
+            return;
+        }
+		Date = Date.replace(/\s\-\s/,'+').split('+')
+        var para = { BeginDate: Date[0], EndDate: Date[1] };
+
+        $.ajax({
+            type: "post",
+            url: "/Res/Order/ForecastSearch/",
+            dataType: "json",
+            data: JSON.stringify(para),
+            contentType: "application/json; charset=utf-8",
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+                if (data.Successed == true) {
+                    var content = data.Data;
+                    laytpl(bookTable).render(content, function (html) {
+                        bookTableView.innerHTML = html;
+                        table.init('bookTable', { page: false })
+                    });
+                } else {
+                    layer.alert(data.Message);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus) {
+                layer.close(index);
+                layer.msg('加载失败，请刷新后重试')
+            }
+        });
+
+        
+    }
+    
+    //弹出预定订单编辑页面
+    function openEditForecast(id){
+    	layer.open({
+	        type: 2,
+	        anim: -1,
+	        title: '点餐',
+	        shadeClose: true,
+	        skin: 'layer-header',
+	        shade: 0.8,
+	        area: ['100%', '100%'],
+	        content: '/Res/Order/NewReserve?id=' + id
+	    });
+    }
+</script>
+
+
+

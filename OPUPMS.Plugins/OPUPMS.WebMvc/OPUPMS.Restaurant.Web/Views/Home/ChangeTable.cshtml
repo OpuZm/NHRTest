@@ -1,0 +1,262 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "选择台号";
+    ChangeTableDTO req = ViewBag.Paras;
+    List<AreaListDTO> Areas = ViewBag.Areas;
+    TableCreateDTO Table = ViewBag.Table;
+}
+
+@section Styles{
+    <style>
+        .list-group-item {
+            max-height: 100px;
+            padding: 5px;
+        }
+
+        .li-margin-5 {
+            margin: 5px 10px 5px 10px;
+            cursor: pointer;
+        }
+
+        .list-group li {
+            text-overflow: ellipsis;
+        }
+    </style>
+}
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="text-center"><h4 class="text-danger">@Table.Name 换桌</h4></div>
+        <div id="TableVue">
+            <div class="form-group">
+                <label for="Name" class="col-xs-2 control-label">区域选择:</label>
+                <div class="col-xs-4">
+                    <select id="RestaurantArea" name="RestaurantArea" class="form-control select2" v-model="areaSelect">
+                        <option value="0">所有</option>
+                        @{
+                            if (Areas.Any())
+                            {
+                                foreach (var item in Areas)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                @*<label class="col-xs-2"><h4 class="text-danger">已选-{{GetTotal()}}</h4></label>*@
+            </div>
+            <div class="form-group">
+                <ul class="list-group" id="TableList" style="margin:0 0 0 0;">
+                    <li v-for="(table,index) in FilterTable(areaSelect)" v-bind:class="table.Class" v-on:click="Add(index,table)">
+                        {{table.Name}}/{{table.SeatNum}}座 <span class="pull-right glyphicon glyphicon-ok" v-show="table.Checked"></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group text-center">
+                <button class="btn btn-primary" type="submit">提交</button>
+                <button class="btn btn-default closeAll" type="button">取消</button>
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+@section FooterScripts{
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    <script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+                var chat = $.connection.systemHub;
+                chat.hubName = 'systemHub';
+                chat.connection.start();
+
+                var token = $('@Html.AntiForgeryToken()').val();
+                var headers = {};
+                headers["__RequestVerificationToken"] = token;
+                var vm = new Vue({
+                    el: '#TableVue',
+                    data: {
+                        tables: [],
+                        tableSelects: [],
+                        areaSelect:0
+                    },
+                    methods: {
+                        FilterTable: function (areaSelect) {
+                            if (areaSelect > 0) {
+                                var res = [];
+                                $(this.tables).each(function (i,o) {
+                                    if (o.AreaId==areaSelect) {
+                                        res.push(o);
+                                    }
+                                })
+                                return res;
+                            }
+                            else {
+                                return this.tables;
+                            }
+                        },
+                        Add: function (index, obj) {
+                            $(vm.tables).each(function (i,o) {
+                                o.Checked = false;
+                                Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                            })
+                            obj.Checked = true;
+                            Vue.set(obj, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                            //if (obj.Checked == true) {
+                            //    obj.Checked = false;
+                            //    Vue.set(obj, 'Class', "list-group-item col-xs-2 li-margin-5");
+                            //} else {
+                            //    obj.Checked = true;
+                            //    Vue.set(obj, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                            //}
+                        },
+                        GetTotal: function () {
+                            var res = 0;
+                            $(this.tables).each(function (i,o) {
+                                if (o.Checked==true) {
+                                    res++;
+                                }
+                            })
+                            return res;
+                        }
+                    }
+                })
+
+
+                function GetTables() {
+                    var para = { RestaurantId: '@req.RestaurantId', CythStatus:'@req.CythStatus' };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetOpenChoseTables",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: true, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDown(data.Data);
+                            } else {
+                                layer.msg('没有符合条件的桌位可供选择，请设置当前空置桌位', {
+                                    time: 4000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDown(data) {
+                    vm.tables = [];
+                    $(data).each(function (i, o) {
+                        if (o.Id != '@Table.Id') {
+                            Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                            vm.tables.push(o);
+                        }
+                    })
+                }
+
+                function InitPage() {
+                    GetTables();
+                }
+
+                $("#SubmitForm").validate({
+                    rules: {
+                    },
+                    messages: {
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var isContine = false;
+                    var tableId;
+                    $(vm.tables).each(function (i,o) {
+                        if (o.Checked==true) {
+                            isContine = true;
+                            tableId = o.Id;
+                        }
+                    })
+                    if (isContine) {
+                        var para = $("#SubmitForm").serializeArray();
+                        var params = {};
+                        $.each(para, function (index, field) {
+                            params[field.name] = field.value;
+                        });
+                        params.OrderTableId =@req.OrderTableId;
+                        params.NewTableId = tableId;
+                        params.OldTableId = @req.TableId;
+                        @*var para = { OrderTableId:@req.OrderTableId,NewTableId:tableId,OldTableId:@req.TableId};*@
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/Home/ChangeTableSubmit",
+                            dataType: "json",
+                            //contentType: "application/json; charset=utf-8",
+                            data: params,
+                            beforeSend: function (XMLHttpRequest) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: true,
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                var res = data.Data;
+                                if (res == true) {
+                                    $.connection.hub.start().done(function () {
+                                        chat.server.notifyResServiceRefersh(true);
+                                    })
+                                    layer.alert("操作成功",function(){
+                                        parent.layer.closeAll();
+                                    });
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    }
+
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                InitPage();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+
+    </script>
+}

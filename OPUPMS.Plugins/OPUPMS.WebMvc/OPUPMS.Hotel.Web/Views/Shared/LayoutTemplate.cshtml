@@ -1,0 +1,44 @@
+﻿
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>@ViewBag.Title OPUPMS快速开发平台</title>
+    <meta charset="UTF-8">
+    
+    @*<link rel="stylesheet" href="~/Content/css/root.css" media="all">
+    <script src="~/Scripts/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Scripts/jquery/jquery.base64.js"></script>
+    <script src="~/Scripts/cookie/jquery.cookie.js"></script>
+    <script src="~/Scripts/bootstrap/bootstrap.min.js"></script>
+    <script src="~/Content/layui/layui.js"></script>*@
+    
+    @StylesEx.Render(FrameworkInfo.Name, "CommonStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "LayUIStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "RootStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "GlobalStyle")
+    
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "LayUIJs")
+
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader-box">
+        <div class="opu-loader">
+            <img src="@Url.Content(Plugin.Instance.GetContentPath("images/opu-icon.svg"))" alt="">
+            <div class="loader"></div>
+        </div>
+    </div>
+    @RenderBody()
+    @Html.AntiForgeryToken()
+
+</body>
+</html>
+

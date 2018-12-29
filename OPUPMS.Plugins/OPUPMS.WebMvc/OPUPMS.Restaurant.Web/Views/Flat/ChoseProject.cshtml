@@ -1,0 +1,560 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>点餐</title>
+    <link rel="stylesheet" type="text/css" href="../../Plugins/Web/OPUPMS.Restaurant.Web/Scripts/mescroll/mescroll.min.css"/>
+    @StylesEx.Render(Plugin.Instance.Name, "resetStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "elementStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "swiperStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "FlatChoseProjectStyle")
+    <style>
+    	html,body,#app{width:100%;height:100%;}
+    	[v-cloak] {  display: none;  }  
+    </style>
+</head>
+<body>
+	<!--加载条-->
+	<div id="loading"><div class="layui-layer-content"></div></div>
+	
+    <div id="app" style="overflow: hidden;" v-loading.fullscreen.lock="fullscreenLoading" v-cloak>
+    	<el-container>
+			<!--顶部栏	开始-->
+			<el-header height="45">
+				<el-row :gutter="20">
+			  		<el-col :span="16">
+			  			<div class="grid-content bg-purple">
+							<el-button size="small" :type="ProjectAndDetailsType == 1 ? 'primary' : ''" @@click="cardTypeChange(1)">图文模式</el-button>
+							<el-button size="small" :type="ProjectAndDetailsType == 2 ? 'primary' : ''" @@click="cardTypeChange(2)">文字模式</el-button>
+							<el-button size="small" type="danger" @@click="specialChange(-1)" style="margin-left:50px;" class="t-danger">厨师推荐</el-button>
+							<el-button size="small" type="warning" @@click="specialChange(-2)" class="t-warning">今日特价</el-button>
+			  			</div>
+			  		</el-col>
+			  		<el-col :span="8">
+			  			<div class="grid-content bg-purple">
+			  				<el-input placeholder="菜品搜索，支持中文拼音五笔" prefix-icon="el-icon-search" size="small" v-model="searchInfo" @@keydown.native="searchInput()"></el-input>
+			  			</div>
+			  		</el-col>
+				</el-row>
+			</el-header>
+			<!--顶部栏	结束-->
+			<!--内容部分	开始-->
+			<el-container class="main">
+				<!--侧边栏	开始-->
+				<aside class="aside">
+					<ul class="menu">
+						<li v-for="(item, index) in inidata.CategoryList" :key="index" v-if="item.ChildList.length > 1" :class="{'menu-item-active' : menuActiveFrist == index,'expand':menuActiveFristExpand}" class="menu-item">
+							<div class="menu-title" @@click="menuChange(index)">
+								<span>{{item.Name}}</span>
+								<i class="el-submenu__icon-arrow el-icon-arrow-down"></i>
+							</div>
+							<ul class="menu-child" v-for="(dItem, dIndex) in item.ChildList" :key="dIndex" v-if="item.ChildList.length > 1">
+								<li :class="menuActiveFrist == index && menuActiveSecond == dIndex ? 'menu-child-item menu-child-active' : 'menu-child-item'" @@click="menuChangeSecond(dIndex)">{{dItem.Name}}</li>
+							</ul>
+						</li>
+						<li v-else :class="{'menu-item-active' :  menuActiveFrist == index}" class="menu-item">
+							<div class="menu-title" @@click="menuChange(index)">
+								<span>{{item.Name}}</span>
+							</div>
+						</li>
+					</ul>
+				</aside>
+				<!--侧边栏	结束-->
+				<!--可选菜品	开始-->
+				<el-main id="orders">
+					<div id="dataList">
+						<el-row :gutter="10" class="card-body card-photo-type clearfix" v-if="ProjectAndDetailsType == 1" style="margin-left:0;">
+							<el-col :xs="12" :sm="8" :md="6" :lg="4" :xl="3" v-for="(item, index) in ProjectAndDetailsData" :key="index" :class="{'disabled' : item.IsStock && (!item.Stock || item.Stock <= 0) }">
+								<div class="card-item">
+									<div class="badge">
+										<span v-if="item.IsRecommend > 0" class="recommend t-danger">推</span>
+										<span v-if="item.IsSpecialOffer > 0" class="specialOffer t-warning">特</span>
+									</div>
+									<!--没有库存的-->
+									<template v-if="item.IsStock && (!item.Stock || item.Stock <= 0)">
+										<div class="img-wrap">
+											<img class="lazy" :data-original="item.smallImage ? item.smallImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC'"/>
+											<!--<img class="lazy" :data-original="'img/' + (index+1) + '.jpg'"/>-->
+										</div>
+										<div class="item-content">
+											<span class="title flex">
+												<span class="flex-item">{{item.Name}}</span>
+											</span>
+											<div class="bottom clearfix">
+												<span class="price">￥{{item.CyddMxType == 2 ? item.Price.toFixed(2) : item.ProjectDetailList && item.ProjectDetailList[0].Price.toFixed(2) }}</span>
+											</div>
+										</div>
+									</template>
+									<!--有库存的-->
+									<template v-else>
+										<div class="img-wrap" @@click="bigPhotoShow(index)">
+											<img class="lazy" :data-original="item.smallImage ? item.smallImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC'"/>
+										</div>
+										<div class="item-content">
+											<span class="title flex">
+												<span class="flex-item">{{item.Name}}</span>
+												<span class="MealTable-stock">
+													<i class="iconfont">&#xe645;</i>
+													<span v-if="item.IsStock">{{item.Stock}}</span>
+													<span v-else>--</span>
+												</span>
+											</span>
+											<div class="bottom clearfix">
+												<span class="price">￥{{item.CyddMxType == 2 ? item.Price.toFixed(2) : item.ProjectDetailList && item.ProjectDetailList[0].Price.toFixed(2) }}</span>
+												<div class="btns">
+													<el-button size="mini" type="primary" @@click="plusSelect(index)" v-if="!item.chosenNum || item.chosenNum == 0">点选
+													</el-button>
+													<template v-else>
+														<i class="el-icon-remove" @@click="minusSelect(index)"></i>
+														<span class="num">{{item.chosenNum}}</span>
+														<i class="el-icon-circle-plus" :class="{'disabled':item.IsStock && item.chosenNum == item.Stock}" @@click="plusSelect(index)"></i>
+													</template>
+												</div>
+											</div>
+										</div>
+									</template>
+								</div>
+							</el-col>
+						</el-row>
+						<el-row :gutter="10" v-else class="card-body card-text-type clearfix" style="margin-left:1px;">
+							<el-col :xs="8" :sm="8" :md="6" :lg="3" :xl="2" v-for="(item, index) in ProjectAndDetailsData" :key="index" :class="{'disabled' : item.IsStock && (!item.Stock || item.Stock <= 0)}">
+								<div class="card-item">
+									<!--没有库存的-->
+									<template v-if="item.IsStock && (!item.Stock || item.Stock <= 0)">
+										<div class="MealTable-head flex">
+											<span class="item MealTable-number flex-item">{{item.Code ? item.Code : ""}}</span>
+										</div>
+										<div class="MealTable-title">{{item.Name}}</div>
+										<div class="MealTable-footer flex">
+											<span class="MealTable-price flex-item">￥{{item.CyddMxType == 2 ? item.Price : item.ProjectDetailList && item.ProjectDetailList[0].Price }}</span>
+										</div>
+									</template>
+									<!--有库存的-->
+									<template v-else>
+										<div @@click="plusSelect(index)">
+											<div class="MealTable-head flex">
+												<span class="item MealTable-number flex-item">{{item.Code ? item.Code : ""}}</span>
+												<span class="item chosenNum" v-if="item.chosenNum && item.chosenNum > 0">{{item.chosenNum}}</span>
+											</div>
+											<div class="MealTable-title">{{item.Name}}</div>
+											<div class="MealTable-footer flex">
+												<span class="MealTable-stock">
+													<i class="iconfont">&#xe645;</i>
+													<span v-if="item.IsStock">{{item.Stock}}</span>
+													<span v-else>--</span>
+												</span>
+												<span class="MealTable-price flex-item">￥{{item.CyddMxType == 2 ? item.Price.toFixed(2) : item.ProjectDetailList && item.ProjectDetailList[0].Price.toFixed(2) }}</span>
+											</div>
+										</div>
+									</template>
+								</div>
+							</el-col>
+						</el-row>
+					</div>
+				</el-main>
+				<!--可选菜品	结束-->
+			</el-container>
+			<!--内容部分	结束-->
+			<!--底部	开始-->
+			<el-footer height="45">
+				<div class="fl">
+					<el-badge :value="SelectedProjectTotal.sum" v-if="SelectedProjectTotal.sum > 0">
+						<el-button size="small" type="primary" @@click="ShopCartShow">我的菜单</el-button>
+					</el-badge>
+					<el-button size="small" type="primary" @@click="ShopCartShow" v-else>我的菜单</el-button>
+				</div>
+				<div class="fr">
+					<el-button size="small" type="danger" @@click="employeeModel">员工模式</el-button>
+					<el-button size="small" @@click="reload()">重置</el-button>
+				</div>
+			</el-footer>
+			<!--底部	结束-->
+		</el-container>
+		<!--大图模式	开始-->
+		<div id="BigPhoto" v-if="isBigPhotoShow">
+			<a class="BigPhotobtn back" @@click="bigPhotoHide"><i class="el-icon-back"></i><span>返回</span></a>
+			<a class="BigPhotobtn choose" :class="{'chosen':BigPhotoData[BigPhotoIndex] && BigPhotoData[BigPhotoIndex].chosenNum > 0}">
+				<span class="minus">
+					<i class="el-icon-minus" @@click="bigPhotoMinusSelect(BigPhotoIndex)"></i>
+					<span class="num">{{BigPhotoData[BigPhotoIndex].chosenNum}}</span>
+				</span>
+				<span @@click="bigPhotoAddSelect(BigPhotoIndex)" class="plus">
+					<i class="el-icon-plus"></i>
+					<span class="num" v-if="BigPhotoData[BigPhotoIndex] && BigPhotoData[BigPhotoIndex].IsStock && BigPhotoData[BigPhotoIndex].Stock">{{BigPhotoData[BigPhotoIndex].Stock}}</span>
+					<span>点选</span>
+				</span>
+			</a>
+			<a class="BigPhotobtn describeBtn" @@click="isBigPhotoDescribeShow = !isBigPhotoDescribeShow" v-if="isBigPhotoDescribeBtnShow"><i class="el-icon-tickets"></i>描述</a>
+			<div class="describe" v-if="isBigPhotoDescribeBtnShow && isBigPhotoDescribeShow" v-html="BigPhotoData[BigPhotoIndex].Describe"></div>
+			<div class="swiper-container">
+			    <div class="swiper-wrapper">
+			      	<div class="swiper-slide" v-for="(item, index) in BigPhotoData" :key="index" :data-index="index" v-if="(!item.IsStock) || item.Stock > 0">
+			      		<div class="swiper-zoom-container">
+		      				<img :data-src="item.CoverUrl" class="swiper-lazy" src=""/>
+		      			</div>
+		      			<div class="info">
+		      				<div class="name clearfix">
+		      					<div class="badge fl">
+		      						<span v-if="item.IsRecommend > 0" class="recommend t-danger">推</span>
+									<span v-if="item.IsSpecialOffer > 0" class="specialOffer t-warning">特</span>
+		      					</div>
+								<span class="fl">{{item.Name}}</span>
+		      				</div>
+		      				<div class="price">￥{{item.CyddMxType == 2 ? item.Price : item.ProjectDetailList[0].Price}}</div>
+		      			</div>
+			      	</div>
+			    </div>
+	  		</div>
+		</div>
+		<!--大图模式	结束-->
+		
+		<!--菜单	开始-->
+		<div id="ShopCart" v-if="isShopCartShow">
+			<el-container style="height:100%;">
+				<!--顶部栏	开始-->
+				<el-header height="45">
+		  			<div class="grid-content bg-purple" style="text-align: right;">
+		  				<el-button size="small" type="danger" @@click="allSelectDelete()">全部删除</el-button>
+		  				<el-button size="small" type="primary" @@click="DishesStatus(1)">全单即起</el-button>
+		  				<el-button size="small" type="success" @@click="DishesStatus(2)">全单叫起</el-button>
+						<!--<el-button size="small" type="warning">整桌要求</el-button>-->
+		  			</div>
+				</el-header>
+				<!--顶部栏	结束-->
+				<!--内容部分	开始-->
+				<el-container class="main">
+					<!--可选菜品	开始-->
+					<el-main style="padding:0;">
+						<el-table
+						    :data="OrderTableProjectsdata"
+						    style="width: 100%;"
+						    :max-height="SelectedProjectTable" 
+						    empty-text="没有选择菜品" 
+						    >
+						    <el-table-column
+						      	prop="ProjectName"
+						      	label="菜品"
+						      	min-width="120">
+						    	<template slot-scope="scope">
+						    		<div>
+						    			<span v-if="scope.row.DishesStatus == 1" class="nameHint" @@click="DishesStatusChange(scope,2)">即</span>
+							        	<span v-if="scope.row.DishesStatus == 2" class="nameHint nameHint-1" @@click="DishesStatusChange(scope,1)">叫</span>
+							        	{{scope.row.ProjectName}}
+							        	<span v-if="scope.row.CyddMxType == 2" class="nameHint nameHint-2">套餐</span>
+						    		</div>
+						    		<!--<div class="extend">
+						    			<p class="practice">
+						    				<label>
+						    					<span>「做法」</span>
+						    				</label>
+						    			</p>
+						    		</div>-->
+						    	</template>
+						    </el-table-column>
+						    <el-table-column
+						      	prop="Num"
+						      	label="做法要求"
+						      	min-width="140">
+						      	<template slot-scope="scope">
+						      		<div style="font-size:14px;">
+						      			<span v-for="(item, index) in scope.row.Extend" :key="index" >
+						      				<span v-if="index > 0">,</span>
+						      				<span class="noWrap">{{item.ProjectExtendName}}(￥{{item.Price}})</span>
+						      			</span>
+						      		</div>
+								</template>
+						    </el-table-column>
+						    <el-table-column
+						      	prop="Unit"
+						      	label="单位"
+						      	align="center"
+						     	width="80">
+						    </el-table-column>
+						    <el-table-column
+						      	prop="Num"
+						      	label="数量"
+						      	align="center"
+						      	width="140">
+						      	<template slot-scope="scope"> 
+						      		<div class="InputNumber">
+						      			<el-input-number v-model="scope.row.Num" @@change="ShopCartOrderNumChange(scope)" :min="0.1"></el-input-number>
+						      			<!--<i class="el-icon-remove" v-if="scope.row.Num > 1" @@click="minusNum(scope)"></i>
+						      			<i class="el-icon-remove disabled" v-else></i>
+						      			<span class="num">{{scope.row.Num}}</span>
+										<i class="el-icon-circle-plus" v-if="!scope.row.IsStock || scope.row.Stock > scope.row.totalNum" @@click="plusNum(scope)"></i>
+										<i class="el-icon-circle-plus disabled" v-else></i>-->
+						      		</div>
+								</template>
+						    </el-table-column>
+						    <el-table-column
+						      	prop="totalPrice"
+						      	label="单价"
+						      	align="center"
+						      	width="80">
+						    </el-table-column>
+						    <el-table-column
+						      	prop="total"
+						      	label="金额"
+						      	align="center"
+						      	width="100">
+						    </el-table-column>
+						    <el-table-column
+						      	label="操作"
+						     	width="140">
+						      	<template slot-scope="scope">
+							        <el-button @@click.native.prevent="deleteOrderTable(scope)" size="small" type="danger">删除</el-button>
+							        <el-button @@click.native.prevent="reviseOrder(scope)" size="small" type="primary">修改</el-button>
+						      	</template>
+						    </el-table-column>
+					  	</el-table>
+					</el-main>
+					
+					<!--可选菜品	结束-->
+				</el-container>
+				<!--内容部分	结束-->
+				<!--底部	开始-->
+				<el-footer height="45">
+					<div class="fl">
+						<el-button size="small" @@click="ShopCartHide" style="width:88px;">返回</el-button>
+					</div>
+					<div class="fr">
+						<span class="info">
+							<span>份数：<b>{{SelectedProjectTotal.orderSum}}</b></span>
+							<span>数量：<b>{{SelectedProjectTotal.sum}}</b></span>
+							<span>价格：<b>{{SelectedProjectTotal.total}}</b></span>
+						</span>
+						<el-button size="small" type="primary" style="vertical-align: middle;" @@click="buying">下单</el-button>
+					</div>
+				</el-footer>
+				<!--底部	结束-->
+			</el-container>
+		</div>
+		<!--菜单	结束-->
+		<!--修改	   点选菜品   弹窗	开始-->
+		<el-dialog :visible.sync="isReviseLayerShow" id="reviselayer" :close-on-click-modal="false" :show-close="false" top="2vh" width="96%" height="96%" center>
+			<div class="layer-contaner">
+				<el-form label-width="100px" @@submit.native.prevent>
+					<el-form-item label="菜品：">
+				    	<span :type="ProjectAndDetailsType == 1 ? 'primary' : ''">{{reviselayerData.CyddMxName}}</span>
+				    	<span>（<span class="price">￥ {{reviselayerData.Price}}</span>）</span>
+				 	</el-form-item>
+					<el-form-item label="数量：">
+						<!--<div class="numBtns">
+							<i class="el-icon-remove" :class="{'disabled':reviselayerData.Num == 1}" @@click="reviselayerMinusNumber"></i>
+							<span class="num">{{reviselayerData.Num}}</span>
+							<i class="el-icon-circle-plus" :class="{'disabled':reviselayerData.Num == reviselayerData.maxNum}" @@click="reviselayerPlusNumber"></i>
+						</div>-->
+						<el-input-number v-model="reviselayerData.Num" @@change="reviselayerNumChange" :min="0.1"></el-input-number>
+				 	</el-form-item>
+				 	<template v-if="reviselayerData.CyddMxType == 1">
+				 		<el-form-item label="规格：">
+					    	<el-radio-group @@change="reviseChangeUnit" v-model="reviselayerData.Unit">
+					    		<el-radio-button v-for="(item, index) in reviselayerData.specificationsList" :key="index" :label="item.Unit"></el-radio-button>
+						    </el-radio-group>
+					 	</el-form-item>
+					 	<el-form-item label="做法：">
+						    <!--<el-checkbox-group @@change="reviseChangeExtend" v-model="reviselayerData.practice">
+						      	<el-checkbox-button v-for="(item, index) in reviselayerData.practiceList" :key="index" :label="index">{{item.ProjectExtendName}}</el-checkbox-button>
+						    </el-checkbox-group>-->
+						    <el-button type="success" size="small" @@click="reviseExtendChosenShow(1)">选择</el-button>
+						    <p>
+						    	<span v-for="(item, index) in reviselayerData.practice" :key="index">
+						    		<span v-if="index > 0">,</span>
+				      				<span class="noWrap">{{item.ProjectExtendName}}(￥{{item.Price}})</span>
+						    	</span>
+						    </p>
+					 	</el-form-item>
+					 	<el-form-item label="要求：">
+						    <!--<el-checkbox-group @@change="reviseChangeExtend" v-model="reviselayerData.requirement">
+						      	<el-checkbox-button v-for="(item, index) in reviselayerData.requirementList" :key="index" :label="index">{{item.ProjectExtendName}}</el-checkbox-button>
+						    </el-checkbox-group>-->
+						    <el-button type="success" size="small" @@click="reviseExtendChosenShow(2)">选择</el-button>
+						    <p>
+						    	<span v-for="(item, index) in reviselayerData.requirement" :key="index">
+						    		<span v-if="index > 0">,</span>
+				      				<span class="noWrap">{{item.ProjectExtendName}}(￥{{item.Price}})</span>
+						    	</span>
+						    </p>
+					 	</el-form-item>
+					 	<el-form-item label="配菜：" v-if="reviselayerData.garnishList.length > 0">
+						    <el-checkbox-group @@change="reviseChangeExtend" v-model="reviselayerData.garnish">
+						      	<el-checkbox-button v-for="(item, index) in reviselayerData.garnishList" :key="index" :label="index">{{item.ProjectExtendName}}</el-checkbox-button>
+						    </el-checkbox-group>
+					 	</el-form-item>
+				 	</template>
+				 	<template v-else>
+				 		<el-form-item label="菜品：">
+					    	<span v-for="(item, index) in reviselayerData.PackageDetailList" :key="index" style="display:inline-block">
+					    		<span class="noWrap">{{item.Name}} X {{item.Num}}</span>
+					    		<span v-if="reviselayerData.PackageDetailList.length > index + 1 && reviselayerData.PackageDetailList.length > 1">，</span>
+					    	</span>
+					 	</el-form-item>
+				 	</template>
+				 	<el-form-item label="金额：">
+				    	<div class="total">￥ {{reviselayerData.total}}</div>
+				 	</el-form-item>
+				 	<div class="btns">
+				 		<el-button type="primary" @@click="reviselayerSubmit">确认</el-button>
+					    <el-button @@click="isReviseLayerShow = false">取消</el-button>
+				 	</div>
+				</el-form>
+			</div>
+		</el-dialog>
+		<!--修改		点选   弹窗	结束-->
+		<!--做法		要求		配菜		选择-->
+		<el-dialog title="" :visible.sync="isReviseExtendShow" width="80%" id="reviseExtendLayer" :close-on-click-modal="false" :show-close="false" top="10vh" center>
+			<div class="classify">
+				<div class="classify-list">
+					<el-button size="small" v-for="(item, index) in ReviseExtendData" :key="index" :type="ReviseExtendclassifyIndex == index ? 'primary' : ''" @@click='reviseExtendChosenClassify(index)'>{{item.Name}}</el-button>
+				</div>
+			</div>
+			<el-row :gutter="10" style="margin-left:1px;" class="list">
+				<el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="2" v-for="(item, index) in ReviseExtendData[ReviseExtendclassifyIndex].ProjectExtendDTOList" :key="index">
+					<div class="item" @@click="reviseExtendChosen(index)" :class="{'checked':item.checked}">
+						<div class="title">{{item.ProjectExtendName}}</div>
+						<div class="price">￥{{item.Price.toFixed(2)}}</div>
+					</div>
+				</el-col>
+			</el-row>
+			<div class="btns">
+		 		<el-button type="primary" @@click="reviseExtendSubmit">确认</el-button>
+			    <el-button @@click="isReviseExtendShow = false">取消</el-button>
+		 	</div>
+		</el-dialog>
+		<!--登录		开始-->
+		<el-dialog title="登录" :visible.sync="loginDialogShow" width="600" id="login" :close-on-click-modal="false" :show-close="false" center>
+			<el-form ref="user" :model="user" label-width="80px">
+				<el-form-item label="用户名">
+					<el-input v-model="user.Account" placeholder="用户名"></el-input>
+				</el-form-item>
+				<el-form-item label="密码">
+					<el-input v-model="user.PassWord" placeholder="密码" type="password" @@keyup.enter.native="loginSubmit"></el-input>
+				</el-form-item>
+				<div style="text-align: center;margin-left: 25px;">
+					<el-button type="primary" @@click="loginSubmit">登录</el-button>
+					<el-button @@click="loginCancel">取消</el-button>
+				</div>
+			</el-form>
+		</el-dialog>
+		<!--登录		结束-->
+		<!--桌台选择		开始-->
+		<el-dialog title="桌台选择" top="8vh" :visible.sync="chosenRestaurantOrderShow" id="chosenRestaurantOrder" width="80%" :close-on-click-modal="false" :before-close="userInfoEmpty" center>
+			<div class="contentStep" v-if="chosenRestaurantOrderStep == 1">
+				<div class="area">
+					<div class="group">
+						<el-button size="medium" v-for="(item, index) in chosenTableData.Areas" :key="index" @@click="chosenChangeArea(index)" :class="{'el-button--primary':chosenTableData.AreasIndex == index}" @@click="chosenChangeArea(index)">{{item.Name}}</el-button>
+					</div>
+				</div>
+				<div class="items">
+					<el-row :gutter="10">
+						<el-col :xs="24" :sm="6" :md="6" :lg="6" :xl="4" v-for="(item, index) in chosenTableDataNow" :key="index">
+							<div class="item" :class="{'lock':item.CurrentOrderList.length > 0 && item.CurrentOrderList[0].IsLock,'empty':item.CythStatus == 1,'add':item.CythStatus == 2,'dirty':item.CythStatus == 3}" @@click="chosenOrder(item.index)">
+								<div class="item-header">
+									<div class="item-number">{{item.Id}}</div>
+									<div class="item-usernum tr"><i class="iconfont">&#xe660;</i>{{item.SeatNum}}</div>
+								</div>
+								<div class="item-title">{{item.Name}}</div>
+								<div class="item-footer flex">
+									<template v-if="item.CurrentOrderList.length > 1">{{item.CurrentOrderList.length}} 个订单</template>
+								</div>
+							</div>
+						</el-col>
+					</el-row>
+				</div>
+			</div>
+			<div class="contentStep" v-else>
+				<el-form ref="openTableForm" :model="openTableForm" :rules="rules2" label-width="80px" class="clearfix">
+					<el-col :span="12">
+						<el-form-item label="就餐人数" prop="PersonNum">
+							<el-input v-model="openTableForm.PersonNum"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="分市">
+							<el-select v-model="openTableForm.R_Market_Id">
+								<el-option v-for="(item, index) in chosenTableData.Markets" :key="index" :label="item.Name" :value="item.Id"  style="width: 100%;"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="联系人">
+							<el-input v-model="openTableForm.ContactPerson"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="客源类型">
+							<el-select v-model="openTableForm.CyddOrderSource">
+								<el-option v-for="(item, index) in chosenTableData.CustomerSources" :key="index" :label="item.Name" :value="item.Id"  style="width: 100%;"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="客户">
+							<el-select v-model="openTableForm.CustomerId">
+								<el-option v-for="(item, index) in chosenTableData.CustomerList" :key="index" :label="item.Name" :value="item.Id"  style="width: 100%;"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="联系电话">
+							<el-input v-model="openTableForm.ContactTel"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="订单类型">
+							<el-select v-model="openTableForm.OrderType">
+								<el-option v-for="(item, index) in chosenTableData.OrderTypes" :key="index" :label="item.Name" :value="item.Id"  style="width: 100%;"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="操作员">
+							<el-input v-model="user.Account" :disabled="true"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="24">
+						<el-form-item label="备注">
+	    					<el-input type="textarea" v-model="openTableForm.Remark"></el-input>
+	  					</el-form-item>
+  					</el-col>
+  					<el-form-item class="btns">
+						<el-button type="primary" @@click="newOpenTableSubmit('openTableForm')">确认</el-button>
+						<el-button type="warning" @@click="chosenRestaurantOrderAgain">重新选台</el-button>
+	    				<el-button @@click="chosenRestaurantOrderCancel">取消</el-button>
+  					</el-form-item>
+				</el-form>
+			</div>
+		</el-dialog>
+		<!--桌台选择		结束-->
+		<!--一台多单  订单选择  开始-->
+		<el-dialog title="订单选择" top="15vh" :visible.sync="currentOrderListShow" id="currentOrderList" width="70%" :close-on-click-modal="false" center>
+			<div class="items">
+				<el-row :gutter="10">
+					<el-col :xs="24" :sm="24" :md="24" :lg="6" :xl="4" v-for="(item, index) in currentOrderData" :key="index">
+						<div class="item" :class={"IsLock":item.IsLock} @@click="alreadyOpenTableListChosen(index)">
+							<p>单号：{{item.OrderNo}}<span class="fr">时间：{{item.CreateDate}}</span></p>
+							<p>
+								<span>人数：{{item.PersonNum}}</span>
+								<span v-if="item.ContactPerson">联系人：{{item.ContactPerson}}</span>
+								<span v-if="item.ContactTel">电话：{{item.ContactTel}}</span>
+							</p>
+						</div>
+					</el-col>
+				</el-row>
+			</div>
+		</el-dialog>
+		<!--一台多单  订单选择  结束-->
+    </div>
+</body>
+@ScriptsEx.Render(FrameworkInfo.Name, "jqueryJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "vueJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "elementJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "swiperJS")
+@ScriptsEx.Render(Plugin.Instance.Name, "lazyloadJS")
+<script src="../../Plugins/Web/OPUPMS.Restaurant.Web/Scripts/mescroll/mescroll.m.js"></script>
+@ScriptsEx.Render(Plugin.Instance.Name, "FlatChoseProjectJS")
+</html>

@@ -1,0 +1,262 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "出品统计";
+}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+    <header class="ClassTab-head">
+        <div class="layui-form BookNavForm" style="margin-top: 10px;">
+            <div class="layui-form-item" style="margin-bottom: 0;">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">开始日期</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input type="text" name="date" id="BeginDate" autocomplete="off" class="layui-input" value="@ViewBag.BeginDate" placeholder="yyyy-MM-dd">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">结束日期</label>
+                    <div class="layui-input-inline" style="width: 160px;">
+                        <input type="text" name="date" id="EndDate" autocomplete="off" class="layui-input" value="@ViewBag.EndDate" placeholder="yyyy-MM-dd">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-primary" onclick="InitMain()">查询</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <ul class="layui-tab-title">
+            <li class="layui-this" lay-id="tab1">菜品大类</li>
+            <li lay-id="tab2">菜品分类</li>
+            <li lay-id="tab3">菜品详情</li>
+            <li lay-id="tab4">套餐</li>
+        </ul>
+        <div class="layui-tab-content" style="height: 600px;">
+            <div class="layui-tab-item layui-show">
+                <div id="main" style="width: 800px;height:600px;"></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="category" style="width: 800px;height:600px;"></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="info" style="width: 800px;height:600px;"></div>
+            </div>
+            <div class="layui-tab-item">
+                <div id="package" style="width: 800px;height:600px;"></div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer-copyright">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+    </footer>
+</body>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Echarts")
+<script>
+    layui.use(['element', 'laydate','layer'], function () {
+        element = layui.element,
+            layer = layui.layer,
+            laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#BeginDate'
+            , format: 'yyyy-MM-dd'
+        });
+        laydate.render({
+            elem: '#EndDate'
+            , format: 'yyyy-MM-dd'
+        });
+
+        InitMain();
+    });
+
+    var chartsMain = echarts.init(document.getElementById('main'));
+    var chartsCategory = echarts.init(document.getElementById('category'));
+    var chartsInfo = echarts.init(document.getElementById('info'));
+    var chartsPakcage = echarts.init(document.getElementById('package'));
+
+    var optionMain = {
+        title: {
+            text: '菜品大类统计',
+            subtext: '',
+            x: 'center'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} ({d}%)"
+        },
+        legend: {
+            type: 'scroll',
+            orient: 'vertical',
+            right: 10,
+            top: 20,
+            bottom: 20,
+            data: []
+        },
+        series: [
+            {
+                name: '名称',
+                type: 'pie',
+                radius: '55%',
+                center: ['40%', '50%'],
+                data: [],
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+    chartsMain.setOption(optionMain);
+    chartsCategory.setOption(optionMain);
+    chartsInfo.setOption(optionMain);
+    chartsPakcage.setOption(optionMain);
+
+    function InitOther() {
+        chartsCategory.setOption({
+            legend: {
+                data: []
+            },
+            series: {
+                data: []
+            },
+            title: {
+                text: '请点击菜品大类项'
+            }
+        });
+        chartsInfo.setOption({
+            legend: {
+                data: []
+            },
+            series: {
+                data: []
+            },
+            title: {
+                text: '请点击菜品分类项'
+            }
+        });
+    }
+
+    function InitMain() {
+        var beginDate = $('#BeginDate').val();
+        var endDate = $('#EndDate').val();
+        var req = { StartDate: beginDate, EndDate: endDate, Type: 1 };
+        $.getJSON("/Res/Statistics/GetProduced", req, function (data) {
+            if (data.Data != null) {
+                var legendData = [];
+                var seriesData = [];
+                $(data.Data).each(function (i, o) {
+                    legendData.push(o.Name + ":" + o.Num);
+                    seriesData.push({ name: o.Name + ":" + o.Num, value: o.Num, parentCategoryId: o.ParentCategoryId});
+                });
+                chartsMain.setOption({
+                    legend: {
+                        data: legendData
+                    },
+                    series: {
+                        data: seriesData
+                    }
+                });
+                InitOther();
+                element.tabChange('docDemoTabBrief', 'tab1'); 
+                chartsMain.on('click', function (params) {
+                    element.tabChange('docDemoTabBrief', 'tab2'); 
+                    initCategory(params.data.parentCategoryId);
+                });
+            }
+        });
+        req = { StartDate: beginDate, EndDate: endDate, Type: 4 };
+        $.getJSON("/Res/Statistics/GetProduced", req, function (data) {
+            if (data.Data != null) {
+                var legendData = [];
+                var seriesData = [];
+                $(data.Data).each(function (i, o) {
+                    legendData.push(o.Name + ":" + o.Num);
+                    seriesData.push({ name: o.Name + ":" + o.Num, value: o.Num });
+                });
+                chartsPakcage.setOption({
+                    legend: {
+                        data: legendData
+                    },
+                    series: {
+                        data: seriesData
+                    },
+                    title: {
+                        text: '套餐统计'
+                    }
+                });
+            }
+        });
+    }
+
+    function initCategory(parentCategory) {
+        var beginDate = $('#BeginDate').val();
+        var endDate = $('#EndDate').val();
+        var req = { StartDate: beginDate, EndDate: endDate, Type: 2, ParentCategoryId: parentCategory };
+        $.getJSON("/Res/Statistics/GetProduced", req, function (data) {
+            if (data.Data != null) {
+                var legendData = [];
+                var seriesData = [];
+                $(data.Data).each(function (i, o) {
+                    legendData.push(o.Name + ":" + o.Num);
+                    seriesData.push({ name: o.Name + ":" + o.Num, value: o.Num, CategoryId: o.CategoryId });
+                });
+                chartsCategory.setOption({
+                    legend: {
+                        data: legendData
+                    },
+                    series: {
+                        data: seriesData
+                    },
+                    title: {
+                        text: '菜品分类统计'
+                    }
+                });
+                chartsCategory.on('click', function (params) {
+                    element.tabChange('docDemoTabBrief', 'tab3'); 
+                    initInfo(params.data.CategoryId);
+                });
+            }
+        });
+    }
+
+    function initInfo(category) {
+        var beginDate = $('#BeginDate').val();
+        var endDate = $('#EndDate').val();
+        var req = { StartDate: beginDate, EndDate: endDate, Type: 3, CategoryId: category };
+        $.getJSON("/Res/Statistics/GetProduced", req, function (data) {
+            if (data.Data != null) {
+                var legendData = [];
+                var seriesData = [];
+                $(data.Data).each(function (i, o) {
+                    legendData.push(o.Name + ":" + o.Num);
+                    seriesData.push({ name: o.Name + ":" + o.Num, value: o.Num });
+                });
+                chartsInfo.setOption({
+                    legend: {
+                        data: legendData
+                    },
+                    series: {
+                        data: seriesData
+                    },
+                    title: {
+                        text: '菜品详情统计'
+                    }
+                });
+            }
+        });
+    }
+</script>

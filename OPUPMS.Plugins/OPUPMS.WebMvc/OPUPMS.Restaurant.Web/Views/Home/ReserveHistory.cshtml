@@ -1,0 +1,239 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "预定纪录";
+    TableCreateDTO Table = ViewBag.Table;
+}
+
+<div class="container-fluid">
+    <h3 class="text-center">台号:@Table.Name</h3>
+    <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+</div>
+
+@section FooterScripts{
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+            var pageJs = editJs.Create();
+            pageJs.init();
+        })
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+
+        var editJs = {
+            Create: function () {
+                var editor = {};
+                var layindex;
+
+                var chat = $.connection.systemHub;
+                chat.hubName = 'systemHub';
+                chat.connection.start();
+
+                var bindAction = function () {
+                    var height = $(document).height() - 100;
+                    var width = $(document).width() - 100;
+                    var newDate = new Date();
+                    var t = newDate.toJSON();
+
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Api/GetReserveOrdersByTable',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: true,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            params.tableId = '@Table.Id'
+                        return params;
+                    },//传递参数（*）
+                    sidePagination: "client",      //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber: 1,            //初始化加载第一页，默认第一页
+                    pageSize: 10,            //每页的记录行数（*）
+                    pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                    strictSearch: true,
+                    //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "ID",           //每一行的唯一标识，一般为主键列
+                    cardView: false,          //是否显示详细视图
+                    buttonsAlign: "left",
+                    exportDataType: "basic",
+                    responseHandler: function (data) {
+                        return data.Data;
+                    },
+                    columns: [{
+                        field: 'Id',
+                        title: 'Id'
+                    }, {
+                        field: 'ReserveDate',
+                        title: '预定时间',
+                        sortable: true
+                    }, {
+                        field: 'OrderNo',
+                        title: '订单编号'
+                    }, {
+                        field: 'PersonNum',
+                        title: '人数',
+                        sortable: true
+                    }, {
+                        field: 'ContactPerson',
+                        title: '联系人'
+                    }, {
+                        field: 'ContactTel',
+                        title: '联系电话'
+                    }, {
+                        field: 'Remark',
+                        title: '备注信息',
+                        width: '25%',
+                        cellStyle: function (value, row, index) { return { css: { 'word-break': 'break-all', } } }
+                    }, {
+                        field: 'action',
+                        title: '操作',
+                        formatter: controlEdit
+                    }]
+                })
+
+                function controlEdit(value, row, index) {
+                    var id = row["Id"];
+                    return new Array(
+                        "<a class='btn btn-default edit' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>编辑</a>",
+                        "<a class='btn btn-default open' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>开台</a>",
+                        "<a class='btn btn-default cancel' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-remove'></span>取消预订</a>",
+                        "<a class='btn btn-default depositManager' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-yen'></span>定金管理</a>"
+                    ).join(" ");
+                }
+
+                $(document).on("click", ".depositManager", function () {
+                    var id = $(this).attr("data-id");
+                    layer.open({
+                        type: 2,
+                        title: "定金管理",
+                        area: [width + "px", height + "px"],
+                        content: "/Res/Order/DepositManager?orderId=" + id,
+                        maxmin: false
+                    });
+                });
+
+                $(document).on("click", ".cancel", function () {
+                    var id = $(this).attr("data-id");
+                    if (id == 0) {
+                        layer.alert("请先选择操作的订单！");
+                        return;
+                    }
+                    layer.confirm("继续取消预订单吗？", { title: '取消预订提示', btn: ['确认取消', '返回'] }, function () {
+                        var para = { orderId: id };
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/Home/CancelOrder",
+                            dataType: "json",
+                            data: JSON.stringify(para),
+                            contentType: "application/json; charset=utf-8",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: true, //点击遮罩关闭层
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                var res = data.Data;
+                                if (res == true) {
+                                    $.connection.hub.start().done(function () {
+                                        chat.server.notifyResServiceRefersh(true);
+                                    });
+                                    layer.alert("取消预订订单成功!");
+                                    Refresh();
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    });
+                });
+                
+                $(document).on("click", ".edit", function () {
+                    var id = $(this).attr("data-id");
+                    layer.open({
+                        type: 2,
+                        title: "预订编辑",
+                        area: [width + "px", height + "px"],
+                        content: "/Res/Order/EditReserve?orderId=" + id,
+                        maxmin: false
+                    });
+                });
+
+                $(document).on("click", ".open", function () {
+                    var id = $(this).attr("data-id");
+                    if (id == 0) {
+                        layer.alert("请先选择操作的订单！");
+                        return;
+                    }
+
+                    layer.confirm("确定开台吗？", { title: '开台提示', btn: ['确定', '返回'] }, function () {
+                        var para = { orderId: id };
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/Home/ReserveToOpen",
+                            dataType: "json",
+                            data: JSON.stringify(para),
+                            contentType: "application/json; charset=utf-8",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: true, //点击遮罩关闭层
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                var res = data.Data;
+                                if (res != null && res.OrderId > 0) {
+                                    $.connection.hub.start().done(function () {
+                                        chat.server.notifyResServiceRefersh(true);
+                                    });
+                                    layer.confirm("开台成功", {
+                                        btn: ['进行点餐操作', '取消'] //按钮
+                                    }, function () {
+                                        location.href = "/Res/Home/BatchChoseProject?orderTableIds=" + res.OrderTableIds.join(",");
+                                    }, function () {
+                                        Refresh();
+                                        parent.layer.closeAll();
+                                    });
+                                    
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    });
+                });
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            
+            return editor;
+        }
+    }
+    </script>
+}
+

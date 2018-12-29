@@ -1,0 +1,566 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "结账";
+    int CustomerId = ViewBag.CustomerId;
+    var UserList = ViewBag.UserList;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>结账</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	#dMember .layui-table-cell{line-height:24px;height:24px;}
+    	.layui-table tbody tr:hover{background:#e4e4e4;}
+    	#dMember .layui-table-body .layui-table tbody tr:hover{background:#f8f8f8;}
+    	#dMember table .layui-this {background-color: #8BC34A !important;color: #fff;}
+    	
+    	#CheckOutStaticsList_view{padding: 10px;margin-top: 10px;background: #fce8cf;border-radius: 6px;}
+    </style>
+</head>
+<body>
+
+    <div class="container flex">
+        <!-- ▼左侧 点菜列表 -->
+        <div class="Panel-side left" style="width:440px">
+            <!-- ▼左侧 点菜头部信息 -->
+            <div class="order-head">
+                <table class="layui-table" lay-even lay-skin="nob">
+                    <tbody id="OrderAndTables_view"></tbody>
+                </table>
+                <script id="OrderAndTables_tpml" type="text/html">
+                    <tr>
+                        <td width="13%" class="tr">台号:</td>
+                        <td width="25%" class="">
+                            <span id="OrderTableName">{{ d.OrderTableList[0].Name }}</span>
+                            <input type="hidden" id="OrderId" value="{{ d.OrderId }}" />
+                        </td>
+                        <td width="18%" class="tr">单号:</td>
+                        <td width="25%" class="">{{ d.OrderNo }}</td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="tr">人数:</td>
+                        <td width="25%" class="">{{ d.PersonNum }}</td>
+                        <td width="18%" class="tr">订单类型:</td>
+                        <td width="25%" class="">{{ d.OrderTypeName }}</td>
+                    </tr>
+                    <tr>
+                        <td width="13%" class="tr">操作员:</td>
+                        <td width="25%" class="">{{ d.OperateUserName }}</td>
+                        <td width="18%" class="tr">开单时间:</td>
+                        <td width="25%" class="">{{ d.CreateDate }}</td>
+                    </tr>
+                </script>
+            </div>
+            <!-- ▲左侧 点菜头部信息 -->
+            <div class="layui-tab layui-tab-card" style="border:0;margin:0;overflow:hidden" lay-filter="OrderTab">
+                <ul class="layui-tab-title" id="OrderTables_view" style="z-index: 999;"></ul>
+                <script id="OrderTables_tpml" type="text/html">
+                    {{#  if(d.length > 0){  }}
+                    {{#  layui.each(d, function(index, item){  }}
+                    <li {{#  if(index == 0){  }} class="layui-this" {{#  } }} lay-id="TableTab{{ index }}">{{ item.Name }}</li>
+                    {{#  }); }}
+                    {{#  } }}
+                    <span class="layui-unselect layui-tab-bar" lay-stope="tabmore" title=""><i lay-stope="tabmore" class="layui-icon">&#xe61a;</i></span>
+                </script>
+
+                <table class="layui-table table-head order-thead layui-table-header" lay-skin="line" style="border:0;">
+                    <colgroup>
+                        <col>
+                        <col width="50">
+                        <col width="50">
+                        <col width="50">
+                        <col width="50">
+                        <col width="50">
+                        <col width="50">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>菜名</th>
+                            <th><div class="tc">单位</div></th>
+                            <th><div class="tc">数量</div></th>
+                            <th><div class="tc">单价</div></th>
+                            <th><div class="tc">打折</div></th>
+                            <th><div class="tc">折扣</div></th>
+                            <th><div class="tc">金额</div></th>
+                        </tr>
+                    </thead>
+                </table>
+
+
+                <div class="layui-tab-content" style="padding:0;" id="OrderTablesAndProject_view">
+                    <!-- ▼左侧 点菜内容 -->
+
+                    <div class="layui-tab-item">
+                    </div>
+                </div>
+
+                <script id="OrderTablesAndProject_tpml" type="text/html">
+                    {{#  if(d.length < 1){  }}
+                    <p class="nodata">暂无数据</p>
+                    {{#  } }}
+                    {{#  layui.each(d, function(index, item){  }}
+                    <div class="layui-tab-item {{#  if(index == 0){  }} layui-show {{#  } }}">
+                        <div class="order-content" style="top:171px;">
+                            <table class="layui-table" lay-skin="line" style="margin: 0;">
+                                <colgroup>
+                                    <col>
+                                    <col width="50">
+                                    <col width="50">
+                                    <col width="50">
+                                    <col width="50">
+                                    <col width="50">
+                                    <col width="50">
+                                </colgroup>
+                                <tbody>
+                                    {{#  layui.each(item.OrderDetailList, function(index, item){ var totalprice=0; }}
+                                    <tr data-id="{{ item.Id }}" data-projectname="{{ item.CyddMxName }}" data-isdiscount="{{ item.IsDiscount }}">
+                                        <td>
+                                            <div class="prod-title">
+                                                <h4>{{ item.CyddMxName }}</h4>
+                                                <div class="Extend">
+                                                    {{#  if(item.ProExtend){  }}
+                                                    {{#  if(item.ProExtend.length > 0){  }}
+                                                    <p class="practice">
+                                                        <label>「做法」</label>
+                                                        <span class="intro">
+                                                            {{#  layui.each(item.ProExtend, function(index, item){ totalprice+=item.Price; }}
+                                                            {{#  if(index > 0){  }} 、 {{#  } }}
+                                                            {{ item.Name }}+{{ item.Price }}元
+                                                            {{#  }); }}
+                                                        </span>
+                                                    </p>
+
+                                                    {{#  } }}
+                                                    {{#  } }}
+
+                                                    {{#  if(item.ProExtendRequire){  }}
+                                                    {{#  if(item.ProExtendRequire.length > 0){  }}
+                                                    <p class="practice">
+                                                        <label>「要求」</label>
+                                                        <span class="intro">
+                                                            {{#  layui.each(item.ProExtendRequire, function(index, item){ totalprice+=item.Price; }}
+                                                            {{#  if(index > 0){  }} 、 {{#  } }}
+                                                            {{ item.Name }}+{{ item.Price }}元
+                                                            {{#  }); }}
+                                                        </span>
+                                                    </p>
+
+                                                    {{#  } }}
+                                                    {{#  } }}
+
+                                                    {{#  if(item.ProExtendExtra){  }}
+                                                    {{#  if(item.ProExtendExtra.length > 0){  }}
+                                                    <p class="practice">
+                                                        <label>「配菜」</label>
+                                                        <span class="intro">
+                                                            {{#  layui.each(item.ProExtendExtra, function(index, item){ totalprice+=item.Price; }}
+                                                            {{#  if(index > 0){  }} 、 {{#  } }}
+                                                            {{ item.Name }}+{{ item.Price }}元
+                                                            {{#  }); }}
+                                                        </span>
+                                                    </p>
+
+                                                    {{#  } }}
+                                                    {{#  } }}
+
+
+                                                </div>
+
+                                                <p class="other">
+                                                    {{#  if(item.ODRecordCountList){ var totalothernum=0; }}
+                                                    {{#  layui.each(item.ODRecordCountList, function(index, item){ }}
+                                                    {{#  if(item.CyddMxCzType==1){ totalothernum+= item.Num; }}
+                                                    <span class="zt-data"><span class="layui-badge layui-bg-green">赠</span> {{ item.Num }}</span>
+                                                    {{#  }else if(item.CyddMxCzType==2){ totalothernum+= item.Num; }}
+                                                    <span class="zt-data"><span class="layui-badge">退</span> {{ item.Num }}</span>
+                                                    {{#  }else if(item.CyddMxCzType==3){  }}
+                                                    <span class="zt-data"><span class="layui-badge layui-bg-gray">转入</span> {{ item.Num }}</span>
+                                                    {{#  }else if(item.CyddMxCzType==4){ totalothernum+= item.Num; }}
+                                                    <span class="zt-data"><span class="layui-badge layui-bg-gray">转出</span> {{ item.Num }}</span>
+                                                    {{#  } }}
+                                                    {{#  }); }}
+                                                    {{#  } }}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td class="tc">{{ item.Unit }}</td>
+                                        <td class="tc">{{ item.Num }}</td>
+                                        <td class="tc">{{ item.Price }}</td>
+                                        <td class="tc">
+                                        	{{# if(item.IsDiscount > 0){ }}
+                                        	<i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+                                        	{{# } }}
+                                        </td>
+                                        <td class="tc">{{ item.DiscountRate }}</td>
+                                        <td class="tc">{{ item.DiscountedAmount }}</td>
+                                    </tr>
+                                    {{#  }); }}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {{#  }); }}
+                </script>
+
+
+            </div>
+
+
+            <!-- ▲左侧 点菜内容 -->
+            <!-- ▼左侧 点菜统计 -->
+            <div class="order-total">
+                <table class="layui-table" lay-even lay-skin="nob" style="margin-top: 0;">
+                    <tbody>
+                        <tr>
+                            <td width="50%" class="layui-form"><input type="checkbox" name="allcheck" id="allcheck" lay-filter="allcheck" title="全选"></td>
+                            <td width="50%">消费金额:</td>
+                        </tr>
+                        <tr>
+                            <td width="50%">台服务费率: <span id="serverRate">0</span></td>
+                            <td width="50%"><div class="price">￥<span id="totalprice">0.00</span></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- ▲左侧 点菜统计 -->
+
+        </div>
+        <!-- ▲左侧 点菜列表 -->
+        <!-- ▼点菜操作菜单 -->
+        <nav class="actions-vertical blueBg" style="left: 440px;">
+            <ul class="row" id='operation_lists'>
+                <li><a href="javascript:void(0);" onclick="SingleAgio();">单品折</a></li>
+                <li><a href="javascript:void(0);" onclick="ForceAgio();">强制折</a></li>
+                <li><a href="javascript:void(0);" onclick="OpenAllAgio()">全单折</a></li>
+                <li><a href="javascript:void(0);" onclick="OpenPlanAgio()">方案折</a></li>
+                <li><a href="javascript:void(0);" onclick="OpenClear()">抹零</a></li>
+                <li><a href="javascript:void(0);" onclick="DelClear()">取消抹零</a></li>
+                <li><a href="javascript:void(0);" class="Disable">服务费</a></li>
+                <li><a href="javascript:void(0);" onclick="UnLock(this)">解锁</a></li>
+                <li><a href="javascript:void(0);" onclick="CheckOutBill(this, true)">结账单</a></li>
+                <li><a href="javascript:void(0);" onclick="CheckOutBill(this, false)">预结单</a></li>
+                <!--<li><a href="javascript:void(0);" onclick="BeforeCheckout()">预结</a></li>-->
+                <li><a href="javascript:;" onclick="closeWindow()">关闭</a></li>
+                <!--<li><a href="javascript:void(0);" onclick="OpenAuth()">授权</a></li>-->
+                <li><a href="javascript:void(0);">更多</a></li>
+            </ul>
+        </nav>
+        <!-- ▲点菜操作菜单 -->
+        <!-- ▼点菜操作 -->
+        <div class="Panel-form right flex-item order-form mr350" style="padding:10px;margin-left: 495px;">
+            <!-- ▼付款信息-->
+            <div class="priceInfo" id="OrderTotle_view">
+
+            </div>
+            <script id="OrderTotle_tpml" type="text/html">
+                <ul>
+                    <li>消费金额:<span>{{ d.ConAmount }}</span></li>
+                    <li>+服务费:<span>{{ d.ServiceAmount }}</span></li>
+                    <li>-折扣:<span>{{ d.DiscountAmount }}</span></li>
+                    <li>-抹零:<span>{{ d.ClearAmount }}</span></li>
+                    <li>{{CheckoutRoundHTML}}:<span>{{ d.Fraction }}</span></li>
+                </ul>
+                <div class="priceInfo-Poa">
+                    <ul>
+                        <li>应收金额:<span>¥{{ d.OriginalAmount }}</span></li>
+                        <li>实收金额:<span>¥{{ d.RealAmount }}</span></li>
+                        <li>未付金额:<span>¥{{ d.AmountOfMoney }}</span></li>
+                        <li>找零:<span id="giveChange">¥{{ d.GiveChangeMoney }}</span></li>
+                    </ul>
+                </div>
+            </script>
+            <div id="CheckOutStaticsList_view">
+            	<script id="CheckOutStaticsList_tpml" type="text/html">
+					<div class="layui-row">
+						{{#  layui.each(d, function(index, item){  }}
+						<div class="layui-col-md4">{{item.ParentCategoryName}} : <span class="price">{{item.TotalPrice.toFixed(2)}}</span></div>
+						{{#  })  }}
+					</div>
+            	</script>
+            </div>
+            <!-- ▲付款信息-->
+            <!-- ▼记录表-->
+            <div class="record-table">
+                <table class="layui-table" lay-skin="nob" style="margin-bottom: 0;">
+                    <colgroup>
+                        <col width="75">
+                        <col width="60">
+                        <col width="60">
+                        <col width="60">
+                        <col width="140">
+                        <col>
+                        <col width="80">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th class="tc">类型</th>
+                            <th class="tc">金额</th>
+                            <th class="tc">操作员</th>
+                            <th class="tc">操作时间</th>
+                            <th class="tc">备注</th>
+                            <th class="tr"><button class="layui-btn layui-btn-danger layui-btn-sm" onclick="DelAllPay()">全删</button></th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="tbodyForPay_table">
+                    <table class="layui-table" lay-skin="nob" style="margin: 0;">
+                        <colgroup>
+                            <col width="75">
+                            <col width="60">
+                            <col width="60">
+                            <col width="60">
+                            <col width="140">
+                            <col>
+                            <col width="80">
+                        </colgroup>
+                        <tbody id="tbodyForPayRecord"></tbody>
+                    </table>
+                </div>
+                <script id="PaidRecordList_tpml" type="text/html">
+                    {{#  if(d.length > 0){  }}
+                    {{#  layui.each(d, function(index, item){  }}
+                    <tr data-no="{{ index }}">
+                        <td class="paytypename">{{ item.PayTypeName }}</td>
+                        <td class="tc jztypename">{{ item.JzTypeName }}</td>
+                        <td class="tc money">{{ item.PayAmount }}</td>
+                        <td class="tc">{{ item.CreateUserName }}</td>
+                        <td class="tc" style="font-size: 12px;">{{ item.CreateDate }}</td>
+                        <td class="tc">{{ item.Remark }}</td>
+                        <td class="tr">
+                            {{# if(item.CyddJzType != 1 && item.Id > 0){  }}
+
+                            {{# }else if(item.CyddJzType == 1 && item.Id > 0 && item.CyddJzStatus != 2){ }}
+
+                            {{# }else if(item.CyddJzType == 1 && item.Id > 0 && item.CyddJzStatus == 2){  }}
+                            <button class="layui-btn layui-btn-radius layui-btn-sm {{#  if(item.isDisabled != 0){ }} layui-btn-disabled {{#  } }}" onclick="ChangeToPay({{ item.Id }})">订金转结</button>
+                            {{#  }else if(item.Id <= 0){ }}
+                            <a href="javascript:void(0)" class="del"><i class="layui-icon" style="font-size: 30px;">&#x1006;</i></a>
+                            {{# } }}
+                        </td>
+                    </tr>
+                    {{#  }); }}
+                    {{#  } }}
+                </script>
+            </div>
+            <!-- ▲记录表-->
+            <!--备注	开始-->
+            <div class="layui-form" style="margin-top:16px;">
+            	<div class="layui-form-item layui-form-text" style="margin:0;">
+			    <label class="layui-form-label" style="width:30px;">备注</label>
+				    <div class="layui-input-block" style="margin-left:65px;">
+				      	<textarea placeholder="请输入内容" class="layui-textarea" id="Remark" style="min-height:60px;resize: none;"></textarea>
+				    </div>
+			  	</div>
+            </div>
+            <!--备注	结束-->
+        </div>
+        <!-- ▲点菜操作 -->
+        <!--▼付款-->
+        <div class="paymentCon" style="top:0">
+            <div class="payment-method">
+                <h3>付款方式</h3>
+                <ul class="layui-clear" id="PayTypeList_view">
+                    <!--<li class="active">现金</li>-->
+                </ul>
+                <script id="PayTypeList_tpml" type="text/html">
+                    {{#  if(d.length > 0){  }}
+	                    {{#  layui.each(d, function(index, item){  }}
+	                    	{{# if(item.Pid === 0){ }}
+	                    		<li data-default-key="{{ item.Id }}" data-key="{{ item.Pid }}" {{#  if(index == 0){  }} class="active" {{#  } }}>
+	                    			<p>{{ item.Name }}</p>
+	                    		</li>
+	                    	{{# } }}
+	                    {{#  }); }}
+                    {{#  } }}
+                </script>
+            </div>
+        </div>
+        <!--▲付款-->
+        <!--▼金额输入-->
+        <div class="AmountEnter">
+            <div class="GiveChange-text"></div>
+            <div class="keyboard-number keyboard number-input" style="padding-top: 0;">
+                <div class="Keyboard-input-group" style="padding: 6px 0px 6px 6px;">
+                    <input type="text" id="AmountOfMoney" class="layui-input" value="" autocomplete="off">
+                    <a href="javascript:void(0);" onclick="number_empty();" class="Keyboard-empty" data-val="empty"><i class="layui-icon">&#x1006;</i></a>
+                    <a href="javascript:void(0);" class="Keyboard-del-number" data-val="del"><i class="layui-icon">&#xe65c;</i></a>
+                </div>
+                <ul class="row">
+                    <li data-val="1">1</li>
+                    <li data-val="2">2</li>
+                    <li data-val="3">3</li>
+                    <li data-val="4">4</li>
+                    <li data-val="5">5</li>
+                    <li data-val="6">6</li>
+                    <li data-val="7">7</li>
+                    <li data-val="8">8</li>
+                    <li data-val="9">9</li>
+                    <li data-val="0">0</li>
+                    <li data-val=".">.</li>
+                    <li data-val="-">-</li>
+                </ul>
+                <div class="Keyboard-btn" style="right: 10px; top: 139px;">
+                    <a href="javascript:void(0);" data-val="get" style="background-color: #8bc34a;">付款</a>
+                    <a href="javascript:void(0);" data-val="success">结账</a>
+                </div>
+            </div>
+
+
+        </div>
+        <!--▲金额输入-->
+        <!--授权人-->
+        <div id="AuthDiv" style="display:none;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">授权人:</label>
+                <div class="layui-input-inline">
+                    <select id="AuthUserId" lay-verify="">
+                        @{
+                        if (UserList != null)
+                        {
+                            <option value="0">请选择</option>
+                        foreach (var item in UserList)
+                        {
+                            <option value="@item.UserId">@item.UserName</option>
+                    }
+                }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码:</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" type="password" id="AuthPwd" name="AuthPwd" placeholder="请输入密码" data-type="text" data-lang="en" onfocus="ShowKeyboard(this.name)" />
+                    <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                </div>
+            </div>
+        </div>
+
+        <!--挂账  开始-->
+        <div id="gzDiv" style="display:none;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">客户:</label>
+                <div class="layui-input-inline">
+                    <select id="CustomerId" lay-verify="" lay-search>
+                    @{
+                        if (Customers != null)
+                        {
+                            <option value="">请选择</option>
+                            foreach (var item in Customers)
+                            {
+                            <option value="@item.Id" @(CustomerId == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!--挂账  结束-->
+
+        <!--会员卡  开始-->
+        <div id="divMember" style="display:none;">
+            <div class="layui-form-item" style="margin:0;">
+            	<div class="layui-inline">
+	                <label class="layui-form-label">客户:</label>
+	                <div class="layui-input-inline" style='width: 210px;'>
+	                    <input class="layui-input" type="text" name="txtMemberInfo"
+	                           placeholder="客户名/电话/证件号/卡号" data-type="text" data-lang="en" onfocus="ShowKeyboard(this.name)" />
+	                    <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+	                </div>
+                </div>
+                <div class="layui-inline">
+                    <a href="javascript:;" class="layui-btn layui-btn-primary searchMember">查询</a>
+                    <a href="javascript:;" class="layui-btn layui-btn-primary readMemberCard" onclick="readMemberCard()">读卡</a>
+                </div>
+            </div>
+        </div>
+        <!--会员卡  结束-->
+    </div>
+
+
+    <!-- 发票信息填写form -->
+    <div id="printInvoiceFormDemo" style="display:none;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">票号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Number" placeholder="请输入票号" lay-verify="required" lay-required-msg="请输入票号" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">客户：</label>
+                <div class="layui-input-inline">
+                    <select class="CustomerList" name="Company" class="form-control" lay-verify="required" lay-required-msg="请选择客户类型" lay-search>
+                        <option value="0">--请选择--</option>
+                        @{
+                            if (Customers != null)
+                            {
+                                foreach (var item in Customers)
+                                {
+                                    <option value="@item.Id" @(CustomerId == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">发票标题：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Title" placeholder="请输入发票抬头" lay-verify="required" lay-required-msg="请输入发票抬头" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">金额：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="TotalPrice" placeholder="请输入金额" lay-verify="number|required|price" lay-required-msg="请输入金额" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 100%;">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <textarea id="Remark" name="Remark" class="layui-textarea" rows="3" style="width: 87%;"></textarea>
+            </div>
+        </div>
+        <input type="hidden" class="orderId" name="orderId" value="" />
+        <input type="hidden" class="invoiceId" name="invoiceId" value="" />
+        <input type="hidden" class="isInvoiceId" name="isInvoiceId" value="" />
+        <div class="layer-btns-bottom" style="position:absolute;">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="printInvoiceForm">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary" onclick="layer.closeAll('page');">取消</button>
+        </div>
+    </div>
+
+
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+    <script src="~/signalr/hubs"></script>
+    @ScriptsEx.Render(Plugin.Instance.Name, "Report")
+    @ScriptsEx.Render(Plugin.Instance.Name, "CheckOut")
+
+    <script type="text/javascript">
+
+    </script>
+
+</body>
+</html>

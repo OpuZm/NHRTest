@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Data>
+  <Print PcIp="127.0.0.1" PrintIp="192.168.1.201" PrintPort="80"></Print>
+</Data>

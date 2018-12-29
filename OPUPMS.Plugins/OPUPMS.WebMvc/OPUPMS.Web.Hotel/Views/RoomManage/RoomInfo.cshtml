@@ -1,0 +1,915 @@
+﻿@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    @StylesEx.Render(Plugin.Instance.Name, "RoomInfoStyle")
+   
+</head>
+<body>
+
+    <div class="centent ov">
+
+        <div class="col-md-10 pop_rightbody pl-none">
+
+            <div class="xian p-sm b-fff">
+                <ul class="nav nav-tabs tbas_link" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#room_data" aria-controls="room_data" role="tab" data-toggle="tab">1001房间</a>
+                    </li>
+                    <li style="float: right;" class="help_pop">
+                        <a href="javascript:void(0);" onclick="add_relation_room();">添加联房</a>
+                    </li>
+                </ul>
+                <div class="tab-content b-fff row">
+                    <div role="tabpanel" class="tab-pane active layui-form" id="room_data">
+                        <div class="form-room_data mt-sm xian p-sm">
+                            <h3 class="tl  label-title">基本信息</h3>
+                            <div class="row mt-sm">
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">房&nbsp;&nbsp;&nbsp; 号</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="roomid" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">卡&nbsp;&nbsp;&nbsp; 号</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="cardid" required lay-verify="required" placeholder="请输入卡号" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">客&nbsp;&nbsp;&nbsp; 户</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlGuestTypeList", (IEnumerable<SelectListItem>)ViewBag.GuestTypeList)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">客&nbsp;&nbsp;&nbsp; 类</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlGuestCategoryList", (IEnumerable<SelectListItem>)ViewBag.GuestCategoryList)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">价&nbsp;&nbsp;&nbsp; 类</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlRoomPriceCategoryList", (IEnumerable<SelectListItem>)ViewBag.RoomPriceCategoryList)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">市&nbsp;&nbsp;&nbsp; 场</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlClientSourceList", (IEnumerable<SelectListItem>)ViewBag.ClientSourceList)
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row mt">
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">房&nbsp;&nbsp;&nbsp; 价</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入房价" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">价&nbsp;&nbsp;&nbsp; 构</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlRoomPriceStructureList", (IEnumerable<SelectListItem>)ViewBag.RoomPriceStructureList)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">业务员</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="yewu" placeholder="请输入业务员" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">付款方式</label>
+                                        <div class="layui-input-block">
+                                            @Html.DropDownList("ddlPaymentMethodList", (IEnumerable<SelectListItem>)ViewBag.PaymentMethodList)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">电&nbsp;&nbsp;&nbsp; 话</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入联系电话" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">佣&nbsp;&nbsp;&nbsp; 金</label>
+                                        <div class="layui-input-block">
+                                            <select name="can" lay-verify="required">
+                                                <option value="0">网络</option>
+                                                <option value="1">佣金二</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 plr-none">
+                                    <label class="layui-form-label">账务备注</label>
+                                    <div class="layui-input-block">
+                                        <textarea name="desc" placeholder="请输入账务备注" style="min-height:80px;" class="layui-textarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 plr-none">
+                                    <label class="layui-form-label">备注</label>
+                                    <div class="layui-input-block">
+                                        <textarea name="desc" placeholder="请输入备注内容" style="min-height:80px;" class="layui-textarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">特服</label>
+                                        <div class="layui-input-block">
+                                            <textarea name="desc" placeholder="请输入特服内容" style="min-height:80px;" class="layui-textarea"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-xs">
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">预订类型</label>
+                                        <div class="layui-input-block">
+                                            <select name="can" lay-verify="required">
+                                                <option value="0">直接入住</option>
+                                                <option value="1">担保预定</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">E-mail</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" lay-verify="number" autocomplete="off" placeholder="请输入联系邮箱" class="layui-input">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">小孩人数</label>
+                                        <div class="layui-input-block">
+                                            <input type="number" name="number" value="0" lay-verify="number" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">VIP接待</label>
+                                        <div class="layui-input-block">
+                                            <select name="paytype" lay-verify="required">
+                                                <option value="">无</option>
+                                                <option value="0">需要无线网</option>
+                                                <option value="1">银联</option>
+                                                <option value="2">微信</option>
+                                                <option value="2">支付宝</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">挂账限额</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="0为不限" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 plr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">公&nbsp;&nbsp;&nbsp; 司</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="yewu" placeholder="请输入公司名称" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row mt-sm">
+                                <!-- <input type="checkbox" name=""  title="资料保密">
+                                <input type="checkbox" name=""  title="房价保密">
+                                <input type="checkbox" name=""  title="钟点房">
+                                <input type="checkbox" name="gzwp"  lay-filter="gzwp"  title="贵重物品寄存">
+                                <input type="checkbox" name=""  title="不可转账">
+                                <input type="checkbox" name=""  title="设置主房">
+                                <input type="checkbox" name=""  title="查客史">
+                                <input type="checkbox" name="service_jsj"  lay-filter="service_jsj"  title="接送机服务">
+                                <input type="checkbox" name="service_fw"  lay-filter="service_fw"  title="服务">
+                                <input type="checkbox" name="service_jx"  lay-filter="service_jx"  title="叫醒服务"> -->
+                            </div>
+                        </div>
+
+                        <section id="more_cz" class="b-fff  mt-sm">
+                            <!-- 贵重物品信息 -->
+                            <div id="gzwp" class="row" style="display: none;">
+                                <div class="col-md-1 pl-none">
+                                    <h3 class="tl label-title" style="line-height: 32px;">贵重物品 </h3>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">联系人</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="请输入联系人姓名" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">联系电话</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="请输入联系人电话" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">物品名称</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="请输入物品名称" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-none">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">备注信息</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="备注内容" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <section id="service_jsj" style="display: none;">
+                                <!-- 接机信息 -->
+                                <div id="" class="row">
+                                    <div class="col-md-1 pl-none">
+                                        <h3 class="tl label-title" style="line-height: 32px;">接机 </h3>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">机场</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">航班信息</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入航班信息" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">抵时</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">离时</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1_5 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">车辆</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1_5 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">司机</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 送机信息 -->
+                                <div id="service_jsj2" class="row">
+                                    <div class="col-md-1 pl-none">
+                                        <h3 class="tl label-title" style="line-height: 32px;">送机 </h3>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">机场</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">航班信息</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" placeholder="请输入航班信息" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">抵时</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">离时</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1_5 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">车辆</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1_5 ">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label">司机</label>
+                                            <div class="layui-input-block">
+                                                <input type="text" name="price" class="layui-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- 添加服务信息 -->
+                            <div id="service_fw" class="row" style="display: none;">
+                                <div class="col-md-1 pl-none">
+                                    <h3 class="tl label-title" style="line-height: 32px;">服务信息 </h3>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">服务</label>
+                                        <div class="layui-input-block">
+                                            <select name="paytype" lay-verify="required">
+                                                <option value="">无</option>
+                                                <option value="0">需要无线网</option>
+                                                <option value="1">银联</option>
+                                                <option value="2">微信</option>
+                                                <option value="2">支付宝</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">服务备注</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" placeholder="请输入服务备注信息" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 叫醒服务信息 -->
+                            <div id="service_jx" class="row" style="display: none;">
+                                <div class="col-md-1 pl-none">
+                                    <h3 class="tl label-title" style="line-height: 32px;">叫醒服务 </h3>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">叫醒时间</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="price" class="layui-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+
+
+
+                        <!-- 开房客户信息1 -->
+                        <div class="roominfo-user_h xian p-sm row mt-sm">
+                            <h3 class="tl label-title">客户信息 <a href="#" class="fr btn btn-info btn-xs" title="">添加客人</a></h3>
+                            <!-- 开房客户信息1 -->
+                            <div class="row vipdata">
+                                <div class="col-md-1 p-sm">
+                                    <a href="#" title="扫描身份证">
+                                        <img class="media-object" src="@Url.Content(Plugin.Instance.GetContentPath("Images/usersao.png"))" alt="...">
+                                    </a>
+                                </div>
+                                <div class="col-md-11  mt-sm">
+                                    <div class="row">
+                                        <div class="col-md-2 pl-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">姓名</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="name" value="" placeholder="姓名" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 plr-none">
+                                            <input type="text" name="cardid" placeholder="英文/拼音" class="layui-input">
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">性别</label>
+                                                <div class="layui-input-block">
+                                                    @Html.DropDownList("ddlGenderList", (IEnumerable<SelectListItem>)ViewBag.GenderList)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">房价</label>
+                                                <div class="layui-input-block flex">
+                                                    <input type="text" name="cardid" placeholder="房价" title="房价" class="layui-input flex_item">
+                                                    <a href="javascript:;" class="btn btn-default ml-xs layui-btn-small" title="">每日</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">天数</label>
+                                                <div class="layui-input-block">
+                                                    <input type="number" name="number" value="1" lay-verify="number" placeholder="天数" title="天数" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">离店时间</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="date" id="date" placeholder="离店时间" title="离店时间" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, format: 'MM-DD hh:mm'})">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1 plr-none">
+                                            @Html.DropDownList("ddlCredentialList", (IEnumerable<SelectListItem>)ViewBag.CredentialList)
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <input type="text" name="cardid" placeholder="证件号" class="layui-input">
+                                        </div>
+                                        <div class="col-md-4 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">地址</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="地址" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">国家</label>
+                                                <div class="layui-input-block">
+                                                    <select id="ddlCountryList" name="country" lay-verify="" lay-search>
+                                                        <option value="">请选择</option>
+                                                        @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.CountryList)
+                                                        {
+                                                            if (@item.Selected)
+                                                            {
+                                                                <option value="@item.Value" selected="selected">@item.Text</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Value">@item.Text</option>
+                                                            }
+                                                        }
+                                                    </select>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 pl-sm">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">籍贯</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="籍贯" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 pl-sm">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">民族</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="民族" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="wai_row" style="display: none;">
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">签证类型</label>
+                                                <div class="layui-input-block">
+                                                    <select name="kehu">
+                                                        <option value="0">旅游签证</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">签证号</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="签证号" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">有效期</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="date" id="date" placeholder="有效期" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, format: 'MM-DD hh:mm'})">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">有效期</label>
+                                                <div class="layui-input-block">
+                                                    <select name="kehu">
+                                                        <option value="0">天津口岸</option>
+                                                        <option value="1">上海口岸</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">签发</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="签发" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">事由</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="事由" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 开房客户信息2 -->
+                            <div class="row vipdata" style="display: none;">
+                                <div class="col-md-1 p-sm">
+                                    <a href="#" title="扫描身份证">
+                                        <img class="media-object" src="@Url.Content(Plugin.Instance.GetContentPath("/Images/usersao.png"))" alt="...">
+                                    </a>
+                                </div>
+                                <div class="col-md-11 mt-md">
+                                    <div class="row">
+                                        <div class="col-md-2 pl-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">姓名</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="name" value="" placeholder="姓名" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 plr-none">
+                                            <input type="text" name="cardid" placeholder="英文/拼音" class="layui-input">
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">性别</label>
+                                                <div class="layui-input-block">
+                                                    <select name="kehu">
+                                                        <option value="0">男</option>
+                                                        <option value="1">女</option>
+                                                        <option value="2">保密</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">房价</label>
+                                                <div class="layui-input-block flex">
+                                                    <input type="text" name="cardid" placeholder="房价" title="房价" class="layui-input flex_item">
+                                                    <a href="javascript:;" class="btn btn-default ml-xs layui-btn-small" title="">每日</a>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">天数</label>
+                                                <div class="layui-input-block">
+                                                    <input type="number" name="number" value="1" lay-verify="number" placeholder="天数" title="天数" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">离店时间</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="date" id="date" placeholder="离店时间" title="离店时间" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1 plr-none">
+                                            <select name="kehu">
+                                                <option value="0">身份证</option>
+                                                <option value="1">护照</option>
+                                                <option value="2">驾驶证</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 pr-none">
+                                            <input type="text" name="cardid" placeholder="证件号" class="layui-input">
+                                        </div>
+                                        <div class="col-md-4 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">地址</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="地址" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-2 pr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">国家</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="中国" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 pl-sm">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">籍贯</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="籍贯" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1_5 pl-sm">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">民族</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="民族" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="wai_row" style="display: none;">
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">签证类型</label>
+                                                <div class="layui-input-block">
+                                                    <select name="kehu">
+                                                        <option value="0">旅游签证</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">签证号</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="签证号" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">有效期</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="date" id="date" placeholder="有效期" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, format: 'MM-DD hh:mm'})">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item">
+                                                <label class="layui-form-label">有效期</label>
+                                                <div class="layui-input-block">
+                                                    <select name="kehu">
+                                                        <option value="0">天津口岸</option>
+                                                        <option value="1">上海口岸</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">签发</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="签发" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 plr-none">
+                                            <div class="layui-form-item sm">
+                                                <label class="layui-form-label">事由</label>
+                                                <div class="layui-input-block">
+                                                    <input type="text" name="cardid" placeholder="事由" class="layui-input">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="#" class="fr btn btn-danger btn-xs" title="">删除</a>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="text-center room-data_btn_group">
+                        <a href="/H/RoomManage/ApplyOpenRoom" class="btn btn-success layui-btn-radius mt-xs layui-btn-big">确认开房</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 xian b-fff pt-sm">
+            <div class="room_screen">
+                <div class="tabs-n_centent show">
+                    <div class="help-container">
+                        <div class="help-body_title">客史信息</div>
+                        <div class="help-body_body">
+                            <div class="row mt-sm">
+                                <ul class="list-group jian">
+                                    <li class="list-group-item">
+                                        <span class="badge">1001,1002,1003</span>
+                                        喜爱房号:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">1001</span>
+                                        上次房号:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">199.00</span>
+                                        上次房价:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">3200</span>
+                                        消费总计:
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="badge">6</span>
+                                        来访次数:
+                                    </li>
+                                </ul>
+                                <div class="mt-sm">
+                                    <p>客史备注信息</p>
+                                    <div class="intro-text xian p-xs">
+                                        <p>这里是客史中的备注信息</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--  <a href="javascript:void(0);" class="panel-tabs_title active tabs-n_title"><i class="icon-Help"></i><span>帮助和服务</span></a>
+                         <div class="help-body_list">
+                            <a href="#">如何操作开房？</a>
+                            <a href="#">会员如何开房？</a>
+                            <a href="#">怎样查看入住信息？</a>
+                            <a href="#" class="text-right">更多 <i class="icon-Arrow_line_right"></i></a>
+                         </div> -->
+                    </div>
+                    <!-- <div class="help-container">
+                       <div class="help-body_title">奥普在线客服</div>
+                       <div class="help-body_service">
+
+                             <div class="media">
+                               <div class="media-left">
+                                 <a href="#">
+                                   <img class="media-object" src="~/Images/ewm.jpg" alt="奥普官网二维码">
+                                 </a>
+                               </div>
+                               <div class="media-body">
+                                 <h4 class="media-heading"><i></i>400-0773-021</h4>
+                                 <p>有问题来问我哦！</p>
+                               </div>
+                             </div>
+                             <a class="btn m-b-xs w-xs full btn-border" href="#">400 在线客服</a>
+
+                       </div>
+
+                    </div> -->
+
+                    <div class="help-body_title">相关操作</div>
+                    <div class="row mt-sm">
+                        <ul class="list-group jian layui-form roominfo_cz">
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" lay-skin="switch" title="资料保密"></span>
+                                资料保密:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="房价保密"></span>
+                                房价保密:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="钟点房"></span>
+                                钟点房:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="不可转账"> </span>
+                                不可转账:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="设置主房"></span>
+                                设置主房:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="" lay-skin="switch" title="查客史"> </span>
+                                查客史:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="gzwp" lay-skin="switch" lay-filter="gzwp" title="贵重物品寄存"></span>
+                                贵重物品寄存:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_jsj" lay-skin="switch" lay-filter="service_jsj" title="接送机服务"></span>
+                                接送机服务:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_fw" lay-skin="switch" lay-filter="service_fw" title="服务"> </span>
+                                服务:
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge"><input type="checkbox" name="service_jx" lay-skin="switch" lay-filter="service_jx" title="叫醒服务"></span>
+                                叫醒服务:
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+    </div>
+  
+
+    @ScriptsEx.Render(Plugin.Instance.Name, "BasicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "RoomInfoJs")
+    @*@ScriptsEx.Render(Plugin.Instance.Name, "NumberRollJs")*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.loader-box').remove();
+        });
+    </script>
+</body>
+</html>

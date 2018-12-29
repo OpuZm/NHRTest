@@ -1,0 +1,121 @@
+html, body, div, span,  h1, h2, h3, h4, h5, h6, p, a,  img,ul, li,input,table,blockquote {  font-family: Microsoft YaHei!important;padding:0;margin:0; }
+*, *:after, *:before {-webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; }
+html{font-size: 20px;-webkit-text-size-adjust:none}
+li{list-style-type:none;}
+a{text-decoration: none;display: inline-block;color:#1f6fc5;outline:none;-webkit-tap-highlight-color: rgba(0,0,0,0);}
+a:focus {outline:none;}
+button{outline:none;}
+button:focus ,input:focus,textarea:focus{ outline:none;}
+iframe{border:none;width:100%;}
+ol{padding-left: 20px;margin:0;}
+input[placeholder], [placeholder], *[placeholder] { color:#555 ; } 
+
+@font-face {font-family: "iconfont";
+  src: url('../icons/iconfont.eot'); /* IE9*/
+  src: url('../icons/iconfont.eot#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../icons/iconfont.woff') format('woff'), /* chrome, firefox */
+  url('../icons/iconfont.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../icons/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,body{
+    width: 100%;
+    height:100%;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#63B6F8",endColorstr="#0F78F3",GradientType=1);
+    background-image: -moz-linear-gradient(135deg,#63b6f8 0,#0f78f3 100%);
+    background-image: linear-gradient(-45deg,#63b6f8,#0f78f3);
+}
+
+.wrap{
+	width: 100%;
+    height:100%;
+	background: url(/Plugins/Web/OPUPMS.Restaurant.Web/Content/Images/pc_texture.png) no-repeat center center;
+}
+
+.container{
+	padding-top:9%;
+	max-width:500px;
+	margin:0 auto;
+}
+
+.login-form{
+	padding:40px 80px;
+	background:#f1f1f1;
+	border-radius: 10px;
+}
+.form-item{
+	padding:10px 20px 10px 60px;
+	border-bottom:1px solid #999;
+	margin-bottom:20px;
+	position:relative;
+	
+}
+
+.form-item label{
+	position:absolute;
+	left: 16px;
+	top: 15px;
+}
+.form-item label i{
+	font-size:24px;
+}
+.login-input{
+	width:80%;
+    height: 38px;
+    line-height: 1.3;
+    line-height: 38px\9;
+    background-color: #f1f1f1;
+    border:none;
+    font-size:20px;
+    text-align: center;
+}
+.btns{
+	text-align: center;
+}
+.layui-btn{
+	width:40%;
+	height:40px;
+	margin:0 1%;
+	font-size:24px;
+	border-radius: 6px;
+}
+
+
+.choice-shop{padding:10px;}
+.choice-shop li{width: 48%;margin:10px 1%;border:1px solid #ddd;border-top:3px solid #999;padding:10px;border-radius: 5px;float: left;}
+.choice-shop li a{display: inline-block;width:100%;height: 100%;}
+.choice-shop li h4{font-weight: 500;    font-size: 16px;color:#555}
+.choice-shop li p,.choice-shop li a.ok{font-size: 14px;text-align:center;border:1px solid #ddd;color:#999;float: right; width: 36%; margin-top: 6px; padding: 8px 3px;}
+.choice-shop li:hover{border-top:3px solid #FF5722;}
+.choice-shop li:hover h4{color:#333;}
+.choice-shop li:hover p,.choice-shop li:hover a.ok{color:#FF5722;border:1px solid #FF5722;}
+
+
+/*移动端样式		开始*/
+	/*新增预定	开始*/
+@media screen and (max-width: 768px){
+	body{
+		background:#f1f1f1;
+	}
+	.login-form{padding:40px 10px}
+	.form-item label i{color:#1E9FFF}
+	.form-item{border-color:#1E9FFF}
+	.btns{margin-top:40px;}
+	.layui-btn{
+		width:80%;
+	}
+	.choice-shop li{width:100%;}
+	.btns .layui-btn{margin:10px 10%}
+}
+
+	/*新增预定	结束*/
+/*移动端样式		结束*/

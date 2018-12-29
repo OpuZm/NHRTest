@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F6C4F7A1-C664-4D7D-A4B5-C5B594C15F92}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.UI.Web.ConsoleTest</RootNamespace>
+    <AssemblyName>OPUPMS.UI.Web.ConsoleTest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\OPUPMS.Model\OPUPMS.Model.Common\OPUPMS.Model.Common.csproj">
+      <Project>{fe69e68d-64eb-4887-852e-7f66d453102e}</Project>
+      <Name>OPUPMS.Model.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.ServiceBusiness\OPUPMS.Business.Common\OPUPMS.Business.Common.csproj">
+      <Project>{827ea607-a439-4e7f-af36-4d549e21f101}</Project>
+      <Name>OPUPMS.Business.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Model\OPUPMS.Model.PMSEntity\OPUPMS.Model.PMSEntity.csproj">
+      <Project>{ab7021b6-3fff-4b3a-b6d3-f71551f631d4}</Project>
+      <Name>OPUPMS.Model.PMSEntity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.ServiceBusiness\OPUPMS.Business.PMSService\OPUPMS.Business.PMSService.csproj">
+      <Project>{a506fac9-f663-43a6-985e-c6d053852d19}</Project>
+      <Name>OPUPMS.Business.PMSService</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

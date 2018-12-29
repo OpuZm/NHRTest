@@ -1,0 +1,299 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    ReserveCreateDTO Order = ViewBag.Order;
+    var CurrentTIds = ViewBag.TableIds;
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <input type="hidden" value="@Order.R_Restaurant_Id" id="Cyct" name="Cyct" />
+        <h3 class="text-center">订单编号:@Order.OrderNo</h3>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">客源类型:</label>
+            <div class="col-xs-4">
+                <select id="CyddOrderSource" name="CyddOrderSource" class="form-control">
+                    <option value="0">请选择</option>
+                    @{ 
+                        if (CustomerSources != null)
+                        {
+                            foreach (var item in CustomerSources)
+                            {
+                                <option value="@item.Id" @(item.Id == Order.CyddOrderSource ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <label for="" class="col-xs-2 control-label">就餐人数:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="PersonNum" name="PersonNum" value="@Order.PersonNum"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="ContactPerson" class="col-xs-2 control-label">联系人:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="ContactPerson" name="ContactPerson" value="@Order.ContactPerson"/>
+            </div>
+            <label for="ContactTel" class="col-xs-2 control-label">联系电话:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="ContactTel" name="ContactTel" value="@Order.ContactTel" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">分市:</label>
+            <div class="col-xs-4">
+                <select id="MarketId" name="MarketId" class="form-control">
+                    <option value="0">请选择</option>
+                    @{
+                        if (Markets != null)
+                        {
+                            foreach (var item in Markets)
+                            {
+                                <option value="@item.Id" @(item.Id == Order.R_Market_Id ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <label for="ReserveDate" class="col-xs-2 control-label">预订用餐时间:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control datetimepicker" id="ReserveDate" name="ReserveDate" value="@Order.ReserveDate" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Customers" class="col-xs-2 control-label">客户:</label>
+            <div class="col-xs-4">
+                <select id="CustomerId" name="CustomerId" class="form-control">
+                    <option value="0">请选择</option>
+                    @{
+                        if (Customers != null)
+                        {
+                            foreach (var item in Customers)
+                            {
+                                <option value="@item.Id" @(item.Id == Order.CustomerId ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <label for="Customers" class="col-xs-2 control-label">订单类型:</label>
+            <div class="col-xs-4">
+                <select id="OrderType" name="OrderType" class="form-control">
+                    <option value="0">请选择</option>
+                    @{
+                        if (OrderTypes != null)
+                        {
+                            foreach (var item in OrderTypes)
+                            {
+                                <option value="@item.Id" @(item.Id == Order.OrderType ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="col-xs-2 control-label">台号选择:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="TableIds" name="TableIds" value="@ViewBag.TableName" readonly />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Remark" class="col-xs-2 control-label">备注信息:</label>
+            <div class="col-xs-10">
+                <textarea id="Remark" name="Remark" class="form-control" rows="4">@Order.Remark</textarea>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+    </form>
+</div>
+@section FooterScripts{
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+<script src="~/signalr/hubs"></script>
+<script>
+    var tabIds = [];
+    
+    tabIds.push(@CurrentTIds);
+
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+
+    function GetChose(res) {
+        if (res != null) {
+            tabIds = [];
+            var tabName = [];
+            $(res).each(function (i,obj) {
+                tabIds.push(obj.Id);
+                tabName.push(obj.Name);
+            })
+            $("#TableIds").val(tabName.join(","));
+        }
+    }
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            var bindAction = function () {
+                var height = $(document).height() - 100;
+                var width = $(document).width() - 100;
+                var newDate = new Date();
+                var t = newDate.toJSON();
+
+                $('.datetimepicker').datetimepicker({
+                    language: 'zh-CN',//显示中文
+                    format: 'yyyy-mm-dd hh:ii',//显示格式
+                    autoclose: true,
+                    startDate: new Date(t)
+                })
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        CyddOrderSource: {
+                            min: 1
+                        },
+                        PersonNum: {
+                            isIntGteZero:true
+                        },
+                        MarketId: {
+                            min:1
+                        },
+                        DepositAmount: {
+                            isFloatGteZero: true,
+                            isFloat: true
+                        },
+                        ReserveDate: {
+                            required: true
+                        }
+                    },
+                    messages: {
+                        CyddOrderSource: {
+                            min: "请选择订单来源"
+                        },
+                        MarketId: {
+                            min:"请选择分市"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                $("#TableIds").click(function () {
+                    var isContinue = true;
+                    if ($("#ReserveDate").val()=="") {
+                        isContinue = false;
+                    }
+                    if ($("#MarketId").val() <= 0) {
+                        isContinue = false;
+                    }
+                    if (isContinue) {
+                        var para = "RestaurantId=" +@Order.R_Restaurant_Id +"&ReverDate=" + $("#ReserveDate").val() + "&Market=" + $("#MarketId").val() + "&TableIds=" + tabIds.join(",") + "&CurrentReservedOrderId=" + @Order.Id;
+                        layer.open({
+                            type: 2,
+                            title: "选择桌号",
+                            area: [width + "px", height + "px"],
+                            content: "/Res/Table/ChoseTable?"+para,
+                            maxmin: false
+                        })
+                    }
+                    else {
+                        layer.msg('请选择用餐时间和分市', {
+                            time: 4000
+                        })
+                    }
+                })
+
+                function Submit() {
+                    if (tabIds.length <= 0) {
+                        layer.msg('请至少选择一个桌号进行预定操作', {
+                            time: 4000
+                        });
+                        return false;
+                    }
+                    var deposite = $("#DepositAmount").val() == "" ? 0 : $("#DepositAmount").val();
+                    var para = {
+                        req: {
+                            CyddOrderSource: $("#CyddOrderSource").val(),
+                            PersonNum: $("#PersonNum").val(),
+                            ContactPerson: $("#ContactPerson").val(),
+                            ContactTel: $("#ContactTel").val(),
+                            R_Market_Id: $("#MarketId").val(),
+                            ReserveDate: $("#ReserveDate").val(),
+                            DepositAmount: @Order.DepositAmount, 
+                            Remark: $("#Remark").val(),
+                            R_Restaurant_Id: @Order.R_Restaurant_Id,
+                            Id: @Order.Id,
+                            OrderNo: '@Order.OrderNo',
+                            CustomerId: $("#CustomerId").val(),
+                            OrderType: $("#OrderType").val()
+                            },
+                        TableIds: tabIds
+                    };
+
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Home/ReserveInfoSave",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] > 0) {
+                                $.connection.hub.start().done(function () {
+                                    chat.server.notifyResServiceRefersh(true);
+                                });
+                                layer.alert("更新预定成功", function () {
+                                    parent.Refresh();
+                                    parent.layer.closeAll();
+                                });
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

@@ -1,0 +1,166 @@
+﻿@using OPUPMS.Domain.Base.Models;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ExtendItemModel extendItem = ViewBag.ExtendItemModel ?? new ExtendItemModel();
+    var typeId = ViewBag.TypeId;
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="form-group">
+            <label for="Code" class="col-xs-2 control-label">代码:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Code" name="Code" placeholder="请输入代码" value="@extendItem.Code" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">名称:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@extendItem.Name" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="ItemValue" class="col-xs-2 control-label">项值:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="ItemValue" name="ItemValue" placeholder="请输入项值" value="@extendItem.ItemValue" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Sort" class="col-xs-2 control-label">排序:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Sort" name="Sort" placeholder="请输入排序" value="@extendItem.Sort" />
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+        <input type="hidden" value="@typeId" name="TypeId" />
+        <input type="hidden" value="@extendItem.Id" name="Id" />
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "CkediterJs")
+    <script>
+        $(function () {
+            var pageJs = editJs.Create();
+            pageJs.init();
+        })
+
+        var editJs = {
+            Create: function () {
+                var editor = {};
+                var layindex;
+
+                var bindAction = function () {
+                    var height = $(document).height() - 250;
+
+                    $("#SubmitForm").validate({
+                        rules: {
+                            Code: {
+                                required: true
+                            },
+                            Name: {
+                                required: true
+                            },
+                            Sort: {
+                                required: true,
+                                min: 0,
+                                number: true
+                            }
+
+                        },
+                        messages: {
+                            Code: {
+                                required: "请输入代码!"
+                            },
+                            Name: {
+                                required: "请输入名称!"
+                            },
+                            Sort: {
+                                required: "请输入排序!",
+                                min: jQuery.validator.format("请输入大于{0}的合法的数字!"),
+                                number: "请输入合法的数字!"
+                            }
+                        },
+                        errorPlacement: function (error, element) {
+                            error.appendTo(element.parent());
+                        },
+                        submitHandler: function (label) {
+                            Submit();
+                        }
+                    })
+
+                    function Submit() {
+                        var para = $("#SubmitForm").serialize();
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/CommonExtend/EditExtendItemSave",
+                            dataType: "json",
+                            data: para,
+                            beforeSend: function (XMLHttpRequest) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false,
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                if (data["Data"] == true) {
+                                    layer.confirm("提交完成", {
+                                        btn: ['继续操作', '退出'] //按钮
+                                    }, function () {
+                                        location.reload();
+                                    }, function () {
+                                        parent.layer.closeAll();
+                                    });
+                                    parent.Refresh();
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    }
+
+                    //$("#IsDiscount").on("change", function () {
+                    //    var value = $(this).val();
+                    //    if (value > 0) {
+                    //        $("#DiscountRate").show();
+                    //    } else {
+                    //        $("#DiscountRate").hide();
+                    //    }
+                    //})
+
+                    $(".closeAll").click(function () {
+                        parent.layer.closeAll();
+                    })
+
+                    $('input').iCheck({
+                        checkboxClass: 'icheckbox_minimal-blue',
+                        radioClass: 'iradio_minimal-blue',
+                        increaseArea: '20%' // optional
+                    });
+
+                    //$("input[name='IsDiscount']").on("ifChecked", function (event) { //ifCreated 事件应该在插件初始化之前绑定
+                    //    var value = $(this).val();
+                    //    if (value == 1) {
+                    //        $("#DiscountRate").show();
+                    //    } else {
+                    //        $("#DiscountRate").hide();
+                    //    }
+                    //});
+                }
+
+                editor.init = function () {
+                    bindAction();
+                }
+
+                return editor;
+            }
+        }
+    </script>
+}

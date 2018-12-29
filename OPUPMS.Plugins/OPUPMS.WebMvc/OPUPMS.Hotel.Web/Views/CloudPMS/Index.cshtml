@@ -1,0 +1,214 @@
+﻿@{ 
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>OPUPMS 云酒店快捷管理系统</title>
+
+    @*<link rel="stylesheet" href="~/Content/css/global.css" media="all">*@
+
+    <!--[if lte IE 8]>
+        <div id="errorie"><div>您还在使用老掉牙的IE，正常使用系统前请升级您的浏览器到 IE8以上版本 <a target="_blank" href="http://windows.microsoft.com/zh-cn/internet-explorer/ie-8-worldwide-languages">点击升级</a>&nbsp;&nbsp;强烈建议您更改换浏览器：<a href="http://down.tech.sina.com.cn/content/40975.html" target="_blank">谷歌 Chrome</a></div></div>
+    <![endif]-->
+</head>
+<body style="background:#f1f1f1; ">
+    <div class="layui-layout layui-layout-admin">
+		<div class="layui-side layui-bg-black" id="admin-side">
+			<div class="main_menu_group">
+			    <div class="admin-side-toggle main_menu">
+				    <i class="icon-menu" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class="layui-side-scroll" id="admin-navbar-side" lay-filter="side">
+					
+			</div>
+		</div>
+		<div class="layui-body" style="bottom: 0;" id="admin-body">			    
+			<div class="layui-tab admin-nav-card layui-tab-brief" lay-filter="admin-tab">
+                <nav class="navbar navbar-default ng-scope">
+                    <div class="navbar-header">
+                        <ul class="header-data">
+                            <li><i class="iconfont icon-Hotel"></i>奥普大酒店</li>
+                            <li><i class="iconfont icon-date_time"></i>@ViewBag.CurrentDate</li>
+                            <li><i class="iconfont icon-date_Shift"></i>早班</li>
+                        </ul>
+                    </div>
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="iconfont icon-username fz-lg"></i> 黄岗 <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#"><i class="iconfont icon-edit"></i>修改密码</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="/Account/Logout"><i class="iconfont icon-quit"></i>退出登陆</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="#"><i class="iconfont icon-Full"></i></a></li>
+                            <li><a href="#"><i class="iconfont icon-Help"></i></a></li>
+                            <li id="Set-container" class="dropdown pos-stc">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="iconfont icon-Set"></i></a>
+                                <div class="dropdown-menu wrapper w-full bg-white">
+                                    <div class="row layui-form">
+                                        <div class="col-sm-2">
+                                            <div class="m-l-xs m-t-xs m-b-xs font-bold">房态图大小</div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <ul id="room-size_btn" class="list-unstyled l-h-2x">
+                                                        <li>
+                                                            <div class="radio">
+                                                                <label class="i-checks" data-stoppropagation="">
+                                                                    <input type="radio" id="room-size_sm" title="小" name="room_size" value="sm">
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="radio">
+                                                                <label class="i-checks" data-stoppropagation="">
+                                                                    <input type="radio" id="room-size_lg" title="中" name="room_size" value="lg"><i></i>
+
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="radio">
+                                                                <label class="i-checks" data-stoppropagation="">
+                                                                    <input type="radio" id="room-size_xl" title="大" name="room_size" value="xl"><i></i>
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <div class="m-l-xs m-t-xs m-b-xs font-bold">布局设置</div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <ul class="list-unstyled l-h-2x">
+                                                        <li>
+                                                            <label class="layui-form-label">收起导航</label>
+                                                            <div class="layui-input-block" data-stoppropagation>
+                                                                <input type="checkbox" id="main-nav_set" lay-filter="main-nav_set" data-stoppropagation name="close" lay-skin="switch" title="开关">
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="m-l-xs m-t-xs m-b-xs font-bold">
+                                                自定义风格模板
+                                                <span class="label label-sm bg-primary">10</span>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <ul class="backpic_list">
+                                                        <li id="backbg_0">
+                                                            <a href="javascript:void(0);" data-type="0" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-0.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_1">
+                                                            <a href="javascript:void(0);" data-type="1" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-1.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_2">
+                                                            <a href="javascript:void(0);" data-type="2" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-2.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_3">
+                                                            <a href="javascript:void(0);" data-type="3" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-3.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_4">
+                                                            <a href="javascript:void(0);" data-type="4" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-4.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_5">
+                                                            <a href="javascript:void(0);" data-type="5" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-5.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_6">
+                                                            <a href="javascript:void(0);" data-type="6" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-6.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_7">
+                                                            <a href="javascript:void(0);" data-type="7" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-7.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_8">
+                                                            <a href="javascript:void(0);" data-type="8" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-8.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                        <li id="backbg_9">
+                                                            <a href="javascript:void(0);" data-type="9" data-stoppropagation="">
+                                                                <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/backpic-9.jpg"))">
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <div class="m-l-xs m-t-xs m-b-xs font-bold">说明</div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <p class="c999 fz-sm">个性自定义设置，每个用户都可随意切换配置，只会在当前浏览器生效。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </li>
+                            <li><a href="#"><i class="iconfont icon-quit"></i></a></li>
+                        </ul>
+                    </div>
+                </nav>
+                
+                <!-- tab选项卡导航 -->
+				<ul class="layui-tab-title">
+					
+				</ul>
+				<div class="layui-tab-content" style="min-height: 650px; ">
+                    <!-- 主页容器 -->
+					<div id="page_home" class="layui-tab-item layui-show">
+						<!-- <iframe id="main" style="height:800px;" src="/Home/Home"></iframe> -->
+					</div>
+				</div>
+			</div>
+			
+			<div class="site-tree-mobile layui-hide">
+				<i class="layui-icon">&#xe602;</i>
+			</div>
+			<div class="site-mobile-shade"></div>
+		</div>
+	</div>
+
+    @ScriptsEx.Render(Plugin.Instance.Name, "MainJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "IndexJs")
+    <script>
+        $('.loader-box').remove();
+    </script>
+  </body>
+</html>

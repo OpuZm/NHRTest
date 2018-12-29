@@ -1,0 +1,480 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    StallsCreateDTO Stall = ViewBag.Stall ?? new StallsCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+}
+<style>
+    .morecheck {
+        padding: 5px 5px 5px 0;
+    }
+</style>
+
+<div class="container-fluid">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#basic" aria-controls="home" role="tab" data-toggle="tab">菜品总单关联设置</a></li>
+        <li role="presentation"><a href="#special" aria-controls="profile" role="tab" data-toggle="tab">菜品详情单关联设置</a></li>
+    </ul>
+    <div id="List" class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="basic">
+            <form class="form-horizontal" id="MainForm">
+                <div class="btn-group" role="group" aria-label="...">
+                    @{
+                        if (Categorys != null)
+                        {
+                            <button type="button" data-id="0" class="btn btn-primary" v-on:click="CategoryMainChange(0)">全部</button>
+                            foreach (var item in Categorys)
+                            {
+                                <button type="button" data-id="@item.Id" class="btn btn-primary" v-on:click="CategoryMainChange(@item.Id)">@item.Name</button>
+                            }
+                        }
+                    }
+                </div>
+                <div class="">
+                    <div class="col-xs-12 bg-info">
+                        <label v-for="(pro,index) in mainPros" class="morecheck">
+                            <input type="checkbox" :value="pro.Id" name="project" v-model="pro.checked" class="checkbox-inline" v-on:change="AddMain(pro,index)" />{{pro.Name}}</label>
+                    </div>
+                </div>
+                <div class="form-group"><div class="col-xs-10"></div></div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+            </form>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="special">
+            <form class="form-horizontal" id="DetailForm">
+                <div class="btn-group" role="group" aria-label="...">
+                    @{
+                        if (Categorys != null)
+                        {
+                            <button type="button" data-id="0" class="btn btn-primary" v-on:click="CategoryDetailChange(0)">全部</button>
+                            foreach (var item in Categorys)
+                            {
+                                <button type="button" data-id="@item.Id" class="btn btn-primary" v-on:click="CategoryDetailChange(@item.Id)">@item.Name</button>
+                            }
+                        }
+                    }
+                </div>
+                <div class="">
+                    <div class="col-xs-12 bg-info">
+                        <label v-for="(pro,index) in detailPros" class="morecheck">
+                            <input type="checkbox" :value="pro.Id" name="project" v-model="pro.checked" class="checkbox-inline" v-on:change="AddDetail(pro,index)" />{{pro.Name}}
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group"><div class="col-xs-10"></div></div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+            </form>
+    </div>
+    </div>
+</div>
+
+@section FooterScripts{
+@ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                var vm = new Vue({
+                    el: '#List',
+                    data: {
+                        mainPros: [],
+                        mainSelects: [],
+                        detailPros: [],
+                        detailSelects: []
+                    },
+                    methods: {
+                        CategoryMainChange: function (category) {
+                            GetMainProjects(category);
+                        },
+                        AddMain: function (pro, index) {
+                            AddMainSelect(pro, index);
+                        },
+                        CategoryDetailChange: function (category) {
+                            GetDetailProjects(category);
+                        },
+                        AddDetail: function (pro, index) {
+                            AddDetailSelect(pro, index);
+                        },
+                        Delete: function (index, id) {
+
+                        }
+                    }
+                });
+
+
+                function AddMainSelect(pro, index) {
+                    var bol = true;
+                    $(vm.mainSelects).each(function (i, o) {
+                        if (o.Id == pro.Id) {
+                            vm.mainSelects.splice(i, 1);
+                            bol = false;
+                            return false;
+                        }
+                    })
+                    if (bol) {
+                        vm.mainSelects.push(pro);
+                    }
+                }
+
+
+                function GetMainProjects(category) {
+                    var para = { category: category };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetProjects",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                        	console.log(data);
+                            if (data.Data != null) {
+                                PushMainDown(data.Data);
+                            } else {
+                                layer.msg('不存在该类别菜品', {
+                                    time: 2000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+
+                function GetMainForms() {
+                    var para = { id: '@Stall.Id', billType: 2 };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Stalls/GetModel",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                        	console.log(data);
+                            if (data.Data != null) {
+                                PushMainInit(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushMainDown(data) {
+                    vm.mainPros = [];
+                    $(data).each(function (i, o) {
+                        if (!o.IsDelete) {
+                            var bol = true;
+                            $(vm.mainSelects).each(function (j, obj) {
+                                if (o.Id == obj.Id) {
+                                    o.checked = true;
+                                    bol = false;
+                                    return false;
+                                } else {
+                                    o.checked = false;
+                                    bol = true;
+                                }
+                            })
+                            vm.mainPros.push(o);
+                        }
+                    })
+                }
+
+                function PushMainInit(data) {
+                    $(vm.mainPros).each(function (i, o) {
+                        $(data.ProjectStallList).each(function (j, obj) {
+                            if (obj.R_Project_Id == o.Id) {
+                                Vue.set(o, 'checked', "true");
+                                o.checked = true;
+                                vm.mainSelects.push(o);
+                            }
+                        })
+                    })
+                }
+                
+                $("#MainForm").validate({
+                    rules: {
+
+                    },
+                    messages: {
+
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        SubmitMain();
+                    }
+                })
+
+                function SubmitMain() {
+                    var token = $('@Html.AntiForgeryToken()').val();
+                    var headers = {};
+                    headers["__RequestVerificationToken"] = token;
+                    var modules = [];
+                    $(vm.mainSelects).each(function (i, o) {
+                        modules.push({ R_Project_Id: o.Id, R_Stall_Id: '@Stall.Id', BillType: 2 });                        
+                    });
+
+                    var para = { id: '@Stall.Id', billType: 2, req: modules };
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Stalls/EditProject",
+                        dataType: "json",
+                        headers: headers,
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+
+                function AddDetailSelect(pro, index) {
+                    var bol = true;
+                    $(vm.detailSelects).each(function (i, o) {
+                        if (o.Id == pro.Id) {
+                            vm.detailSelects.splice(i, 1);
+                            bol = false;
+                            return false;
+                        }
+                    })
+                    if (bol) {
+                        vm.detailSelects.push(pro);
+                    }
+                }
+
+
+                function GetDetailProjects(category) {
+                    var para = { category: category };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetProjects",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDetailDown(data.Data);
+                            } else {
+                                layer.msg('不存在该类别菜品', {
+                                    time: 2000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function GetDetailForms() {
+                    var para = { id: '@Stall.Id', billType: 1 };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Stalls/GetModel",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDetailInit(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDetailDown(data) {
+                    vm.detailPros = [];
+                    $(data).each(function (i, o) {
+                        if (!o.IsDelete) {
+                            var bol = true;
+                            $(vm.detailSelects).each(function (j, obj) {
+                                if (o.Id == obj.Id) {
+                                    o.checked = true;
+                                    bol = false;
+                                    return false;
+                                } else {
+                                    o.checked = false;
+                                    bol = true;
+                                }
+                            })
+                            vm.detailPros.push(o);
+                        }
+                    })
+                }
+
+                function PushDetailInit(data) {
+                    $(vm.detailPros).each(function (i, o) {
+                        $(data.ProjectStallList).each(function (j, obj) {
+                            if (obj.R_Project_Id == o.Id) {
+                                Vue.set(o, 'checked', "true");
+                                o.checked = true;
+                                vm.detailSelects.push(o);
+                            }
+                        })
+                    })
+                }
+
+                $("#DetailForm").validate({
+                    rules: {
+
+                    },
+                    messages: {
+
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        SubmitDetail();
+                    }
+                });
+
+                function SubmitDetail() {
+                    var token = $('@Html.AntiForgeryToken()').val();
+                    var headers = {};
+                    headers["__RequestVerificationToken"] = token;
+                    var modules = [];
+                    $(vm.detailSelects).each(function (i, o) {
+                        modules.push({ R_Project_Id: o.Id, R_Stall_Id: '@Stall.Id', BillType: 1 });
+                    });
+
+                    var para = { id: '@Stall.Id', billType: 1, req: modules };
+                    
+                    console.log(para);
+                    return false;
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Stalls/EditProject",
+                        dataType: "json",
+                        headers: headers,
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                });
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                });
+
+                function InitPage() {
+                    GetMainProjects(0);
+                    GetDetailProjects(0);
+                    GetMainForms();
+                    GetDetailForms();
+                }
+
+                InitPage();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

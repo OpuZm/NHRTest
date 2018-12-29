@@ -1,0 +1,124 @@
+﻿
+@{
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "档口管理";
+}
+
+<div class="container-fluid">
+    <ol class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">
+        <li>首页</li>
+        <li>餐厅设施管理</li>
+        <li>档口管理</li>
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </ol>
+    <div id="toolbar" class="btn-group">
+        <button type="button" data-id="0" class="btn btn-default add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加</button>
+    </div>
+    <div class="page-container">
+        <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+    </div>
+</div>
+@section FooterScripts{
+<script type="text/javascript">
+        $(function () {
+            var pageJs = stalls.Create();
+            pageJs.init();
+        })
+
+        var stalls = {
+            Create: function () {
+                var bindModel = {};
+                var layindex;
+                var height = $(document).height() - 100;
+
+                var bindAction = function () {
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Stalls/GetStalls',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: true,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            return params;
+                        },//传递参数（*）
+                        sidePagination: "server",      //分页方式：client客户端分页，server服务端分页（*）
+                        pageNumber: 1,            //初始化加载第一页，默认第一页
+                        pageSize: 10,            //每页的记录行数（*）
+                        pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                        strictSearch: true,
+                        //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                        uniqueId: "ID",           //每一行的唯一标识，一般为主键列
+                        cardView: false,          //是否显示详细视图
+                        buttonsAlign: "left",
+                        exportDataType: "basic",
+                        columns: [{
+                            field: 'Name',
+                            title: '名称'
+                        }, {
+                            field: 'ProjectNum',
+                            title: '出菜数',
+                            sortable: true
+                        }, {
+                            field: 'Description',
+                            title: '描述信息'
+                        }, {
+                            field: 'action',
+                            title: '操作',
+                            formatter: controlEdit
+                        }]
+                    })
+
+                    function controlEdit(value, row, index) {
+                        var id = row["Id"];
+                        return new Array(
+                            "<a class='btn btn-default add' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>编辑</a>",
+                            "<a class='btn btn-default editPro' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>出菜设置</a>"
+                            ).join(" ");
+                    }
+
+                    $(document).on("click", ".add", function () {
+                        var id = $(this).attr("data-id");
+                        layer.open({
+                            type: 2,
+                            title: "档口编辑",
+                            area: ["800px", height+"px"],
+                            content: "/Res/Stalls/Edit?id="+id,
+                            maxmin: false
+                        });
+                    })
+
+                    $(document).on("click", ".editPro", function () {
+                        var id = $(this).attr("data-id");
+                        layer.open({
+                            type: 2,
+                            title: "出菜设置",
+                            area: ["800px", height + "px"],
+                            content: "/Res/Stalls/EditProject?id=" + id,
+                            maxmin: false
+                        });
+                    })
+                }
+
+                bindModel.init = function () {
+                    bindAction();
+                }
+
+                return bindModel;
+            }
+        }
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+</script>
+}
+
+

@@ -1,0 +1,50 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅分市选择</title>
+    @StylesEx.Render(Plugin.Instance.Name, "resetStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "elementStyle")
+    <style>
+    	html,body,#app{width:100%;height:100%;}
+    	.el-header {background: #393D49;padding: 5px 20px;color:#fff;text-align: center;}
+    	.main{height:100%;overflow: auto;padding:10px;}
+    	.Restaurants-item{border: 1px solid #ddd;border-top: 3px solid #999;padding: 10px;border-radius: 5px;margin-bottom: 20px;}
+    	.Restaurants-item h5{font-size:16px;height:30px;}
+    	[v-cloak] {  display: none;  }  
+    </style>
+</head>
+    <body>
+		<!--加载条-->
+		<div id="loading"><div class="layui-layer-content"></div></div>
+		
+        <div id="app" style="overflow: hidden;" v-loading.fullscreen.lock="fullscreenLoading" v-cloak>
+        	<el-container style="width:100%;height:100%;">
+			  	<el-header height="45">选择餐厅</el-header>
+			  	<el-container class="main">
+			  		<el-row :gutter="20" style="width:100%;">
+					  	<el-col :span="8" :xs="12" :sm="8" :md="6" :lg="4" :xl="3" v-for="(item, index) in RestaurantsData" :key="index">
+					  		<div class="grid-content Restaurants-item">
+					  			<h5>{{item.Name}}</h5>
+					  			<div class="">
+					  				<el-select v-model="item.IsDefaultValue" placeholder="请选择" style="width:calc(100% - 76px);" @@change="RestaurantsItemListChange($event,index)">
+		    							<el-option v-for="(Item, Index) in item.MarketList" :key="Index" :label="Item.label" :value="Item.Name"></el-option>
+		  							</el-select>
+					  				<el-button type="primary" @@click="chosenRestaurants(index)">确认</el-button>
+					  			</div>
+					  		</div>
+					  	</el-col>
+					</el-row>
+			  	</el-container>
+			</el-container>
+        </div>
+    </body>
+    @ScriptsEx.Render(FrameworkInfo.Name, "jqueryJS")
+    @ScriptsEx.Render(Plugin.Instance.Name, "vueJS")
+    @ScriptsEx.Render(Plugin.Instance.Name, "elementJS")
+    @ScriptsEx.Render(Plugin.Instance.Name, "FlatIndexJS")
+</html>

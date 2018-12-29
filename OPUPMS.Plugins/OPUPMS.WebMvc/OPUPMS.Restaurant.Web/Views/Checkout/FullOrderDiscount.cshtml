@@ -1,0 +1,51 @@
+﻿
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "全单折设置";
+    var discount = ViewBag.Discount;
+}
+
+<h2>全单折</h2>
+
+<div>
+    <!-- 此处回显要设置全单折的订单信息 -->
+</div>
+<div>
+
+    <table style="width:100%;">
+        <tbody>
+            <tr>
+                <td>折扣率：</td>
+                <td><input id="discountRate" name="discountRate" type="text" value="" oninput="clearNoNum(this.value)" /></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+<div style="text-align:center;">
+    <input type="button" value="确定" onclick="confirm_save()" />
+
+    <script type="text/javascript">
+        function confirm_save()
+        {
+            var discountRate = $("#discountRate").val();
+            if (!(discountRate >= @discount && discountRate <= 1)) {
+                //alert("折扣率取值必须是大于等于 @discount 且小于等于1的数字");
+                layer.alert("折扣率取值必须是大于等于 @discount 且小于等于1的数字");
+                return;
+            }
+
+            parent.全单折设置后的相关更新(discountRate);
+            
+        }
+
+        function clearNoNum(value) {
+            //只能输入两个小数
+            value = value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3');
+            $('#discountRate').val(value);
+        }
+    </script>
+</div>

@@ -1,0 +1,258 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ProjectCreateDTO Project = ViewBag.Project;
+}
+
+<div class="container">
+    @{
+        if (Project != null)
+        {
+            <form class="form-horizontal" id="SubmitForm">
+                <div id="SpeciModel" class="form-group">
+                    <div class="form-group">
+                        <div class="col-xs-10">
+                            <h2>名称:{{project.name}} 成本价:{{project.costprice}} 售价:{{project.price}}</h2>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>单位</th>
+                                    <th>倍率</th>
+                                    <th>成本价</th>
+                                    <th>售价</th>
+                                    <th>删除</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(detail,index) in details">
+                                    <td><input type="text" name="Unit" class="form-control" v-model="detail.Unit" /></td>
+                                    <td><input type="text" name="UnitRate" class="form-control" v-model="detail.UnitRate" v-on:change="Calculation(index)" /></td>
+                                    <td><input type="text" name="Price" class="form-control" v-model="detail.CostPrice" /></td>
+                                    <td><input type="text" name="Price" class="form-control" v-model="detail.Price" /></td>
+                                    <td><button type="button" data-id="0" class="btn btn-danger" v-on:click="Delete(index)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" v-on:click="Add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加</button></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div id="errorList" class="error"></div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+            </form>
+        }
+    }
+</div>
+@section FooterScripts{
+@ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var vm = new Vue({
+                    el: '#SpeciModel',
+                    data: {
+                        details: [],
+                        project: {
+                            name: "",
+                            price: 0,
+                            costprice:0
+                        }
+                    },
+                    methods: {
+                        Add: function (index) {
+                            this.details.push({ Unit: "", UnitRate: 1, Price: this.project.price, CostPrice: this.project.costprice });
+                        },
+                        Delete: function (index) {
+                            DeleteDetail(index);
+                        },
+                        Calculation: function (index) {
+                            this.details[index].Price = this.details[index].UnitRate * this.project.price;
+                            this.details[index].CostPrice = this.details[index].UnitRate * this.project.costprice;
+                        }
+                    }
+                })
+
+                var para = { id:'@ViewBag.Id' };
+                $.ajax({
+                    type: "get",
+                    url: "/Res/Project/GetModel",
+                    data: para,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    async: false,
+                    beforeSend: function (xhr) {
+                        layindex = layer.open({
+                            type: 3,
+                            shadeClose: false, //点击遮罩关闭层
+                        });
+                    },
+                    success: function (data, textStatus) {
+                        if (data.Data!=null) {
+                            PushDown(data.Data);
+                        } else {
+                            layer.msg('不存在此商品', {
+                                time: 2000
+                            });
+                        }
+                    },
+                    complete: function (XMLHttpRequest, textStatus) {
+                        layer.close(layindex);
+                    }
+                })
+
+                function PushDown(data) {
+                    vm.project.name = data.Name;
+                    vm.project.price = data.Price;
+                    vm.project.costprice = data.CostPrice;
+                    $(data.Details).each(function (i, o) {
+                        if (!o.IsDelete) {
+                            vm.details.push(o);
+                        }
+                    })
+                }
+
+                function DeleteDetail(index) {
+                    layer.confirm("确定要删除吗?", {
+                        btn:['确定','取消']
+                    }, function () {
+                        vm.details.splice(index, 1);
+                        layer.closeAll();
+                    })
+                }
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Unit: {
+                            required: true
+                        },
+                        UnitRate: {
+                            required: true,
+                            isFloatGteZero: true,
+                            isFloat:true
+                        },
+                        Price: {
+                            required: true,
+                            isFloatGteZero: true,
+                            isFloat: true
+                        }
+                    },
+                    messages: {
+                        Unit: {
+                            required: "单位不能为空"
+                        },
+                        UnitRate: {
+                            required: "倍率不能为空",
+                            isFloatGteZero: "倍率必须大于等于0",
+                            isFloat: "倍率必须为数字"
+                        },
+                        Price: {
+                            required: "价格不能为空",
+                            isFloatGteZero: "价格必须大于等于0",
+                            isFloat: "价格必须为数字"
+                        }
+                    },
+                    errorLabelContainer: "#errorList",
+                    wrapper: "div",
+                    errorPlacement: function (error, element) {
+                        console.log(JSON.stringify(error));
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var para = { cyxmId:'@ViewBag.Id', list: vm.details };
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Project/SpecificationSubmit",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                //parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                })
+
+                //function ValidateForm() {
+                //    return $("#SubmitForm").validate({
+                //        rules: {
+                //            Unit: {
+                //                required: true
+                //            },
+                //            UnitRate: {
+                //                isFloatGteZero: true
+                //            },
+                //            Price: {
+                //                isFloatGteZero: true
+                //            }
+                //        },
+                //        errorPlacement: function (error, element) {
+                //            error.appendTo(element.parent());
+                //        },
+                //        submitHandler: function (label) {
+                //        }
+                //    })
+                //}
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

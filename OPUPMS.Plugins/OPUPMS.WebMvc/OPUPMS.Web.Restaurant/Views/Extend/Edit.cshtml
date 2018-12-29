@@ -1,0 +1,151 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ExtendCreateDTO Extend = ViewBag.Extend ?? new ExtendCreateDTO();
+    var Category = ViewBag.Category;
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">类型:</label>
+            <div class="col-xs-10">
+                <select id="CyxmKzType" name="CyxmKzType" class="form-control">
+                    <option value="0">请选择</option>
+                    @{
+                        if (Category != null)
+                        {
+                            foreach (var item in Category)
+                            {
+                                <option value="@item.Key" @((int)Extend.CyxmKzType == item.Key ? "selected='selected'" : "")>@item.Value</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">名称:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@Extend.Name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Price" class="col-xs-2 control-label">价格:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="Price" name="Price" placeholder="请输入价格" value="@Extend.Price">
+            </div>
+            <label for="Unit" class="col-xs-2 control-label">单位:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="Unit" name="Unit" placeholder="请输入单位" value="@Extend.Unit">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Description" class="col-xs-2 control-label">描述:</label>
+            <div class="col-xs-10">
+                <textarea id="Description" name="Description" class="form-control" rows="10">@Extend.Description</textarea>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+        <input type="hidden" id="Id" name="Id" value="@Extend.Id" />
+    </form>
+</div>
+@section FooterScripts{
+@ScriptsEx.Render(Plugin.Instance.Name, "CkediterJs")
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Name: {
+                            required: true
+                        },
+                        CyxmKzType: {
+                            min:1
+                        },
+                        Price: {
+                            isFloatGteZero: true
+                        }
+                    },
+                    messages: {
+                        CyxmKzType: {
+                            min:"请选择类型"
+                        },
+                        Price: {
+                            isFloatGteZero:"价格必须大于等于0"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    //var description = editorElement.document.getBody().getHtml();
+                    //var para = { Id: '@Extend.Id', Name: $("#Name").val(), Description: $("#Description").val(), ServerRate: $("#ServerRate").val(), IsUpdate: $("#IsUpdate").is(":checked"), Restaurant: $("#Restaurant").val() };
+                    var para = $("#SubmitForm").serialize();
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Extend/Edit",
+                        dataType: "json",
+                        //contentType: "application/json; charset=utf-8",
+                        data: para,
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

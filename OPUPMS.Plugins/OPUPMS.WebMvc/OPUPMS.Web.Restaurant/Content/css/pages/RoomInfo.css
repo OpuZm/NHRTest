@@ -1,0 +1,32 @@
+.roominfo-user_item{width:24.5%;float: left;margin:0 0.25%;}
+
+.layui-input, .layui-select, .layui-textarea{height:32px;line-height: 32px;}
+
+
+.roominfo-user_item .media-left{width:18%;    margin-right: 2%;}
+.roominfo-user_item .media-body{width:77%;overflow: initial;float: left;}
+.roominfo-user_item .media-left img{width:100%;}
+.roominfo-user_item .media,.roominfo-user_item .media .media{overflow: initial;}
+.layui-collapse.jian{border:none;}
+.layui-collapse.jian .layui-colla-title{padding-right: 35px;background: none;border:none;}
+.layui-collapse.jian .layui-colla-title .layui-colla-icon{left: initial;right:15px;}
+.layui-collapse.jian .layui-colla-content{    padding: 10px 0 0 0;}
+
+.layui-form-item{margin-bottom: 5px;}
+.roominfo-user_h .media-object{width:100%;}
+.vipdata{ border-bottom: 1px dashed #ddd;}
+.roominfo_cz .layui-form-switch{margin-top: -1px;}
+.roominfo_cz .badge{padding:0;background: none;}
+.roominfo_cz li:hover{background-color: #e0f0f5;}
+
+.room-selector_nav { background: #efefef; height: 496px; padding: 0px; padding-top: 10px;}
+.room-selector_list li {  width: 5.3rem;  cursor: pointer;  font-style: 0.7rem;  float: left;  margin: 5px 0.25%;  text-align: center;  border: 1px solid #ccc;  border-radius: 4px;  padding: 5px;}
+.footer-btn_group {padding: 12px 15px;background: #fff;height: 60px;overflow: hidden;border-top: 1px solid #ddd;margin-top: 5px;position: absolute;bottom: 0px;width: 100%;left: 0;}
+.room-selector_list li:hover { border: 1px solid #23b7e5;}
+.room-screen_list a.active, .room-selector_list li.active { border: 1px solid #e87877!important; position: relative;}
+.room-screen_list a.active:after, .room-selector_list li.active:after { content: ""; width: 20px; height: 20px; background: url(/Images/icon-check.png); position: absolute; right: -1px; bottom: -1px;}
+
+
+
+
+

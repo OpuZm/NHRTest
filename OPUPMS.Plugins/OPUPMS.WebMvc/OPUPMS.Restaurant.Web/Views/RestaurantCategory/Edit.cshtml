@@ -1,0 +1,180 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = null;
+    RestaurantCreateDTO Restaurant = ViewBag.Restaurant ?? new RestaurantCreateDTO();
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅餐饮类别关联</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-form-checkbox{margin-bottom:10px;}
+    </style>
+</head>
+<body>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                <script id="SubmitForm_tpml" type="text/html">
+                	@Html.AntiForgeryToken()
+                	<blockquote class="label-title">{{d.Model.R_Restaurant_Name}}</blockquote>
+                	<div class="layui-row">
+                		{{#  layui.each(d.Categorys, function(index, item){ }}
+                		<input type="checkbox" name="{{item.Id}}" title="{{item.Name}}" class="itemCheckBox" lay-filter="isSelect" 
+                		{{# if(AlreadySelect[item.Id]){ }} checked {{# } }}
+                		>
+                		{{# }); }}
+                	</div>
+	                <div class="layui-row">
+	                    <div class="layer-btns-bottom">
+	                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+	                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+	                    </div>
+	                </div>
+                </script>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer','laytpl'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            form = layui.form,
+            laytpl = layui.laytpl;
+        
+        var RestaurantId = getUrlParam('id');
+        
+        
+        //初始化
+        $.ajax({
+            type: "post",
+            url: "/Res/RestaurantCategory/EditInit?restaurantId=" + RestaurantId,
+            dataType: "json",
+            //contentType: "application/json; charset=utf-8",
+            async: false,
+            beforeSend: function (XMLHttpRequest) {
+                layindex = layer.open({type: 3});
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            },
+            success: function (data, textStatus) {
+            	if(data){
+            		AlreadySelect = {}
+            		for(let i = 0 ;i < data.Model.CategoryIds.length;i++){
+            			AlreadySelect[data.Model.CategoryIds[i]] = data.Model.CategoryIds[i]
+            		}
+            		
+            		//渲染 更多操作按钮
+		            var getTpl = SubmitForm_tpml.innerHTML,
+		                view = document.getElementById('SubmitForm');
+		            laytpl(getTpl).render(data, function (html) {
+		                view.innerHTML = html;
+		                form.render();
+		            });
+		            
+		            var $Allcheckbox = $('<div style="position:absolute;bottom:4px;left:10px;"><input type="checkbox" name="isAllSelected" title="全选" id="isAllSelected" lay-filter="isAllSelected"></div>')
+			    	$('.layer-btns-bottom').append($Allcheckbox);
+			    	
+			    	if(data.Categorys.length == data.Model.CategoryIds.length)$Allcheckbox.find('input').prop('checked',true);
+			    	
+			    	form.render('checkbox');
+			    	
+			    	//全选监控
+			    	form.on('checkbox(isAllSelected)', function (data) {
+			    		var $Itemcheckbox = $('.layui-row .itemCheckBox')
+		                if (data.elem.checked == true) {//全选
+		                	$Itemcheckbox.prop("checked", true);
+		                } else {
+		                	$Itemcheckbox.prop("checked", false);
+		                }
+		                form.render('checkbox');
+		            });
+		            
+		            //单选监控
+		            form.on('checkbox(isSelect)', function (data) {
+		            	var isAllSelect = $('#isAllSelected');
+			    		var $Itemcheckbox = $('.layui-row .itemCheckBox')
+		                if (data.elem.checked == true && $Itemcheckbox.filter(':checked').length == $Itemcheckbox.length) {//全选
+		                	isAllSelect.prop("checked", true);
+		                	form.render('checkbox');
+		                } else if(isAllSelect.prop("checked")){
+		                	isAllSelect.prop("checked", false);
+		                	form.render('checkbox');
+		                }
+		            });
+            	}else{
+            		layer.alert(data.Message)
+            	}
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                layer.close(layindex);
+            }
+        });
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+        	var $Itemcheckbox = $('.layui-row .itemCheckBox').filter(':checked')
+        	if($Itemcheckbox.length == 0){
+        		layer.msg('餐厅餐饮分类至少要关联一个分类')
+        		return false;
+        	}
+            var params = data.field;
+            delete params['isAllSelected']
+            
+            var CategoryIds = [];
+            for( let i in params){
+            	if(i == '__RequestVerificationToken')continue
+            	CategoryIds.push(i)
+            }
+            
+            $.ajax({
+                type: "post",
+                url: "/Res/RestaurantCategory/Edit",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: {Id:0,R_Restaurant_Id:RestaurantId,CategoryIds:CategoryIds,__RequestVerificationToken:params.__RequestVerificationToken},
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+                    layindex = layer.open({
+                        type: 3,
+                        shadeClose: true
+                    });
+                },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                    	parent.layer.msg('提交完成')
+                    	var curr = parent.isEdIT ? parent.location.hash.replace('#!fenye=', '') : 1;
+			            parent.location.hash = '#!fenye=' + curr;
+                        parent.table.reload('table', {
+			                where: parent.para
+			                ,page: {
+							    curr: curr //重新从第 1 页开始
+							}
+			            });
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    layer.close(layindex);
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+</script>

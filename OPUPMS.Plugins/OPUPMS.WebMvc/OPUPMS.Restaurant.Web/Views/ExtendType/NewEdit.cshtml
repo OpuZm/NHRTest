@@ -1,0 +1,95 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+
+@{
+    Layout = null;
+    ExtendTypeCreateDTO ExtendType = ViewBag.ExtendType ?? new ExtendTypeCreateDTO();
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm" style="padding-right: 55px;">
+                @Html.AntiForgeryToken()
+                <div class="layui-row">
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" value="@ExtendType.Name">
+                        </div>
+                    </div>
+
+                    <div class="layer-btns-bottom">
+                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                    <input type="hidden" id="Id" name="Id" value="@ExtendType.Id" />
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer', 'layedit'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            form = layui.form;
+        var textarea = layedit.build('Description');
+
+        //监听 是否开启 库存按钮点击 ，显示库存输入框
+        form.on('checkbox(IsStock)', function (data) {
+            if (data.elem.checked == true) {
+                $('input#Stock').show();
+            } else {
+                $('input#Stock').hide();
+            }
+        });
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+            var textVal = layedit.getContent(textarea);
+            var params = data.field;
+            params.Description = textVal;
+            $.ajax({
+                type: "post",
+                url: "/Res/ExtendType/Edit",
+                dataType: "json",
+                data: params,
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+                    layindex = layer.open({type: 3});
+                },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+</script>
+

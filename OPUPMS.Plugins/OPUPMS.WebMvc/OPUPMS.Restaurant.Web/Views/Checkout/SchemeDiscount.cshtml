@@ -1,0 +1,199 @@
+﻿
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "SchemeDiscount";
+}
+
+
+@model OPUPMS.Domain.Restaurant.Model.Dtos.ReserveCreateDTO
+
+<div class="container-fluid">
+    <div class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">      
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </div>
+    <div id="toolbar" class="btn-group" style="display:none;">
+        <button type="button" data-id="0" class="btn btn-default add"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加</button>
+    </div>
+    <div class="page-container">
+        <div class="form-inline" style="display:none;">
+            <div class="form-group">
+                <label for="">名称:</label>
+                <input type="text" id="Name" name="Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="">餐厅:</label>
+                <input type="text" id="Restaurant" name="Restaurant" class="form-control" value="@Model.R_Restaurant_Id" />
+            </div>
+            <div class="form-group">
+                <label for="">分市:</label>
+                <input type="text" id="Market" name="Market" class="form-control"value="@Model.R_Market_Id"  />
+            </div>
+
+            <div class="form-group">
+                <label for="">开始时间:</label>
+                <input type="text" class="form-control datetimepicker" id="StartDate" name="StartDate">
+                <label for="">结束时间:</label>
+                <input type="text" class="form-control datetimepicker" id="EndDate" name="EndDate">
+            </div>
+            <div class="form-group">
+                <label for="">当前时间:</label>
+                <input type="text" class="form-control datetimepicker" id="CurrentDate" name="CurrentDate" value="@DateTime.Now.ToString()">              
+            </div>
+            <div class="form-group">
+                <label for="">订单创建时间:</label>
+                <input type="text" class="form-control datetimepicker" id="OrderCreateDate" name="OrderCreateDate" value="@Model.CreateDate">
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="Search()" class="btn btn-primary search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+            </div>
+        </div>
+        <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+    </div>
+
+
+@section FooterScripts{
+    <script type="text/javascript">
+        $(function () {
+            var pageJs = packages.Create();
+            pageJs.init();
+        })
+
+        var data;
+        var packages = {
+
+            Create: function () {
+                var bindModel = {};
+                var layindex;
+
+
+                var bindAction = function () {
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Discount/GetDiscountsForPay',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: true,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            params.Name = $("#Name").val();
+                            params.Restaurant = $("#Restaurant").val();
+                            params.StartDate = $("#StartDate").val();
+                            params.EndDate = $("#EndDate").val();
+                            params.OrderCreateDate = $("#OrderCreateDate").val();
+                            params.CurrentDate = $("#CurrentDate").val();
+                            params.IsEnable = true;
+                            return params;
+                        },//传递参数（*）
+                        sidePagination: "server",      //分页方式：client客户端分页，server服务端分页（*）
+                        pageNumber: 1,            //初始化加载第一页，默认第一页
+                        pageSize: 10,            //每页的记录行数（*）
+                        pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                        strictSearch: true,
+                        //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                        uniqueId: "ID",           //每一行的唯一标识，一般为主键列
+                        cardView: false,          //是否显示详细视图
+                        buttonsAlign: "left",
+                        exportDataType: "basic",
+                        columns: [{
+                            field: 'Name',
+                            title: '名称'
+                        }, {
+                            field: 'Restaurant',
+                            title: '餐厅'
+                        }, {
+                            field: 'Market',
+                            title: '分市'
+                        },
+                        //{
+                        //    field: 'Area',
+                        //    title: '区域',
+                        //},
+                        //{
+                        //    field: 'IsEnable',
+                        //    title: '是否启用',
+                        //    formatter: changeBool
+                        //},
+                        {
+                            field: 'StartDate',
+                            title: '开始时间',
+                        }, {
+                            field: 'EndDate',
+                            title: '结束时间',
+                        }, {
+                            field: 'action',
+                            title: '操作',
+                            formatter: controlEdit
+                        }]
+                        ,
+                        responseHandler: function (res) {
+                            //动态渲染表格之前获取有后台传递的数据时,用于获取出除去本身渲染所需的数据的额外参数
+                            //详见此函数参数的api                            
+                            data = res;
+                         
+                            return res;
+                        },
+                    })
+
+                    function controlEdit(value, row, index) {
+                        var id = row["Id"];
+                        return new Array(
+                            "<input type='button' name='selectedSchemal' class='btn btn-default add'  data-value='" + id + "' value='选择'  onclick='selectMe(this)' />"
+                        ).join(" ");
+                    }
+
+                    function changeBool(value, row, index) {
+                        return value ? "是" : "否";
+                    }
+
+                 
+
+                    $('.datetimepicker').datetimepicker({
+                        minView: "month", //选择日期后，不会再跳转去选择时分秒
+                        language: 'zh-CN',
+                        format: 'yyyy-mm-dd',
+                        todayBtn: 1,
+                        autoclose: 1,
+                    });
+
+                }
+
+                bindModel.init = function () {
+                    bindAction();
+                }
+
+                return bindModel;
+            }
+        }
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+
+        function Search() {
+            $("#tablist").bootstrapTable('refreshOptions', { pageNumber: 1 });
+        }
+
+        function selectMe(src)
+        {
+            var id=$(src).data("value");
+            $(data.rows).each(function () {             
+              
+                if (this.Id == id)
+                {
+                    parent.方案折设置后的相关更新(this);                               
+                    return false; //中断$().each
+                }
+               
+            });
+        }
+    </script>
+}
+
+

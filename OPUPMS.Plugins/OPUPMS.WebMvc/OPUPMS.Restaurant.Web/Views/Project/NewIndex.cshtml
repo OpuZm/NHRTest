@@ -1,0 +1,423 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "餐饮项目管理";
+    var Categorys = ViewBag.Categorys as List<AllCategoryListDTO>;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-form-switch{margin:0 10px;}
+    </style>
+</head>
+<body>
+    <header class="container-head" style="padding-top: 15px;">
+        <div class="layui-form">
+            <button type="button" class="layui-btn add layui-btn-normal" onclick="AddPackage('餐饮项目添加','',780);"><span class="layui-icon" style="font-size: 24px; color: #fff;">&#xe654;</span>添加</button>
+            <button type="button" class="layui-btn" onclick="isEnable(true)">批量启用</button>
+            <button type="button" class="layui-btn layui-btn-danger" onclick="isEnable(false)">批量禁用</button>
+            <div class="layui-form-item" style="float: right; padding-top: 5px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width: 60px;">类别选择</label>
+                    <div class="layui-input-inline">
+                        <select id="Category" name="Category" class="form-control" lay-search>
+                            <option value="0">类别选择</option>
+                            @{
+                                if (Categorys != null)
+                                {
+                                    foreach (var item in Categorys)
+                                    {
+                                   
+                                        <optgroup label="@item.Name">
+                                            @foreach (var childItem in item.ChildList)
+                                            {
+                                                <option value="@childItem.Id">@childItem.Name</option>
+                                            }
+                                        </optgroup>
+                       
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <label class="layui-form-label" style="width: 30px;">名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="Name" id="Name" autocomplete="off" class="layui-input">
+                    </div>
+                    <button class="layui-btn layui-btn-primary" style="float: left;" id="SearchSubmit">查询</button>
+                </div>
+            </div>
+        </div>
+    </header>
+	<div class="container" style="padding-right: 20px;">
+        <table id="table" lay-filter="table"></table>
+    </div>
+    <footer class="footer-copyright">
+        <img src="@Url.Content(Plugin.Instance.GetContentPath("Images/logo-footer.png"))" alt="">
+    </footer>
+</body>
+</html>
+
+<script type="text/html" id="bartable">
+	{{# if(d.IsEnable){ }}
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="disableEnable"> 禁用</a>
+    {{# }else{ }}
+    <a class="layui-btn layui-btn-sm" lay-event="Enable"> 启用</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-sm" lay-event="edit"><i class="iconfont">&#xe633;</i> 编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="ggEdit">规格设置</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="t-del" data-id="{{d.Id}}"><i class="layui-icon" style="margin:0">&#xe640;</i>删除</a>
+</script>
+
+<script type="text/html" id="IsOnSaleIcon">
+    {{#  if(d.IsOnSale==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+
+<script type="text/html" id="IsEnableIcon">
+    {{#  if(d.IsEnable==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+<script type="text/html" id="IsDiscountIcon">
+    {{#  if(d.IsDiscount==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+<script type="text/html" id="IsGiveIcon">
+    {{#  if(d.IsGive==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+<script type="text/html" id="IsRecommendIcon">
+    {{#  if(d.IsRecommend==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+<script type="text/html" id="IsCustomerIcon">
+    {{#  if(d.IsCustomer==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+<script type="text/html" id="IsStockIcon">
+    {{#  if(d.IsStock==true){ }}
+    <i class="layui-icon" style="color:#5FB878">&#xe618;</i>
+    {{#  }else{ }}
+
+    {{#  } }}
+</script>
+
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+
+	var isEdIT = false;
+	var para = {ListType: '1',Name : $('#Name').val() ,Category : $('#Category').val()};
+    layui.use(['element', 'table', 'layer'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+            table = layui.table;
+        var winw = $(window).width() - 400;
+        table.render({
+            elem: '#table' //指定原始表格元素选择器（推荐id选择器）
+            , url: "/Res/Project/GetProjects"
+            , where: para
+            , height: 'full-141' //容器高度
+            , request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            }
+            , response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            }
+            , cols: [[ //标题栏
+            	{checkbox: true, fixed: 'left'}
+                , { field: 'Id', title: 'ID', width: 65 }
+                , { field: 'Name', title: '名称', minWidth: 120 }
+                , { field: 'CostPrice', title: '成本价', width: 60,align: 'center'}
+                , { field: 'Price', title: '销售价', width: 60,align: 'center'}
+                , { field: 'Category', title: '类别', width: 60 ,align: 'center'}
+                , { field: 'Sorted', title: '排序', width: 40,align: 'center'}
+                , { field: 'TotalStalls', title: '总单档口', width: 160, align: 'center'}
+                , { field: 'DetailStalls', title: '详情单档口', width: 160, align: 'center'}
+                , { field: 'IsOnSale', title: '上架', width: 60, align: 'center', toolbar: '#IsOnSaleIcon' }
+                , { field: 'IsEnable', title: '启用', width: 60, align: 'center', toolbar: '#IsEnableIcon' }
+                , { field: 'IsDiscount', title: '可打折', width: 60, align: 'center', toolbar: '#IsDiscountIcon' }
+                , { field: 'IsGive', title: '可赠送', width: 60, align: 'center', toolbar: '#IsGiveIcon' }
+                , { field: 'IsRecommend', title: '推荐', width: 60, align: 'center', toolbar: '#IsRecommendIcon' }
+                , { field: 'IsCustomer', title: '自定义', width: 60, align: 'center', toolbar: '#IsCustomerIcon' }
+                , { field: 'IsStock', title: '使用库存', width: 60, align: 'center', toolbar: '#IsStockIcon' }
+                , { field: 'Stock', title: '库存', width: 80 ,align: 'center'}
+                , { field: 'ID', title: '操作', width: 300, toolbar: '#bartable',fixed: 'right' }
+            ]]
+            , even: true
+            , page: {
+            	hash: 'fenye'
+            }
+            , skin : 'line'
+            , limits: [5, 10, 15, 20]
+            , limit: 10 //每页默认显示的数量
+            , done: function (res, curr, count) {
+				isEdIT = false;
+				console.log(res)
+            }
+        });
+
+
+        //监听工具条
+        table.on('tool(table)', function (obj) {
+        	console.log(obj)
+            var data = obj.data;
+            var id = data.Id;
+            if (obj.event === 'edit') {
+            	isEdIT = true;
+//              AddPackage('餐饮项目编辑',id,'80%');
+                
+                layer.open({
+				    type: 2,
+				    anim: -1,
+				    title: '餐饮项目编辑',
+				    skin: 'layer-header', 
+				    shade: 0.8,
+				    area: ['80%', '80%'],
+				    content: "/Res/Project/NewEdit?id="+id,
+				    end : function(){
+				    	table.reload('table', {
+			                where: para
+			                ,page: {
+			                	hash: 'fenye',
+							    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+							}
+			            });
+				    }
+			    }); 
+            } else if (obj.event === 'ggEdit') {
+            	isEdIT = true;
+                layerBox('/Res/Project/NewSpecification', id, '规格设置编辑',500);
+            }else if(obj.event === 't-del'){
+	        	layer.confirm('确定要删除', {
+					icon: 7, title:'提示',
+			        btn: ['确定', '取消'] //按钮
+			    }, function (index) {
+			        $.ajax({
+			            type: "post",
+			            url: '/Res/Project/IsDelete',
+			            dataType: "json",
+			            //contentType: "application/json; charset=utf-8",
+			            data: {id:id},
+			            async: false,
+			            beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+			            success: function (data, textStatus) {
+			                if (data["Data"] == true) {
+			                	//如果当前页只有一条并且即将删除
+			                	if($('#table').next().find('.layui-table-body tr').length == 1){
+                                	var curr = location.hash.replace('#!fenye=', '');
+                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                                }
+								table.reload('table', {
+					                where: para
+					                ,page: {
+									    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+									}
+					            });
+								layer.close(index);
+			                    layer.msg("删除成功");
+			                } else {
+			                    layer.alert(data["Message"]);
+			                }
+			            }
+			        });
+			    }, function (index) {
+			        layer.close(index);
+			    });
+	        }else if( obj.event == 'Enable' || obj.event == 'disableEnable'){
+	        	var confirmText = obj.event == 'Enable' ? '启用' : '禁用'
+	        	layer.confirm('确定要' + confirmText, {
+					icon: 7, title:'提示',
+			        btn: ['确定', '取消'] //按钮
+			    }, function (index) {
+			        $.ajax({
+			            type: "post",
+			            url: '/Res/Project/IsEnable',
+			            dataType: "json",
+			            //contentType: "application/json; charset=utf-8",
+			            data: {ids:[id],enable:obj.event == 'Enable'},
+			            async: false,
+			            beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+			            success: function (data, textStatus) {
+			                if (data["Data"] == true) {
+			                	//如果当前页只有一条并且即将删除
+			                	if($('#table').next().find('.layui-table-body tr').length == 1){
+                                	var curr = location.hash.replace('#!fenye=', '');
+                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                                }
+								table.reload('table', {
+					                where: para
+					                ,page: {
+									    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+									}
+					            });
+								layer.close(index);
+			                    layer.msg(confirmText + "成功");
+			                } else {
+			                	layer.close(index);
+			                    data["Message"] && layer.alert(data["Message"]);
+			                }
+			            }
+			        });
+			    }, function (index) {
+			        layer.close(index);
+			    });
+	        }
+        });
+
+        //监听排序点击
+        table.on('sort(table)', function (obj) {
+            table.reload('table', {
+                initSort: obj
+                , where: { //请求参数
+                    ListType: '1'
+                    , sort: obj.field //排序字段
+                    , order: obj.type //排序方式
+                }
+            });
+        });
+        
+
+        //select条件筛选
+        $('#SearchSubmit').click(function () {
+            para.Name =  $('#Name').val();
+            para.Category =  $('#Category').val();
+            var curr = isEdIT ? location.hash.replace('#!fenye=', '') : 1;
+            location.hash = '#!fenye=' + curr
+            table.reload('table', {
+                where: para
+                ,page: {
+				    curr: curr //重新从第 1 页开始
+				}
+            });
+        });
+        
+    });
+    
+    
+    // 批量启用  禁用
+    function isEnable(type){
+    	var checkStatus = table.checkStatus('table')
+    	var ids = [];
+    	var confirmText = type ? '启用' : '禁用'
+    	
+    	if(checkStatus.data.length == 0){
+    		layer.msg('请选择需要' + confirmText + '的项目');
+    		return false;
+    	}
+    	
+    	for(var i=0;i < checkStatus.data.length;i++){
+    		ids.push(checkStatus.data[i].Id)
+    	}
+    	
+    	layer.confirm('确定要' + confirmText, {
+			icon: 7, title:'提示',
+	        btn: ['确定', '取消'] //按钮
+	    }, function (index) {
+	        $.ajax({
+	            type: "post",
+	            url: '/Res/Project/IsEnable',
+	            dataType: "json",
+	            //contentType: "application/json; charset=utf-8",
+	            data: {ids:ids,enable:type},
+	            async: false,
+	            beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+	            success: function (data, textStatus) {
+	                if (data["Data"] == true) {
+	                	//如果当前页只有一条并且即将删除
+	                	if($('#table').next().find('.layui-table-body tr').length == 1){
+                        	var curr = location.hash.replace('#!fenye=', '');
+                        	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+                        }
+						table.reload('table', {
+			                where: para
+			                ,page: {
+							    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+							}
+			            });
+						layer.close(index);
+	                    layer.msg(confirmText + "成功");
+	                } else {
+	                	layer.close(index);
+	                    data["Message"] && layer.alert(data["Message"]);
+	                }
+	            }
+	        });
+	    }, function (index) {
+	        layer.close(index);
+	    });
+    }
+    
+    
+    function AddPackage (title,id,h) {
+    	layer.open({
+		    type: 2,
+		    anim: -1,
+		    title: title,
+		    skin: 'layer-header', 
+		    shade: 0.8,
+		    area: ['80%', '80%'],
+		    content: "/Res/Project/NewEdit?id="+id,
+		    end : function(){
+		    	table.reload('table', {
+	                where: para
+	                ,page: {
+	                	hash: 'fenye',
+					    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+					}
+	            });
+		    }
+	    }); 
+    }
+</script>

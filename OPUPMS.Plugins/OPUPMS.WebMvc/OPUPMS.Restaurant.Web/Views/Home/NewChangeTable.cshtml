@@ -1,0 +1,370 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "转台";
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>转台</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.Panel-side .MealTable-lists li{height:65px;}
+    </style>
+</head>
+<body>
+
+    <div class="layui-form" action="">
+        <div class="StartDesk-form flex-item" style="padding-left: 10px;">
+            <blockquote class="label-title">选择转台的菜品</blockquote>
+            <div class="MealTable-lists ">
+                <ul id="OrderTableProjects_view">
+                    <script id="OrderTableProjects_tpml" type="text/html">
+                        {{#  layui.each(d, function(index, item){ }}
+                            {{# var jnum=0; if(item.OrderDetailRecordCount){   }}
+	                                {{#  layui.each(item.OrderDetailRecordCount, function(index, item){ }}
+	                                   {{#  if(item.CyddMxCzType!=3){ jnum+=item.Num }} {{#  } }}
+	                                {{#  }); }}
+                            {{#  }; }}
+                        {{#  if(item.Num-jnum > 0){   }}
+                        <li data-id="{{ item.Id }}">
+                            <div class="MealTable-head flex">
+                                <span class="item MealTable-number flex-item">{{ item.R_Project_Id }}</span>
+                                <span class="item MealTable-time tr">￥{{ item.Price }}</span>
+                            </div>
+                            <div class="MealTable-title" style="line-height: 30px;height: 30px;font-size:16px;">
+                                {{ item.ProjectName }}
+                            </div>
+                            <div class="layui-btn-group add_minus" style="margin: 7px 0 0 5px;position: absolute;z-index: 100;">
+                                <a class="layui-btn layui-btn-primary layui-btn-sm">
+                                    <i class="layui-icon">-</i>
+                                </a>
+                                <input type="text" style="width: 49px; height:30px;padding: 0;" min="0" max="{{ item.Num-jnum }}" value="{{ item.Num-jnum }}" class="layui-btn layui-btn-primary layui-btn-small" />
+                                <a class="layui-btn layui-btn-primary layui-btn-sm">
+                                    <i class="layui-icon">+</i>
+                                </a>
+                            </div>
+                        </li>
+                        {{#  }; }}
+                        {{#  }); }}
+                    </script>
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- ▲开台表单 -->
+    <!-- ▼右侧 添加餐台 -->
+    <div class="Panel-side" style="top:0;">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="height:calc(100% - 20px);">
+            <div class="ClassTab-head">
+                <blockquote class="label-title">选择转入的桌台</blockquote>
+            </div>
+            <div class="MealTable-lists" style="height:calc(100% - 20px);">
+                <ul id="Tables_view" style="height: calc(100% - 65px);overflow-y: auto;">
+                    <script id="Tables_tpml" type="text/html">
+                        {{#  layui.each(d, function(index, item){ }}
+                           
+                        <li id="Table_{{ item.Id }}" data-id="{{ item.Id }}"  data-areaId="{{ item.AreaId }}" {{#  if(item.CurrentOrderList.length == 1 && item.CurrentOrderList[0].IsLock == true){  }} class="disabled" {{#  }; }}>
+                            <a href="javascript:void(0);">
+                                <div class="MealTable-head flex">
+                                    <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                                    {{#  if(item.CurrentOrderList.length == 1 && item.CurrentOrderList[0].IsLock == true){  }}
+                                        <span class="item tr flex-item">锁定</span>
+                                    {{#  }; }}
+                                </div>
+                                <div class="MealTable-title">
+                                    {{ item.Name }}
+                                </div>
+                                {{# if(item.CurrentOrderList.length > 1){ }}
+		                            <div class="MealTable-footer flex">
+			                       	 	<span class="MealTable-price">{{ item.CurrentOrderList.length }} 个订单</span>
+					               	</div>
+				               	{{# } }}
+                            </a>
+                        </li>
+                        {{#  }); }}
+                    </script>
+                </ul>
+            </div>
+            <div class="actions-box">
+
+                <button onclick="Tablesdata()" class="layui-btn layui-btn-normal layui-btn-big">确定</button>
+                <a href="javascript:void(0);" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));" class="layui-btn layui-btn-primary layui-btn-big">取消</a>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- ▲右侧 添加餐台 -->
+    </div>
+
+
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var inidata;
+        var thisOrderTableId = '';
+        var thisTableArr = '';
+        var ProjectsArr = [];
+        var chat = $.connection.systemHub;
+        chat.hubName = 'systemHub';
+        chat.connection.start();
+        layui.use(['element', 'form', 'laytpl'], function () {
+            var element = layui.element,
+                form = layui.form,
+                laytpl = layui.laytpl;
+            orderTableId = getUrlParam('orderTableId');
+            restaurantId = getUrlParam('restaurantId');
+
+            $.ajax({
+                url: "/Res/Project/InitChangeTableInfo",
+                data: { restaurantId: restaurantId, orderTableId: orderTableId },
+                type: "post",
+                dataType: "json",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data) {
+                    inidata = data;
+                    //渲染 可选桌台
+                    var getTpl = Tables_tpml.innerHTML
+                        , view = document.getElementById('Tables_view');
+                    laytpl(getTpl).render(inidata.Tables, function (html) {
+                        view.innerHTML = html;
+                    });
+
+                    //渲染 可选菜品
+                    var getTpl = OrderTableProjects_tpml.innerHTML
+                        , view = document.getElementById('OrderTableProjects_view');
+                    laytpl(getTpl).render(inidata.OrderTableProjects, function (html) {
+                        view.innerHTML = html;
+                    });
+
+                    //监听数量加减的点击
+                    $('#OrderTableProjects_view').delegate('.add_minus a', 'click', function (event) {
+                        event.stopPropagation();//阻止冒泡
+                        var aindex = $(this).index();
+                        var threshold = 0.5;
+
+                        if (aindex == 0) {//减
+                            var inputdom = $(this).next('input');
+                            var newval = parseFloat(inputdom.val()) - threshold;
+                        } else if (aindex == 2) {//加
+                            var inputdom = $(this).prev('input');
+                            var newval = parseFloat(inputdom.val()) + threshold;
+                        }
+                        var min = parseFloat(inputdom.attr('min'));
+                        var max = parseFloat(inputdom.attr('max'));
+                        if (newval && newval > min && newval <= max) {
+                            inputdom.val(newval);
+                        }
+                    })
+
+                    //监听数量的输入是否正确
+                    $('.add_minus input').blur(function (e) {
+
+                        var value = parseFloat($(this).val());
+                        var min = parseFloat($(this).attr('min'));
+                        var max = parseFloat($(this).attr('max'));
+                        if (!isNaN(value)) {
+                            if (!value || value < min || value > max) {
+                                layer.msg('输入错误!');
+                                $(this).val(max);
+                                return false;
+                            }
+                        } else {
+                            layer.msg('请输入数字!');
+                            $(this).val(max);
+                            return false;
+                        }
+                    })
+
+                    //菜品的选中--多选
+                    $('#OrderTableProjects_view').delegate('li', 'click', function (event) {
+                        var thisli = $(this);
+                        if (thisli.hasClass('checked')) {
+                            thisli.removeClass('checked');
+                        } else {
+                            thisli.addClass('checked');
+                        }
+
+                    })
+
+
+                    //桌台的选中--单选
+                    $('#Tables_view').delegate('li', 'click', function (event) {
+                    	if($(this).hasClass('disabled')){
+                    		return false;
+                    	}
+                        $(this).addClass('layui-this').siblings('li').removeClass('layui-this');
+                    })
+
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                }
+            });
+        })
+
+        //提交数据
+        function Tablesdata() {
+        	
+            TableChecked = $('#Tables_view li.layui-this');
+            ProjectsChecked = $('#OrderTableProjects_view li.checked');
+            if (TableChecked.length < 1) {
+                layer.msg('请选择要转入的桌台!');
+                return false;
+            }
+            if (ProjectsChecked.length < 1) {
+                layer.msg('请选择要转出的菜品!');
+                return false;
+            }
+            //取得选中的菜品数组
+
+            for (var i = 0; i < ProjectsChecked.length; i++) {
+                var itemId = parseFloat(ProjectsChecked.eq(i).attr('data-id'));
+                var itemNum = parseFloat(ProjectsChecked.eq(i).find('.add_minus').find('input').val());
+                for (var j = 0; j < inidata.OrderTableProjects.length; j++) {//循环菜品
+                    if (itemId == inidata.OrderTableProjects[j].Id) {
+                        inidata.OrderTableProjects[j].Num = parseFloat(itemNum);
+                        ProjectsArr.push(inidata.OrderTableProjects[j]);
+                    }
+                }
+            }
+
+            //获取桌台的 订单台号id
+            var TableId = TableChecked.attr('data-id');
+			//获得选中桌台数据
+            for (var i = 0; i < inidata.Tables.length; i++) {
+                if (TableId == inidata.Tables[i].Id) {
+                    thisTableArr = inidata.Tables[i];
+                }
+            }
+
+			//单个订单
+            if (thisTableArr.CurrentOrderList.length == 1) {
+                thisOrderTableId = thisTableArr.CurrentOrderList[0].Id;
+                GetTablesdata();
+            } else {//选中台多个订单
+                var aHtml = "";
+                for (var i = 0; i < thisTableArr.CurrentOrderList.length; i++) {
+                	var orderTableId = thisTableArr.CurrentOrderList[i].Id;
+                	var $class= thisTableArr.CurrentOrderList[i].IsLock ? 'IsLock' : '';
+                    aHtml += '<li data-id="'+ orderTableId +'" class="'+$class+'"><a href="javascript:;">'
+                        + '<h4>单号：' + thisTableArr.CurrentOrderList[i].OrderNo;
+                    if($class !='')aHtml += "<span class='LockTextColor'>( 锁定 )</span>"
+                    aHtml += '<span class="time">时间：' + thisTableArr.CurrentOrderList[i].CreateDate + '</span></h4><p>人数：' + thisTableArr.CurrentOrderList[i].PersonNum;
+                        
+                    if(thisTableArr.CurrentOrderList[i].ContactPerson)aHtml += '<strong>联系人：' + thisTableArr.CurrentOrderList[i].ContactPerson  + '</strong>'
+                    
+                    if(thisTableArr.CurrentOrderList[i].ContactTel)aHtml += '<strong>电话：' + thisTableArr.CurrentOrderList[i].ContactTel  + '</strong>'
+                    
+                    if($class ==''){
+                    	aHtml += '<span>选中订单</span></p></a></li>';
+                    }else{
+                    	aHtml += '</p></a></li>';
+                    }
+                }
+                layer.open({
+                    type: 1,
+                    title: "选择操作订单",
+                    area: ["600px", "500px"],
+                    content: '<ul class="chosen-order">' + aHtml + '</ul>',
+                    maxmin: false,
+                    success: function(layero, index){
+                    	layero.find('li').on('click',function(){
+                    		var id = $(this).attr('data-id');
+                    		var $index = $(this).index();
+                    		
+                    		if(thisTableArr.CurrentOrderList[$index].IsLock){
+                    			layer.msg('该订单已被锁定，不能进行操作');
+                    			return false;
+                    		}
+                    		
+                    		if(thisTableArr.CurrentOrderList[$index].IsControl){
+                    			parent.layer.confirm('该桌台（ '+thisTableArr.Name+' ）中的第'+($index + 1)+'个订单('+thisTableArr.CurrentOrderList[$index].OrderNo+')正在被操作,是否确认转台?', {icon: 7, title:'提示',btn: ['确认', '取消']}, function(z){
+                    				thisOrderTableId = id;
+                    				parent.layer.close(z);
+                    				GetTablesdata();
+                    			});
+                    		}else{
+                    			parent.layer.confirm('是否确认转台到桌台（ '+thisTableArr.Name+' ）中的第'+($index + 1)+'个订单('+thisTableArr.CurrentOrderList[$index].OrderNo+')？', {icon: 3, title:'提示',btn: ['确认', '取消']}, function(z){
+									parent.layer.close(z);
+									thisOrderTableId = id;
+								    GetTablesdata();
+								});
+                    		}
+                    	})
+                    }
+                });
+            }
+
+        }
+
+        function NewthisOrderTableId(id) {
+            
+            layer.confirm('确认到该订单吗？', {
+			  btn: ['确认','取消'] //按钮
+			}, function(){
+				thisOrderTableId = id;
+			    GetTablesdata();
+			}, function(){
+			});
+            
+        }
+
+        function GetTablesdata() {
+            var para = { req: ProjectsArr, orderTableId: thisOrderTableId };
+            $.ajax({
+                type: "post",
+                url: "/Res/Home/ChangeProjectTable",
+                data: JSON.stringify(para),
+                //headers: headers,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                beforeSend: function (xhr) {
+                    layindex = layer.open({type: 3});
+                },
+                success: function (data, textStatus) {
+                    if (data.Data == true) {
+                        $.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                        })
+                        layer.alert("提交成功", function () {
+                        	layindex = layer.open({type: 3});
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));
+                            parent.location.reload();
+                        })
+                    }
+                    else {
+                        layer.alert(data.Message);
+                    }
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    layer.close(layindex);
+                }
+            })
+
+        }
+
+
+
+    </script>
+
+</body>
+</html>

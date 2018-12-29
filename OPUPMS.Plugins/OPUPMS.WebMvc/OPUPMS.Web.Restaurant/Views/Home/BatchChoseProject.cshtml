@@ -1,0 +1,567 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "选择餐饮项目";
+    string OrderTableIds = ViewBag.OrderTableIds;
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+}
+@section Styles{
+    <style>
+        .list-group-item {
+            max-height: 50px;
+            padding: 5px;
+        }
+
+        .li-margin-5 {
+            margin: 5px 10px 5px 10px;
+            cursor: pointer;
+        }
+
+        .list-group li {
+            text-overflow: ellipsis;
+            word-break: break-all;
+            overflow: hidden;
+        }
+    </style>
+}
+<div class="container-fluid">
+    <form class="form-horizontal" id="SubmitForm">
+        <div id="ProjectList">
+            <div class="btn-group" role="group" aria-label="...">
+                @{
+                    if (Categorys.Any())
+                    {
+                        <button type="button" data-id="0" class="btn btn-primary" v-on:click="CategoryChange(0)">全部</button>
+                        foreach (var item in Categorys)
+                        {
+                            <button type="button" data-id="@item.Id" class="btn btn-primary" v-on:click="CategoryChange(@item.Id)">@item.Name</button>
+                        }
+                    }
+                }
+            </div>
+            <div class="form-group">
+                <div class="col-xs-9 bg-info">
+                    <ul class="list-group" style="margin:0 0 0 0;">
+                        <li v-for="(pro,index) in CategoryChange(category)" v-bind:class="pro.Class" v-on:click="Add(pro,index)">
+                            {{pro.ProjectName}}({{pro.Unit}}) <span class="glyphicon glyphicon-yen btn-sm text-danger">{{pro.Price}}</span><span class="pull-right glyphicon glyphicon-ok" v-show="pro.Checked"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-3">
+                    <div class="form-group text-danger" style="margin-bottom:0px;">
+                        <h4>已选:{{selects.length}} 总价:{{totalPrice}}</h4>
+                    </div>
+                    <div class="form-group text-primary">
+                        <ul class="list-group">
+                            <li class="list-group-item" v-for="(sel,index) in selects">
+                                <span v-on:click="ShowExtend(sel.Cyxm,index)" style="cursor:pointer;" v-if="sel.Id<=0">{{sel.ProjectName}} ({{sel.Unit}})</span>
+                                <span v-else>{{sel.ProjectName}} ({{sel.Unit}})</span>
+
+                                <span v-if="sel.Id>0">*{{sel.Num}}</span>
+                                <input v-else type="number" v-model="sel.Num" class="form-control text-left" style="width:60px; display:inline-block" v-on:change="GetTotal()" min="0" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
+                                <span v-if="sel.Id>0" class="small glyphicon glyphicon-time">{{sel.StrTime}}</span>
+                                <span v-if="sel.ExtendCount==true">特殊:<span class="glyphicon glyphicon-yen btn-sm text-danger">{{sel.ExtendTotal}}</span></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-group text-center">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                操作 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li v-on:click="Control"><a href="#" control="1">落单打厨</a></li>
+                                <li v-on:click="Control"><a href="#" control="2">落单不打厨</a></li>
+                                <li v-on:click="Control"><a href="#" _href="ChangeTable" control="3">菜品转台</a></li>
+                                <li v-on:click="Control"><a href="#" _href="UpProject" control="4">起菜</a></li>
+                                <li v-on:click="Control"><a href="#" _href="CallProject" control="5">催菜</a></li>
+                                <li v-on:click="Control"><a href="#" control="6">打厨单</a></li>
+                                <li v-on:click="Control"><a href="#" _href="ChoseTable" control="7">多桌点餐</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-default closeAll" type="button">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ChangeTable" style="display:none;">
+                <ul class="list-group">
+                    <li class="list-group-item" v-for="(pro,index) in GetSelected">
+                        {{sel.ProjectName}} ({{sel.Unit}})
+                        <input type="number" v-bind:max="pro.Num" v-model="pro.Num" class="form-control text-left" style="width:60px; display:inline-block" min="1" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
+                    </li>
+                </ul>
+            </div>
+            <div id="UpProject" style="display:none;">
+
+            </div>
+            <div id="CallProject" style="display:none;">
+
+            </div>
+            <div id="ChoseTable" style="display:none;">
+
+            </div>
+            <div id="ProjectExtend" class="container" style="display:none;">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#basic" aria-controls="home" role="tab" data-toggle="tab">特殊要求</a></li>
+                    @*<li role="presentation">
+                            <a href="javascript:void(0);" aria-controls="home" role="tab" data-toggle="tab">划菜</a>
+                        </li>*@
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="basic">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:20%">类型</th>
+                                    <th>选项</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>做法:</td>
+                                    <td>
+                                        <ul class="list-group" style="margin:0 0 0 0;">
+                                            <li v-for="(extend,index) in GetExtends(1)" v-on:click="AddExtend(extend,index)" v-bind:class="extend.Class">{{extend.ProjectExtendName}}<span v-if="extend.Unit!=''">/{{extend.Unit}}</span> <span class="glyphicon glyphicon-yen btn-sm text-danger">{{extend.Price}}</span><span class="pull-right glyphicon glyphicon-ok" v-show="extend.Checked"></span></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>要求:</td>
+                                    <td>
+                                        <ul class="list-group" style="margin:0 0 0 0;">
+                                            <li v-for="(extend,index) in GetExtends(2)" v-on:click="AddExtend(extend,index)" v-bind:class="extend.Class">{{extend.ProjectExtendName}}<span v-if="extend.Unit!=''">/{{extend.Unit}}</span> <span class="glyphicon glyphicon-yen btn-sm text-danger">{{extend.Price}}</span><span class="pull-right glyphicon glyphicon-ok" v-show="extend.Checked"></span></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>配菜:</td>
+                                    <td>
+                                        <ul class="list-group" style="margin:0 0 0 0;">
+                                            <li v-for="(extend,index) in GetExtends(3)" v-on:click="AddExtend(extend,index)" v-bind:class="extend.Class">{{extend.ProjectExtendName}}<span v-if="extend.Unit!=''">/{{extend.Unit}}</span> <span class="glyphicon glyphicon-yen btn-sm text-danger">{{extend.Price}}</span><span class="pull-right glyphicon glyphicon-ok" v-show="extend.Checked"></span></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group text-center">
+                            <button class="btn btn-primary" type="button" v-on:click="SubmitExtend">提交</button>
+                            <button class="btn btn-default clientCloseAll" type="button">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    <script>
+        $(function () {
+            var pageJs = editJs.Create();
+            pageJs.init();
+        })
+
+        var editJs = {
+            Create: function () {
+                var editor = {};
+                var layindex;
+
+                var bindAction = function () {
+                    var width = $(document).width() - 100;
+                    var height = $(document).height() - 100;
+
+                    var vm = new Vue({
+                        el: '#ProjectList',
+                        data: {
+                            pros: [],
+                            selects: [],
+                            totalPrice: 0,
+                            category: 0,
+                            projectExtend: [],
+                            extendIndex: 0,
+                            isExtend:false
+                        },
+                        methods: {
+                            CategoryChange: function (category) {
+                                this.category = category;
+                                if (category > 0) {
+                                    var res = [];
+                                    $(this.pros).each(function (i, o) {
+                                        if (o.Category == category) {
+                                            res.push(o);
+                                        }
+                                    })
+                                    return res;
+                                }
+                                else {
+                                    return this.pros;
+                                }
+                            },
+                            Add: function (pro, index) {
+                                AddSelect(pro, index);
+                            },
+                            GetTotal: function () {
+                                GetTotal();
+                            },
+                            GetSelected: function () {
+                                return this.selects.filter(function (obj) {
+                                    return obj.Id > 0;
+                                })
+                            },
+                            ShowExtend: function (cyxm, index) {
+                                this.extendIndex = index;
+                                ShowExtend(cyxm);
+                            },
+                            AddExtend:function(pro,index){
+                                AddExtend(pro, index);
+                            },
+                            GetExtends:function(type){
+                                if (type>0) {
+                                    return this.projectExtend.filter(function (obj) {
+                                        return obj.ExtendType == type;
+                                    })
+                                }
+                            },
+                            SubmitExtend:function(){
+                                SubmitExtend();
+                            },
+                            HasExtend:function(type,obj){
+                                HasExtend(type,obj);
+                            },
+                            ExtendTotal:function(type,obj){
+                                ExtendTotal(type,obj);
+                            },
+                            Control: function (event) {
+                                var obj=$(event.target)
+                                var control = $(obj).attr("control");
+                                if (control == 1 || control == 2 || control == 6) {
+                                    switch (control) {
+                                        case "1":
+                                            OrderPrint(true);
+                                            break;
+                                        case "2":
+                                            OrderPrint(false);
+                                            break;
+                                        case "6":
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                } else {
+                                    var href = "#" + $(obj).attr("_href");
+                                    layer.open({
+                                        type: 1,
+                                        title:"菜品转台选择",
+                                        area: [width+"px", height+"px"],
+                                        shadeClose: true, //点击遮罩关闭
+                                        content: $(href)
+                                    });
+                                }
+                            }
+                        }
+                    })
+
+                    function HasExtend(type,obj) {
+                        var res = false;
+                        if (obj.Extend != null) {
+                            $(obj.Extend).each(function (i,o) {
+                                if (o.ExtendType==type) {
+                                    res = true;
+                                    return false;
+                                }
+                            })
+                        }
+                        return res;
+                    }
+
+                    function ExtendTotal(type,obj) {
+                        var total = 0;
+                        if (obj.Extend != null) {
+                            $(obj.Extend).each(function (i, o) {
+                                if (type>0) {
+                                    if (o.ExtendType == type) {
+                                        total += o.Price * obj.Num;
+                                    }
+                                }
+                                else {
+                                    total += o.Price * obj.Num;
+                                }
+                            })
+                        }
+                        return total;
+                    }
+
+                    function SubmitExtend() {
+                        var extCount = 0;
+                        var projectDetail = vm.selects[vm.extendIndex];
+                        var temp = [];
+                        projectDetail.Extend = [];
+                        projectDetail.ExtendTotal = 0;
+
+                        $(vm.projectExtend).each(function (i,o) {
+                            if (o.Checked == true) {
+                                //temp.push(o);
+                                extCount++;
+                                projectDetail.Extend.push(o);
+                                projectDetail.ExtendTotal += o.Price * projectDetail.Num;
+                            }
+                        })
+                        //Vue.set(projectDetail, "Extend", temp);
+                        if (extCount>0) {
+                            projectDetail.ExtendCount = true;
+                        }
+                        GetTotal();
+                        layer.closeAll();
+                    }
+
+                    function AddExtend(pro, index) {
+                        if (pro.Checked == true) {
+                            pro.Checked = false;
+                            Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5");
+                        } else {
+                            pro.Checked = true;
+                            Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                        }
+                        //pro.Checked = true;
+                        //Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                        //$(vm.projectExtend).each(function (i, o) {
+                        //    if (o.Id == pro.Id && o.Checked==false) {
+                        //        vm.projectExtend.splice(i, 1);
+                        //        return false;
+                        //    }
+                        //})
+                        GetTotal();
+                    }
+
+                    function ShowExtend(cyxm) {
+                        var para = { projectId:cyxm};
+                        $.ajax({
+                            type: "get",
+                            url: "/Res/Api/GetProjectExtend",
+                            data: para,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false, //点击遮罩关闭层
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                PushExtend(data.Data);
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        })
+                    }
+
+                    function PushExtend(data) {
+                        vm.projectExtend = [];
+                        var temp = vm.selects[vm.extendIndex];
+                        $(data).each(function (i, o) {
+                            if (temp.Extend != null) {
+                                $(temp.Extend).each(function (j,p) {
+                                    if (o.Id == p.Id) {
+                                        Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                                        o.Checked = true;
+                                        return false;
+                                    } else {
+                                        Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                                        o.Checked = false;
+                                    }
+                                })
+                            } else {
+                                Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                                o.Checked = false;
+                            }
+                            vm.projectExtend.push(o);
+                        })
+                        layer.open({
+                            type: 1,
+                            title: "菜品操作",
+                            area: [width + "px", height + "px"],
+                            content: $("#ProjectExtend"),
+                            maxmin: false
+                        })
+                    }
+
+                    function OrderPrint(print) {
+                        var orderTables = '@OrderTableIds'.split(',');
+                        $(vm.selects).each(function (i,o) {
+                            o.ExtendIds = [];
+                            if (o.Extend!=null) {
+                                $(o.Extend).each(function (j,p) {
+                                    o.ExtendIds.push(p.Id);
+                                })
+                            }
+                        })
+                        var para = { req: vm.selects, orderTableIds: orderTables, print: print };
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/Home/OrderDetailCreate",
+                            data: JSON.stringify(para),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false, //点击遮罩关闭层
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                if (data.Data == true) {
+                                    layer.alert("提交完成", function () {
+                                        parent.Refresh();
+                                        parent.layer.closeAll();
+                                    })
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        })
+                    }
+
+                    function AddSelect(pro,index) {
+                        //if (pro.Checked == true) {
+                        //    pro.Checked = false;
+                        //    Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5");
+                        //} else {
+                        //    pro.Checked = true;
+                        //    Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                        //}
+                        //$(vm.selects).each(function (i, o) {
+                        //    if (o.CyddMxId == pro.Id && o.Id==0) {
+                        //        vm.selects.splice(i, 1);
+                        //        bol = false;
+                        //        return false;
+                        //    }
+                        //})
+
+                        pro.Checked = true;
+                        Vue.set(pro, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                        var bol = true;
+                        if (bol) {
+                            vm.selects.push({ CyddMxType: 1, CyddMxId: pro.Id, Price: pro.Price, Num: 1, CyddMxStatus: 1, ProjectName: pro.ProjectName, Unit: pro.Unit, Id: 0, Cyxm:pro.Cyxm });
+                        }
+                        GetTotal();
+                    }
+
+                    function GetTotal() {
+                        vm.totalPrice = 0;
+                        $(vm.selects).each(function (i, o) {
+                            if (o.Num<=0) {
+                                vm.selects.splice(i,1);
+                            }
+                            vm.totalPrice += o.Price * o.Num;
+                            if (o.Extend != null) {
+                                o.ExtendTotal = 0;
+                                $(o.Extend).each(function (j,p) {
+                                    vm.totalPrice += p.Price * o.Num;
+
+                                    o.ExtendTotal += p.Price * o.Num;
+                                })
+                            }
+                        })
+                    }
+
+                    function GetProjectDetails(category) {
+                        var para = { category: category };
+                        $.ajax({
+                            type: "get",
+                            url: "/Res/Project/GetProjectDetails",
+                            data: para,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            async: false,
+                            beforeSend: function (xhr) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false, //点击遮罩关闭层
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                if (data.Data != null) {
+                                    PushDown(data.Data);
+                                } else {
+                                    layer.msg('不存在该类别菜品', {
+                                        time: 2000
+                                    });
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        })
+                    }
+
+
+                    function PushDown(data) {
+                        vm.pros = [];
+                        $(data).each(function (i, o) {
+                            if (!o.IsDelete) {
+                                Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                                vm.pros.push(o);
+                            }
+                        })
+                    }
+
+
+                    $("#SubmitForm").validate({
+                        rules: {
+                        },
+                        messages: {
+                        },
+                        errorPlacement: function (error, element) {
+                            error.appendTo(element.parent());
+                        },
+                        submitHandler: function (label) {
+                            Submit();
+                        }
+                    })
+
+                    function Submit() {
+                        var res = [];
+                        $(vm.tables).each(function (i, o) {
+                            if (o.Checked == true) {
+                                res.push(o);
+                            }
+                        })
+                        parent.GetChose(res);
+                        parent.layer.closeAll();
+
+                    }
+
+                    $(".closeAll").click(function () {
+                        parent.layer.closeAll();
+                    })
+
+                    $(".clientCloseAll").click(function () {
+                        layer.closeAll();
+                    })
+
+                    function InitPage() {
+                        GetProjectDetails(0);
+                    }
+
+                    InitPage();
+                }
+
+                editor.init = function () {
+                    bindAction();
+                }
+
+                return editor;
+            }
+        }
+
+    </script>
+}
+
+

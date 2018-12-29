@@ -1,0 +1,113 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "餐饮报表查询";
+}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-table tr.layui-this{background:#8BC34A !important;}
+    </style>
+</head>
+<body>
+	
+    <div class="container" style="padding: 20px;">
+    	<div class="layui-form">
+            <div class="layui-form-item" style="float: right; padding-top: 5px;">
+                <label class="layui-form-label">报表ID：</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="Name"  name="Name" lay-verify="email" autocomplete="off" class="layui-input">
+                </div>
+                <button class="layui-btn layui-btn-primary" style="float: left;" id="SearchSubmit">查询</button>
+            </div>
+        </div>
+        <table id="table" lay-filter="table">
+        </table>
+    </div>
+</body>
+<script type="text/html" id="bartable">
+    <a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="edit" onclick="ReportSearch({{d.Id}})" data-id="{{d.Id}}"><i class="iconfont">&#xe633;</i> 打印</a>
+</script>
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Echarts")
+@ScriptsEx.Render(Plugin.Instance.Name, "Report")
+<script>
+    layui.use(['element', 'table', 'layer'], function () {
+        var element = layui.element,
+            layer = layui.layer;
+            table = layui.table;
+        
+        table.render({
+            elem: '#table' //指定原始表格元素选择器（推荐id选择器）
+            , url: "/Res/Statistics/GetReports"
+            , height: 'full-141' //容器高度
+            , request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            }
+            , response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            }
+            , cols: [[ //标题栏
+                { field: 'Id', title: '报表ID',align:'center'}
+                , { field: 'Name', title: '名称'}
+                , { field: 'id', title: '操作', toolbar: '#bartable',align:'center'}
+            ]]
+            , even: true
+            , page: false
+            , skin : 'line'
+            , limits: [5, 10, 15, 20]
+            , limit: 10 //每页默认显示的数量
+            , done: function (res, curr, count) {
+            }
+
+        });
+
+    })
+    
+    $('#Name').focus(function () {
+        $(this).on('keypress', function (e) {
+            if (event.keyCode == 13) {
+                $('#SearchSubmit').trigger('click');
+            }
+        });
+    }).blur(function () {
+        $(this).off('keypress');
+    });
+    
+    $('#SearchSubmit').on('click',function(){
+    	var val = $('#Name').val();
+    	var $btn = $('.layui-btn[lay-event=edit]');
+    	var isB = false;
+    	$btn.each(function(){
+    		if($(this).attr('data-id') == val ){
+    			var $body = $('.layui-table-body');
+    			var $tr = $(this).closest('tr');
+    			var bTop = $body.offset().top
+    			var top = $tr.offset().top;
+    			var h = $body.scrollTop()
+    			$tr.addClass('layui-this').siblings().removeClass('layui-this');
+    			$body.scrollTop( top - bTop + h )
+    			
+    			isB = true;
+    			return false;
+    		}
+    	})
+    	if(!isB){
+    		layer.msg('没有找到ID为 ' + val + ' 的报表')
+    	}
+    })
+    
+    function ReportSearch(id) {
+        reportorJs.showPdb(id,0,0);
+    }
+    
+    
+
+</script>
+
+

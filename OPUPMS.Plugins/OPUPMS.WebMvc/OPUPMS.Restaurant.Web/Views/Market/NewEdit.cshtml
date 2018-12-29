@@ -1,0 +1,151 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+
+@{
+    Layout = null;
+    MarketCreateDTO Market = ViewBag.Market ?? new MarketCreateDTO();
+    var Restaurants = ViewBag.Restaurants;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+</head>
+<body>
+    <div class="layui-tab layui-tab-brief layer-form-box" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+                @Html.AntiForgeryToken()
+                <div class="layui-row">
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">餐厅：</label>
+                        <div class="layui-input-inline">
+                            <select id="Restaurant" name="Restaurant" lay-verify="required" lay-required-msg="请选择餐厅" lay-search>
+                                <option value="">请选择</option>
+                                @{
+                            if (Restaurants != null)
+                            {
+                            foreach (var item in Restaurants)
+                            {
+                            <option value="@item.Id" @(Market.Restaurant == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                            }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">名称：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="Name" name="Name" placeholder="请输入名称" lay-verify="required" lay-required-msg="请输入名称" value="@Market.Name">
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">开始时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" placeholder="开始时间" id="StartTime" name="StartTime" value="@Market.StartTime">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">结束时间：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" class="layui-input" placeholder="结束时间" id="EndTime" name="EndTime" value="@Market.EndTime">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item" style="width: 100%;">
+                        <label class="layui-form-label">描述：</label>
+                        <div class="layui-input-block">
+                            <textarea id="Description" name="Description" class="layui-textarea" rows="10">@Market.Description</textarea>
+                        </div>
+                    </div>
+
+                    <div class="layer-btns-bottom">
+                    	<button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                    </div>
+                    <input type="hidden" id="Id" name="Id" value="@Market.Id" />
+
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "OpenTableJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer', 'layedit', 'laydate'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            form = layui.form;
+        var textarea = layedit.build('Description', {tool: ['strong','italic','underline','del','|','left','center','right','link','unlink','face'], height: 150 });
+
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#StartTime' //指定元素
+            , type: 'time'
+            , format: 'HH:mm'
+        });
+        laydate.render({
+            elem: '#EndTime' //指定元素
+            , type: 'time'
+            , format: 'HH:mm'
+        });
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+        	//StartTime EndTime
+        	if($('#StartTime').val() === ""){
+        		layer.msg('请输入开始时间', {icon: 5,shift: 6})
+        		return false;
+        	}
+        	if($('#EndTime').val() === ""){
+        		layer.msg('请输入结束时间', {icon: 5,shift: 6})
+        		return false;
+        	}
+            var textVal = layedit.getContent(textarea);
+            var params = data.field;
+            params.Description = textVal;
+            $.ajax({
+                type: "post",
+                url: "/Res/Market/Edit",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: params,
+                async: false,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        parent.layer.msg('提交完成')
+                        parent.$('#SearchSubmit').click();
+						parent.layer.close(parent.layer.getFrameIndex(window.name));
+                        //parent.Refresh();
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    })
+</script>
+

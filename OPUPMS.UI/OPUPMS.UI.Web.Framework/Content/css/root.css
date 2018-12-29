@@ -1,0 +1,21 @@
+
+
+
+
+/*bootstrap*/
+@import url('../bootstrap.min.css');
+
+/*layui*/
+@import url('../layui/css/layui.css');
+
+/*icon图标样式*/
+@import url('icon.css');
+
+/*global全局框架
+@import url('global.css');*/
+
+/*skin皮肤*/
+@import url('skin.css');
+
+/*主要样式*/
+@import url('basic.css');

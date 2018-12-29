@@ -1,0 +1,452 @@
+﻿.fl{float:left;}
+.fr{float:right;}
+.tr{text-align: right;}
+.hide{display:none !important;}
+.show{display:block !important;visibility: visible;}
+.flex {display: -webkit-box;display: -webkit-flex;display: flex;}
+.flex-item {-webkit-box-flex: 1;-webkit-flex: 1;flex: 1;}
+/*禁止换行*/
+.noWrap{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+.isOverLoading{z-index:99999 !important;}
+
+#dataList{position:relative;}
+
+.circularLoading{
+	height: 26px;
+	width: 26px;
+	-webkit-animation: loading-rotate 2s linear infinite;
+	animation: loading-rotate 2s linear infinite;
+	margin-right: 10px;
+	vertical-align: middle;
+	display:inline-block;
+}
+
+.circularLoading .path {
+    -webkit-animation: loading-dash 1.5s ease-in-out infinite;
+    animation: loading-dash 1.5s ease-in-out infinite;
+    stroke-dasharray: 90,150;
+    stroke-dashoffset: 0;
+    stroke-width: 6;
+    stroke: #409EFF;
+    stroke-linecap: round;
+}
+
+
+.price{color:#FF5722;}
+
+.t-danger,.t-danger:hover,.t-danger:focus{color:#fff;font-weight:bold;text-shadow:none;background-color:#cc0000 !important;border:1px solid #cc0000 !important;}
+.t-warning,.t-warning:hover,.t-warning:focus{color:#cc0000;font-weight:bold;text-shadow:none;background-color:#ffff00 !important;border:1px solid #ffff00 !important;}
+
+@font-face {font-family: "iconfont";
+  src: url('../../../icons/iconfont.eot'); /* IE9*/
+  src: url('../../../icons/iconfont.eot#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../../../icons/iconfont.woff') format('woff'), /* chrome, firefox */
+  url('../../../icons/iconfont.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../../../icons/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+
+body{font-size:12px;}
+
+html,body,#app,#app>.el-container{width:100%;height:100%;}
+
+.el-button--small{font-size:14px;}
+.el-form-item{margin-bottom:16px;}
+
+/*顶部	开始*/
+.el-header{background: #393D49;padding:5px 20px;}
+/*顶部	结束*/
+
+/*内容部分	开始*/
+.main{height:calc(100% - 90px);}
+
+/*左侧栏	开始*/
+.main .aside{background-color:#393D49;overflow: hidden;height: 100%;width: 100px;}
+.main .aside .menu{width:100px;height: 100%;-webkit-box-sizing:content-box;-moz-box-sizing: content-box;box-sizing: content-box;padding-right:50px;color:#fff;font-size:14px;overflow-y: auto;}
+.main .aside .menu .menu-title{width:100px;height:40px;line-height:40px;position:relative;padding:0 20px 0 5px;}
+.main .aside .menu .menu-title > span{overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display: block;}
+.main .aside .menu .menu-child{height:40px;line-height:40px;padding: 0 10px 0 15px;}
+.main .aside .menu .menu-child li{overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display: block;}
+.main .aside .el-submenu__icon-arrow{right:10px;}
+
+.main .aside .menu-child{display:none;}
+
+.main .aside .menu-item-active .menu-title{background-color:rgb(64, 158, 255);color: #fff;}
+.main .aside .menu-item-active.expand .menu-child{display:block;}
+.main .aside .menu-item-active.expand .el-submenu__icon-arrow{-webkit-transform: rotateZ(-90deg);transform: rotateZ(-90deg);}
+
+.main .aside .menu-item-active .menu-child-item.menu-child-active{color: rgb(64, 158, 255);}
+/*.main .aside .el-submenu,.main .aside .el-submenu .el-menu-item{width:130px;min-width: 130px;}
+.main .aside .el-menu,.main .aside .el-menu:hover,.main .aside .el-submenu__title:hover,.main .aside .el-menu-item:focus, .el-menu-item:hover,.main .aside .el-submenu__title{background:#393D49;}
+.main .aside .el-menu span,.main .aside .el-menu-item{color:#fff;}
+.main .aside .el-menu-item{width:130px;}
+.main .aside .el-menu-item span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}*/
+/*左侧栏	结束*/
+/*右侧菜品	开始*/
+.main .el-main{flex-basis: 100px;padding:4px 0;overflow-x: hidden;-webkit-overflow-scrolling: touch;}
+.main .card-body{width:100%;}
+
+.main .card-item{position: relative;-webkit-box-sizing: border-box;box-sizing: border-box;box;box-shadow: 0 0 6px rgba(0,0,0,.6);float:left;margin-bottom: 10px;width:100%;border-radius: 6px;overflow: hidden;}
+
+.main .card-item .badge{position:absolute;left:0.5vw;top:0.5vh;}
+.main .card-item .badge span{padding: 4px 8px;display:inline-block;border-radius:4px;}
+
+.main .disabled .card-item{position:relative;}
+.main .disabled .card-item:after{content: "已售罄";position: absolute;width:120px;height: 32px;text-align: center;background: #fff;line-height: 32px;border-radius: 6px;font-size: 20px;font-weight: bold;color: #CA0200;opacity:1;}
+	/*图片模式*/
+/*.main .card-photo-type .card-item{width:24%;margin:0.5%;height:190px;-webkit-box-sizing: border-box;box-sizing: border-box;box;box-shadow: 0 0 6px rgba(0,0,0,.6);float:left;}*/
+.main .card-photo-type .card-item{height:190px;}
+.main .card-photo-type .card-item .img-wrap{height:128px;/*display: table-cell; */vertical-align: middle;text-align: center;}
+.main .card-photo-type .card-item img{width:100%;height:100%;vertical-align:middle;}
+.main .card-photo-type .card-item .item-content{padding:5px;}
+.main .card-photo-type .card-item .price{font-size:16px;color:#FF5722;line-height:27px;}
+.main .card-photo-type .card-item .btns{float:right;}
+.main .card-photo-type .card-item .btns button{padding:4px 15px;margin-top:4px;}
+.main .card-photo-type .card-item .btns i{font-size:32px;vertical-align: middle;color:#409EFF;background:none;}
+.main .card-photo-type .card-item .btns i:active{color:#3a8ee6;}
+.main .card-photo-type .card-item .btns .num{min-width:30px;display:inline-block;vertical-align: middle;font-size:20px;text-align: center;}
+
+
+.main .card-photo-type .flex-item{white-space: nowrap;overflow: hidden;text-overflow: ellipsis;line-height:18px;font-size:14px;font-weight: bold;height:22px;}
+.main .card-photo-type .MealTable-stock{width:50px;line-height:21px;font-size:12px;text-align: right;}
+
+.main .card-photo-type .disabled .card-item > *{opacity: 0.4;}
+.main .card-photo-type .disabled .card-item:after{left: 0;top: 0;right: 0;bottom: 0;margin: auto;-webkit-transform: rotate(-15deg);-moz-transform: rotate(-15deg);-ms-transform: rotate(-15deg);-o-transform: rotate(-15deg);transform: rotate(-15deg);}
+	/*文字模式*/
+	
+.main .card-text-type .card-item{width:100%;height:72px;padding:3px;}
+.main .card-text-type .card-item .flex{line-height:16px;height:16px;}
+.main .card-text-type .card-item .MealTable-title{font-size: 18px;line-height: 34px;height: 34px;text-align: center;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.main .card-text-type .MealTable-footer span {display:inline-block;}
+.main .card-text-type .MealTable-stock{width: 50px;color: #1E9FFF;display:inline-block;}
+.main .card-text-type .MealTable-price{text-align: right;}
+.main .card-text-type .chosenNum{position: relative;display: inline-block;padding: 0 6px;font-size: 12px;text-align: center;background-color: #FF5722;color: #fff;border-radius: 2px;}
+
+.main .card-text-type .card-item:active{background:#ddd;}
+
+.main .card-text-type .disabled .card-item{background-color: #ddd;}
+.main .card-text-type .disabled .card-item > *{opacity: 0.4;}
+.main .card-text-type .disabled .card-item:after{left: -32px;top:6px;opacity:1;-webkit-transform: rotate(-36deg);-moz-transform: rotate(-36deg);-ms-transform: rotate(-36deg);-o-transform: rotate(-36deg);transform: rotate(-36deg);}
+/*右侧菜品	结束*/
+	
+/*内容部分	结束*/
+
+
+/* 大图模式	开始*/
+
+.fade-scale-enter .swiper-slide, .fade-scale-leave-to .swiper-slide{
+  background:transparent;
+}
+
+.fade-scale-enter .BigPhotobtn, .fade-scale-leave-to .BigPhotobtn{
+  display:none;
+}
+
+.swiper-container {width: 100%;height: 100%;}
+		
+.swiper-slide {text-align: center;font-size: 18px;background: #000;overflow: hidden;
+/* Center slide text vertically */
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	align-items: center;
+}
+#BigPhoto{position: fixed;top:0;left:0;width:100%;height:100%;z-index:1666;background:#000;}
+#BigPhoto .swiper-container img{min-width:100%;min-height:100%;display:block;background:#000;vertical-align:middle;}
+#BigPhoto .BigPhotobtn{position:absolute;background:rgba(255,255,255,.4);border-radius: 30px;z-index:99;padding: 0 4vw;font-size: 26px;color:#000;border-box;box;box-shadow: 0 0 6px rgba(0,0,0,1);display: inline-block;line-height:9vh;}
+#BigPhoto .BigPhotobtn i{padding:0 2vw;font-weight: 900;}
+#BigPhoto .back{left:-4vw;top:6vh;padding: 0 3vw;}
+#BigPhoto .choose{right:-5vw;top:6vh;padding: 0 6vw 0 1vw;}
+#BigPhoto .choose .num{display: inline-block;padding: 4px 10px;font-size: 18px;text-align: center;color: #fff;border-radius: 2px;line-height:1;margin-left: 10px;border-radius: 10px;    margin: -4px 10px 0 0;vertical-align: middle;}
+
+
+#BigPhoto .choose .minus .num{background-color: #FF5722;}
+#BigPhoto .choose .plus{display: inline-block;float: right;}
+#BigPhoto .choose .plus > span{display:inline-block}
+#BigPhoto .choose .plus > i{line-height:36px;}
+#BigPhoto .choose .plus .num{background-color:#ddd;color:#333;}
+
+#BigPhoto .describeBtn{bottom:4vh;right:-5vw;padding: 0 6vw 0 1vw;}
+
+#BigPhoto .choose.chosen{padding:0 6vw 0 1vw;}
+#BigPhoto .choose.chosen .el-icon-minus{display: inline-block;}
+	
+#BigPhoto .info{color:#fff;text-shadow: #000 3px 3px 3px;position: absolute;font-size:40px;bottom:40px;left:40px;text-align: left;}
+
+#BigPhoto .name .badge{display:inline-block;margin-right:10px;margin-top: -2px;}
+#BigPhoto .name .badge span{    font-size: 30px;display: inline-block;border-radius: 6px;padding: 2px 10px;line-height: 40px;}
+
+#BigPhoto .describe{position:absolute;right:40px;top:15vw;font-size:18px;word-wrap: break-word;border-radius: 6px;overflow: auto;
+word-break: normal; max-height:calc(100% - 250px);width:30%;background:rgba(255,255,255,0.6);padding:10px;text-align: left;font-weight: bold;z-index: 999;}
+
+#BigPhoto .minus{display:none;border-right: 1px solid #333;padding: 0 2vw;}
+#BigPhoto .chosen .minus{display:inline-block;}
+
+/* 大图模式	结束*/
+
+
+/* 菜单	开始*/
+#ShopCart{
+		width:100%;height:100%;
+  	background:#ddd;position:fixed;left:0;top:0;
+  	/*display:none;*/
+}
+
+/*#ShopCart.ShopCartShow{display:block}*/
+/*#ShopCart{
+	-webkit-transition: all .2s;
+  	-moz-transition: all .2s;
+  	-ms-transition: all .2s;
+  	-o-transition: all .2s;
+  	transition: all .2s;
+  	-webkit-transform: translateY(100%);
+  	-moz-transform: translateY(100%);
+  	-ms-transform: translateY(100%);
+  	-o-transform: translateY(100%);
+  	transform: translateY(100%);
+}
+
+#ShopCart.ShopCartShow{
+	-webkit-transform: translateY(0);
+	-moz-transform: translateY(0);
+	-ms-transform: translateY(0);
+	-o-transform: translateY(0);
+	transform: translateY(0);
+}*/
+
+#ShopCart .nameHint{display: inline-block;background-color: #409eff;padding: 2px 6px;line-height:23px;color: #fff;border-radius: 4px;}
+#ShopCart .nameHint.nameHint-1{background-color: #67c23a;}
+#ShopCart .nameHint.nameHint-2{background-color: #009688;}
+
+#ShopCart .el-input-number{width:140px;line-height:32px;}
+#ShopCart .el-input__inner{height:34px;line-height:34px;}
+/*#ShopCart .InputNumber > i{vertical-align: top;font-size:32px;color:#409EFF;}
+#ShopCart .InputNumber > i:active{color:#3a8ee6;}
+#ShopCart .InputNumber > i.disabled{color:#ddd}
+#ShopCart .InputNumber > i.disabled:active{color:#ddd}
+
+#ShopCart .InputNumber > span{vertical-align: top;font-size:20px;padding:0 5px;color:#000;min-width:57px;display:inline-block;}*/
+
+
+#ShopCart .info{font-size:24px;line-height:34px;color:#fff;display: inline-block;vertical-align: middle;}
+#ShopCart .info b{margin:0 15px 0 5px;color:#FF5722;}
+
+
+#ShopCart .el-table td,#ShopCart .el-table th{vertical-align: top;padding:6px 0;}
+#ShopCart .el-table .cell, .el-table th div{overflow: initial;font-size:16px;color:#333;z-index: 999;}
+
+#ShopCart .el-table .extend{margin-top:15px;font-size:14px;}
+#ShopCart .el-table .extend > p{position:relative;}
+#ShopCart .el-table .intro{position: absolute;width:600px;}
+
+#ShopCart .el-table__body td .cell{line-height:32px;padding:0;}
+/* 菜单	结束*/
+
+/*	修改		点选 ||  菜品修改   弹窗	开始 */
+#reviselayer .el-dialog{height:96%;margin-bottom:0;}
+#reviselayer .el-dialog__header{display:none;}
+#reviselayer .el-dialog__body{height:100%;overflow-y: auto;padding: 24px 25px 65px;}
+/*#reviselayer .el-dialog{margin-top:2%;}*/
+
+#reviselayer .total{color:#FF5722;font-size: 26px;font-weight: bold;}
+#reviselayer .btns{position: absolute;width: 100%;bottom:0;left:0;text-align: center;height:60px;background:#fff;z-index: 1;}
+#reviselayer .numBtns button{padding:4px 15px;margin-top:4px;}
+#reviselayer .numBtns i{font-size:40px;vertical-align: middle;color:#409EFF;background:none;}
+#reviselayer .numBtns i:active{color:#3a8ee6;}
+#reviselayer .numBtns .num{min-width:40px;display:inline-block;vertical-align: middle;font-size:20px;text-align: center;}
+#reviselayer .numBtns i.disabled{color: #ddd;}
+/*修改		||  大图点菜  弹窗	结束*/
+
+/* 更多做法 要求 配菜  弹窗		开始*/
+#reviseExtendLayer .el-dialog{height:80%;margin-bottom:0;}
+#reviseExtendLayer .el-dialog__header{display:none;}
+#reviseExtendLayer .el-dialog__body{height:100%;overflow-y: auto;padding: 24px 25px 65px;}
+#reviseExtendLayer .btns{position: absolute;width: 100%;bottom:0;left:0;text-align: center;height:60px;background:#fff;z-index: 1;}
+
+#reviseExtendLayer .classify{height:40px;overflow-y: hidden;margin:0 0 10px 5px;}
+#reviseExtendLayer .classify-list{height: 63px;overflow-x: auto;white-space: nowrap;}
+#reviseExtendLayer .list{height:calc(100% - 50px);overflow-y:auto ;}
+#reviseExtendLayer .item{-webkit-box-sizing: border-box;box-sizing: border-box;border:2px solid #bbb;margin-bottom: 10px;width: 100%;border-radius: 6px;overflow: hidden;position:relative;}
+#reviseExtendLayer .item .title{white-space: nowrap;overflow: hidden;text-overflow: ellipsis;padding:10px 0 0;text-align: center;}
+
+#reviseExtendLayer .item.checked:before{width: 32px;height: 32px;content: "";background-image: url(/Plugins/Web/OPUPMS.Restaurant.Web/Content/Images/checked.png);bottom: -3px;right: -3px;position: absolute;z-index: 10;}
+#reviseExtendLayer .item.checked{border-color:#ff5722;}
+
+
+/* 更多做法 要求 配菜  弹窗		结束*/
+
+
+
+/*底部	开始*/
+.el-footer{background: #393D49;padding:5px 20px;}
+/*底部	结束*/
+
+/*登录	开始*/
+#login .el-dialog__body{padding: 25px 50px 30px 25px;}
+/*登录	结束*/
+
+/*桌台切换	开始*/
+#chosenRestaurantOrder .el-dialog--center{height:100%;height: calc(100% - 100px);}
+#chosenRestaurantOrder .el-dialog__header{padding: 0;}
+#chosenRestaurantOrder .el-dialog__header span{display:none;}
+#chosenRestaurantOrder .el-dialog__headerbtn{top:10px;right:10px;}
+#chosenRestaurantOrder .el-dialog__body,#chosenRestaurantOrder .contentStep{height:100%;}
+
+#chosenRestaurantOrder .area{height:45px;overflow: hidden;margin:0 0 10px 2px;}
+#chosenRestaurantOrder .group{height: 63px;overflow-x: auto;white-space: nowrap;}
+
+#chosenRestaurantOrder .items{padding: 6px;height: calc(100% - 60px);overflow: auto;}
+#chosenRestaurantOrder .item{box-shadow: 0 0 6px rgba(0,0,0,.6);height:80px;margin-bottom:10px;padding:4px;border-radius: 6px;}
+#chosenRestaurantOrder .item .item-header,#chosenRestaurantOrder .item .item-footer{line-height:20px;height:20px;}
+#chosenRestaurantOrder .item .item-header > div{width:48%;display:inline-block;}
+#chosenRestaurantOrder .item .item-title{text-align: center;font-size: 16px;line-height:32px;height:32px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+#chosenRestaurantOrder .item .price{text-align: right;}
+
+#chosenRestaurantOrder .item{background-color:#efefef;}
+#chosenRestaurantOrder .item.lock{background-color:rgb(245, 161, 135);color: #fff;}
+#chosenRestaurantOrder .item.add{background-color:rgb(245, 161, 135);color: #fff;}
+#chosenRestaurantOrder .item.dirty{background-color:#999;color: #fff;}
+.MealTable-Screen .ScreenMealTable-icon.wx,.MealTable-lists li.wx{background-color:#44b549;color: #fff;}
+
+#chosenRestaurantOrder .el-form {padding:20px;height: calc(100% - 40px);overflow:auto;}
+#chosenRestaurantOrder .el-select{width:100%;}
+#chosenRestaurantOrder .btns{text-align: center;position: absolute;width: 100%;bottom: 0;left: -40px;margin-bottom:10px;}
+#chosenRestaurantOrder .contentStep .el-form-item{margin-bottom:22px;}
+
+/*桌台切换	结束*/
+
+
+/*一台多单	开始*/
+#currentOrderList .el-dialog--center{height:70%;margin-top:14vh;}
+#currentOrderList .el-dialog__body{height:calc(100% - 64px);overflow-y:auto;padding:4px 10px 10px;}
+#currentOrderList .el-dialog__body .item{box-shadow: 0 0 6px rgba(64,158,255 ,.6);margin-bottom: 15px;padding:6px 15px 1px;border-radius:6px;border-top: 6px solid #409eff;}
+#currentOrderList .el-dialog__body .item p{margin-bottom: 5px;}
+#currentOrderList .el-dialog__body .item span{margin-right:15px;}
+
+#currentOrderList .el-dialog__body .item.IsLock{border-top: 3px solid #ddd;background:#999;color:#fff;}
+/*.chosen-order li.IsLock .LockTextColor{color: red;font-weight: bold;margin-left:10px;}
+.chosen-order li.IsLock a,.chosen-order li.IsLock a{color:#fff;border-color: 1px solid #FF5722;}
+.chosen-order li.IsLock p span,.chosen-order li.IsLock:hover p span,.chosen-order li.IsLock:active p span{color:#fff;border:1px solid #fff;}*/
+/*一台多单	结束*/
+
+
+/*动画*/
+/*
+ * 从透明到显示
+ * 逐渐放大 */
+/*.fade-scale-enter-active, .fade-scale-leave-active {
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+  -ms-transition: all .5s;
+  -o-transition: all .5s;
+  transition: all .5s;
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transform: scale(1);
+}
+.fade-scale-enter, .fade-scale-leave-to{
+  opacity: 0;
+  -webkit-transform: scale(0.8);
+  -moz-transform: scale(0.8);
+  -ms-transform: scale(0.8);
+  -o-transform: scale(0.8);
+  transform: scale(0.8);
+}*/
+
+
+/* 子元素 逐渐显示  并  放大*/
+/*.fade-scale-child-enter-active , .fade-scale-child-leave-active{transition: all .2s;}
+
+.fade-scale-child-enter-active > div,.fade-scale-child-leave-active > div{
+  -webkit-transition: all .2s;
+  -moz-transition: all .2s;
+  -ms-transition: all .2s;
+  -o-transition: all .2s;
+  transition: all .2s;
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+}
+
+.fade-scale-child-enter > div, .fade-scale-child-leave-to > div{
+  opacity: 0;
+  -webkit-transform: scale(0.4);
+  -moz-transform: scale(0.4);
+  -ms-transform: scale(0.4);
+  -o-transform: scale(0.4);
+  transform: scale(0.4);
+}
+
+.fade-scale-child-leave-to{
+	background:none;
+}*/
+
+
+/*大图模式用*/
+/*.fade-scale-enter .swiper-slide, .fade-scale-leave-to .swiper-slide{
+  background:transparent;
+}
+
+.fade-scale-enter .BigPhotobtn, .fade-scale-leave-to .BigPhotobtn{
+  display:none;
+}*/
+
+/* 从底部弹出	*/
+/*.up-enter-active, .up-leave-active {
+  -webkit-transition: all .2s;
+  -moz-transition: all .2s;
+  -ms-transition: all .2s;
+  -o-transition: all .2s;
+  transition: all .2s;
+  -webkit-transform: translateY(0);
+  -moz-transform: translateY(0);
+  -ms-transform: translateY(0);
+  -o-transform: translateY(0);
+  transform: translateY(0);
+}
+.up-enter, .up-leave-to{
+  -webkit-transform: translateY(100%);
+  -moz-transform: translateY(100%);
+  -ms-transform: translateY(100%);
+  -o-transform: translateY(100%);
+  transform: translateY(100%);
+}*/
+
+/*从右往左移动出现    返回时直接隐藏*/
+
+
+/*从右往左移动出现 */
+/*.left-enter-active, .left-leave-active {
+  -webkit-transition: all .2s;
+  -moz-transition: all .2s;
+  -ms-transition: all .2s;
+  -o-transition: all .2s;
+  transition: all .2s;
+  -webkit-transform: translateX(0);
+  -moz-transform: translateX(0);
+  -ms-transform: translateX(0);
+  -o-transform: translateX(0);
+  transform: translateX(0);
+}
+.left-enter, .left-leave-to{
+  -webkit-transform: translateX(150%);
+  -moz-transform: translateX(150%);
+  -ms-transform: translateX(150%);
+  -o-transform: translateX(150%);
+  transform: translateX(150%);
+}*/
+

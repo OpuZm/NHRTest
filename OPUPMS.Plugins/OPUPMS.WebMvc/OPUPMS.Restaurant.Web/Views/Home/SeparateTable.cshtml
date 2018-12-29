@@ -1,0 +1,346 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "选择台号";
+    SeparateTableDTO req = ViewBag.Paras;
+    List<AreaListDTO> Areas = ViewBag.Areas;
+    TableCreateDTO Table = ViewBag.Table;
+}
+
+@section Styles{
+    <style>
+        .list-group-item {
+            max-height: 100px;
+            padding: 5px;
+        }
+
+        .li-margin-5 {
+            margin: 5px 10px 5px 10px;
+            cursor: pointer;
+        }
+
+        .list-group li {
+            text-overflow: ellipsis;
+        }
+    </style>
+}
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="text-center"><h4 class="text-danger">@Table.Name - 订单(@ViewBag.OrderTableId) 拆台</h4></div>
+        <div id="TableVue">
+            <div class="form-group">
+                <div class="col-xs-8 bg-info">
+                    <div class="form-group" role="group">
+                        <label for="Name" class="col-xs-2 control-label">区域选择:</label>
+                        <div class="col-xs-4">
+                            <select id="RestaurantArea" name="RestaurantArea" class="form-control select2" v-model="areaSelect">
+                                <option value="0">所有</option>
+                                @{
+                                    if (Areas != null)
+                                    {
+                                        foreach (var item in Areas)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <ul class="list-group" id="TableList" style="margin:0 0 0 0;">
+                        <li v-for="(table,index) in FilterTable(areaSelect)" v-bind:class="table.Class" v-on:click="Add(index,table)">
+                            {{table.Name}}/{{table.SeatNum}}座 <span class="pull-right glyphicon glyphicon-ok" v-show="table.Checked"></span>
+                        </li>
+                    </ul>                    
+                </div>
+
+                <div class="col-xs-4">
+                    <div class="form-group form-inline" style="margin-bottom:0px;">
+                        <label for=""><h4>订单(@ViewBag.OrderTableId) 明细</h4></label>
+                    </div>
+                    <div class="form-group text-primary" style="margin-bottom:0px;">
+                        <ul class="list-group" style="margin-bottom:0px;">                            
+                            <li class="list-group-item" v-for="(sel,index) in detailList" v-bind:class="sel.Class" v-on:click="SelectedDetail(index, sel)">
+                                {{sel.ProjectName}} *{{sel.Num}} 
+                                <span class="glyphicon glyphicon-yen btn-sm text-danger">{{sel.Price}}</span>
+                                <span class="pull-right glyphicon glyphicon-ok" v-show="sel.Checked"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-group text-danger" style="margin-bottom:0px;">
+                        <h4>已选:{{selectCount}} </h4>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="form-group">
+            </div>
+            <div class="form-group text-center">
+                <button class="btn btn-primary" type="submit">提交</button>
+                <button class="btn btn-default closeAll" type="button">取消</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+    <script src="~/signalr/hubs"></script>
+    <script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                var vm = new Vue({
+                    el: '#TableVue',
+                    data: {
+                        tables: [],
+                        detailList: [],
+                        areaSelect: 0,
+                        selectCount: 0
+                    },
+                    methods: {
+                        FilterTable: function (areaSelect) {
+                            if (areaSelect > 0) {
+                                var res = [];
+                                $(this.tables).each(function (i, o) {
+                                    if (o.AreaId == areaSelect) {
+                                        res.push(o);
+                                    }
+                                });
+                                return res;
+                            }
+                            else {
+                                return this.tables;
+                            }
+                        },
+                        Add: function (index, obj) {
+                            $(vm.tables).each(function (i,o) {
+                                o.Checked = false;
+                                Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                            })
+                            obj.Checked = true;
+                            Vue.set(obj, 'Class', "list-group-item col-xs-2 li-margin-5 active");
+                        },
+                        GetTotal: function () {
+                            var res = 0;
+                            $(this.tables).each(function (i,o) {
+                                if (o.Checked==true) {
+                                    res++;
+                                }
+                            })
+                            return res;
+                        },
+                        SelectedDetail: function (index, obj) {
+                            $(vm.detailList).each(function (i, o) {
+                                if ((obj.Id == o.Id && o.Checked == true)) {
+                                    vm.selectCount -= 1;
+                                    obj.Checked = false;
+                                    Vue.set(obj, 'Class', "list-group-item");
+                                } else if (obj.Id == o.Id && o.Checked == false) {
+                                    vm.selectCount += 1;
+                                    obj.Checked = true;
+                                    Vue.set(obj, 'Class', "list-group-item active");
+                                }
+                            });
+                        
+                        }
+                    }
+                })
+
+
+                function GetTables() {
+                    var para = { RestaurantId: '@req.RestaurantId', CythStatus:'@req.CythStatus' };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetOpenChoseTables",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDown(data.Data);
+                            } else {
+                                layer.msg('没有符合条件的桌位可供选择，请设置当前空置桌位', {
+                                    time: 4000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDown(data) {
+                    vm.tables = [];
+                    $(data).each(function (i, o) {
+                        if (o.Id != '@Table.Id') {
+                            Vue.set(o, 'Class', "list-group-item col-xs-2 li-margin-5");
+                            vm.tables.push(o);
+                        }
+
+                    });
+                }
+
+                function GetDetailList(item) {
+                    var para = { orderTableId: @req.OrderTableId };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetOrderTableProjects",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDetails(data.Data)
+                            } else {
+                                layer.msg('没有订单明细可供选择，请先点餐', {
+                                    time: 4000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDetails(data) {
+                    vm.detailList = [];
+                    $(data).each(function (j, obj) {
+                        obj.Checked = false;
+                        Vue.set(obj, 'Class', "list-group-item");
+                        vm.detailList.push(obj);
+                    });
+                }
+
+                function InitPage() {
+                    GetTables();
+                    GetDetailList();
+                }
+
+                $("#SubmitForm").validate({
+                    rules: {
+                    },
+                    messages: {
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                });
+
+                function Submit() {
+                    var isContine = false;
+                    var tableId = 0;
+                    $(vm.tables).each(function (i, o) {
+                        if (o.Checked == true) {
+                            isContine = true;
+                            tableId = o.Id;
+                        }
+                    });
+
+                    if (tableId == 0) {
+                        layer.alert("请选择台号！");
+                        return;
+                    }
+
+                    if (vm.selectCount == 0) {
+                        layer.alert("请选择菜品明细！");
+                        return;
+                    }
+                    
+                    var detailParaList = [];
+                    $(vm.detailList).each(function (i, obj) {
+                        if (obj.Checked == true) {
+                            var detailPara = { Id: obj.Id, R_OrderTable_Id: obj.R_OrderTable_Id, Num: obj.Num };
+                            detailParaList.push(detailPara);
+                        }
+                    });
+
+                    if (isContine) {
+
+                        var para = { OrderTableId:@req.OrderTableId, NewTableId: tableId, OldTableId:@req.TableId, SelectedList: detailParaList };
+                        $.ajax({
+                            type: "post",
+                            url: "/Res/Home/SeparateTableSubmit",
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(para),
+                            async: false,
+                            beforeSend: function (XMLHttpRequest) {
+                                layindex = layer.open({
+                                    type: 3,
+                                    shadeClose: false,
+                                });
+                            },
+                            success: function (data, textStatus) {
+                                var res = data.Data;
+                                if (res == true) {
+                                    $.connection.hub.start().done(function () {
+                                        chat.server.notifyResServiceRefersh(true);
+                                    });
+                                    layer.alert("操作成功", function () {
+                                        parent.Refresh();
+                                        parent.layer.closeAll();
+                                    });
+                                } else {
+                                    layer.alert(data["Message"]);
+                                }
+                            },
+                            complete: function (XMLHttpRequest, textStatus) {
+                                layer.close(layindex);
+                            }
+                        });
+                    }
+
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                });
+                                                
+                InitPage();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+
+    </script>
+}

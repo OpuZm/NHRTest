@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BFFFBE6B-95CB-4912-8430-D22ABC928580}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.Web.MainSystem</RootNamespace>
+    <AssemblyName>OPUPMS.Web.MainSystem</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.FastCrud, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.FastCrud.2.4.1\lib\net45\Dapper.FastCrud.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OPUPMS.Infrastructure.Common">
+      <HintPath>..\..\..\packages\Library\OPUPMS.Infrastructure.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.Dapper.Repository.UnitOfWork, Version=0.4.6294.20582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.Dapper.Repository.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.Dapper.Repository.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.UnitOfWork, Version=0.4.6294.20580, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\StringInterpolationBridge.0.9.1\lib\net40\StringInterpolationBridge.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.Threading.Tasks.Extensions.4.4.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\css\basic.css" />
+    <Content Include="Content\css\fonts\icomoon.svg" />
+    <Content Include="Content\css\global.css" />
+    <Content Include="Content\css\icon.css" />
+    <Content Include="Content\css\root.css" />
+    <Content Include="Content\css\skin.css" />
+    <Content Include="Content\Images\error.gif" />
+    <Content Include="Content\Images\ewm.jpg" />
+    <Content Include="Content\Images\opu-icon.svg" />
+    <Content Include="Content\Images\regist.gif" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\pageJS\area.js" />
+    <Content Include="Scripts\pageJS\Basic\basic.js" />
+    <Content Include="Scripts\pageJS\Basic\from.js" />
+    <Content Include="Scripts\pageJS\Basic\number_roll.js" />
+    <Content Include="Scripts\pageJS\begtable.js" />
+    <Content Include="Scripts\pageJS\city.js" />
+    <Content Include="Scripts\pageJS\common.js" />
+    <Content Include="Scripts\pageJS\Index\index.js" />
+    <Content Include="Scripts\pageJS\navbar.js" />
+    <Content Include="Scripts\pageJS\tab.js" />
+    <Content Include="Scripts\pageJS\validator.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\GroupController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Models\Dtos\GroupInputDto.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Configs\Bundle.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Home\Welcome.cshtml" />
+    <Content Include="Content\css\fonts\icomoon.eot" />
+    <Content Include="Content\css\fonts\icomoon.ttf" />
+    <Content Include="Content\css\fonts\icomoon.woff" />
+    <Content Include="packages.config" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\GroupTemplate.cshtml" />
+    <Content Include="Views\Group\Welcome.cshtml" />
+    <Content Include="Views\Group\Index.cshtml" />
+    <Content Include="Views\Group\List.cshtml" />
+    <Content Include="Views\Group\AddGroup.cshtml" />
+    <Content Include="Views\Group\Details.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Base\OPUPMS.Domain.Base.csproj">
+      <Project>{92cfcdbe-99df-460b-9375-9de7c431145c}</Project>
+      <Name>OPUPMS.Domain.Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Repository\OPUPMS.Domain.Repository.csproj">
+      <Project>{27d3d983-7190-4544-8ecd-c9320e07b2f7}</Project>
+      <Name>OPUPMS.Domain.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Services\OPUPMS.Domain.Services.csproj">
+      <Project>{361cc697-b74d-4f94-94d9-a10ee6400df2}</Project>
+      <Name>OPUPMS.Domain.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Framework\OPUPMS.Web.Framework.Core\OPUPMS.Web.Framework.Core.csproj">
+      <Project>{9260e709-81c7-48a9-9435-475be75b2c5b}</Project>
+      <Name>OPUPMS.Web.Framework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Dapper\OPUPMS.Infrastructure.Dapper.csproj">
+      <Project>{b7f79bca-a547-482c-94e4-bc33674287cf}</Project>
+      <Name>OPUPMS.Infrastructure.Dapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>36908</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:25305/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://www.netcorewin.com</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PreBuildEvent>rmdir $(SolutionDir)OPMPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName) /s /q</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>if not exist $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName) mkdir $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName)
+xcopy $(TargetPath) $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName) /y
+xcopy $(TargetDir)$(TargetName).pdb $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName) /y
+xcopy $(ProjectDir)Views\*.*  $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName)\Views /e /i /y
+xcopy $(ProjectDir)Content\*.* $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName)\Content /e /i /y
+xcopy $(ProjectDir)Scripts\*.* $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName)\Scripts /e /i /y
+xcopy $(ProjectDir)Configs\*.* $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\Plugins\Web\$(ProjectName)\Configs /e /i /y
+xcopy $(ProjectDir)bin\*.* $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin /e /i /y
+if exist $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetFileName) DEL $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetFileName)
+if exist $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetName).pdb DEL $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetName).pdb
+if exist $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetFileName).config DEL $(SolutionDir)OPUPMS.UI\OPUPMS.UI.Web.Framework\bin\$(TargetFileName).config</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

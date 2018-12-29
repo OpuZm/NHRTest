@@ -1,0 +1,174 @@
+html, body, div, span,  h1, h2, h3, h4, h5, h6, p, a,  img,ul, li,input,table,blockquote {  font-family: Microsoft YaHei!important;padding:0;margin:0; }
+*, *:after, *:before {-webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; }
+html{font-size: 20px;-webkit-text-size-adjust:none}
+li{list-style-type:none;}
+a{text-decoration: none;display: inline-block;color:#1f6fc5;outline:none;-webkit-tap-highlight-color: rgba(0,0,0,0);}
+a:focus {outline:none;}
+button{outline:none;}
+button:focus ,input:focus,textarea:focus{ outline:none;}
+iframe{border:none;width:100%;}
+ol{padding-left: 20px;margin:0;}
+input[placeholder], [placeholder], *[placeholder] { color:#555 ; } 
+
+.header{width: 100%;height: 80px;  overflow: hidden;  -webkit-box-shadow: 0px 1px 4px rgba(0,0,0,0.1);
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.5);}
+.header .box{width: 1200px;margin:0 auto; }
+.head-logo{float: left;}
+.head-logo img{height: 70px;margin-top: 10px;float: left;}
+.header nav {overflow: hidden;float: right;}
+.header nav li{  padding: 22px 5px;float: left;}
+.header nav li a{color:#555;font-size: 16px;padding: 7px 15px; border-radius: 5px;}
+.header nav li.this{}
+.header nav li.this a{ background: #2196F3;color:#fff;}
+
+.login-group{    width: 100%; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#63B6F8",endColorstr="#0F78F3",GradientType=1); background-image: -webkit-linear-gradient(135deg,#63b6f8,#0f78f3); background-image: -moz-linear-gradient(135deg,#63b6f8 0,#0f78f3 100%); background-image: linear-gradient(-45deg,#63b6f8,#0f78f3);}
+.login-content{  max-width:1200px;width: 100%;  margin: 0 auto;}
+.login-content:after{display: table; content: " ";clear: both;}
+.login-baner{width:calc(100% - 400px);float: left;background-image: url(/Plugins/Web/OPUPMS.Restaurant.Web/Content/Images/pc_texture.png);height:700px;position: relative;text-align: center;overflow: hidden;}
+.login-baner-text{margin-top: 100px;animation: loginbanertext 0.3s;-moz-animation: loginbanertext 0.3s;-webkit-animation: loginbanertext 0.3s;-o-animation: loginbanertext 0.3s;}
+.login-baner h2{font-size: 28px;color: #fff;font-weight: 500;}
+.login-baner p{color:#fff;font-size: 16px;margin-top: 30px;}
+.login-banerimg{position: absolute;bottom:0;width: 80%;left: 10%;animation: loginbanerimg 0.5s;-moz-animation: loginbanerimg 0.5s;-webkit-animation: loginbanerimg 0.5s;-o-animation: loginbanerimg 0.5s;}
+.login-form{margin-right:20px;float: right;width:360px;position: relative; margin-top: 50px;animation: loginform 0.3s;-moz-animation: loginform 0.3s;-webkit-animation: loginform 0.3s;-o-animation: loginform 0.3s;}
+.login-form h4{font-size: 16px;line-height: 2;}
+.login-form ul{background-color: #fff;padding:40px 15px;position: absolute;right:0;width: 100%;border-radius: 5px;}
+.login-form ul li{position: relative;height: 40px;}
+
+.login-form ul li+li{margin-top: 40px;}
+.login-form ul li label{width: 80px;font-size: 16px;display: inline-block;text-align: right;}
+.login-form ul li label:after{content: "";width: 100%;position: absolute;border-top: 2px solid #ddd;left: 0;bottom: 0;}
+.login-form ul li input{line-height: 32px;border:none;padding:0 5px;font-size: 18px;}
+.login-form ul li.error label{color:red;}
+.login-form ul li.error label:after{border-top: 2px solid red;}
+.login-form ul li.active label{color:#2196F3;}
+.login-form ul li.active label:after{border-top: 2px solid #2196F3;}
+.btn{   display: inline-block; padding: 8px 18px; background-color: #fff; border: 1px solid #ccc; color: #555; white-space: nowrap; text-align: center; font-size: 14px; border-radius: 4px; cursor: pointer; opacity: .9; filter: alpha(opacity=90);}
+.btn-default { border: 1px solid #2aabd2; background-color: #50b0ff; color: #fff;}
+.btn-default:hover { border: 1px solid #2aabd2; background-color: #03a9f4;}
+.btn-default.disabled{ border: 1px solid #2aabd2; background-color: #50b0ff; color: #fff;}
+.login-form .btn{width: 100%;text-align: center;font-size: 16px;padding:10px;}
+.form-error{font-size: 12px;color:red;margin-left: 90px;position: absolute;bottom: -18px;}
+footer{text-align: center;line-height: 100px;font-size: 12px;color:#999;}
+.yzm-group{overflow: hidden;}
+.yzm-group label{float: left; line-height: 32px;}
+.yzm-group .yzm{margin-left: 85px;}
+.yzm-group .yzm input{float: left;}
+.yzm-group .yzm a{font-size: 12px;}
+.yzm-group .yzmimg{float: right;}
+.yzm-group .yzmimg img{margin-top: 6px;}
+
+.choice-shop{padding:10px;}
+.choice-shop li{width: 48%;margin:10px 1%;border:1px solid #ddd;border-top:3px solid #999;padding:10px;border-radius: 5px;float: left;}
+.choice-shop li a{display: inline-block;width:100%;height: 100%;}
+.choice-shop li h4{font-weight: 500;    font-size: 16px;color:#555}
+.choice-shop li p,.choice-shop li a.ok{font-size: 14px;text-align:center;border:1px solid #ddd;color:#999;float: right; width: 36%; margin-top: 6px; padding: 8px 3px;}
+.choice-shop li:hover{border-top:3px solid #FF5722;}
+.choice-shop li:hover h4{color:#333;}
+.choice-shop li:hover p,.choice-shop li:hover a.ok{color:#FF5722;border:1px solid #FF5722;}
+
+
+@keyframes loginbanerimg
+{
+0%   {bottom:-180px;opacity: 0; }
+100% {bottom:0px;opacity: 1; }
+}
+@-moz-keyframes loginbanerimg 
+{
+0%   {bottom:-180px;opacity: 0; }
+100% {bottom:0px;opacity: 1; }
+}
+@-webkit-keyframes loginbanerimg 
+{
+0%   {bottom:-180px;opacity: 0; }
+100% {bottom:0px;opacity: 1; }
+}
+@-o-keyframes loginbanerimg 
+{
+0%   {bottom:-180px;opacity: 0; }
+100% {bottom:0px;opacity: 1; }
+}
+
+@keyframes loginbanertext
+{
+0%   {opacity: 0;margin-top: 0px; }
+100% {opacity: 1; margin-top: 100px;}
+}
+@-moz-keyframes loginbanertext 
+{
+0%   {opacity: 0;margin-top: 0px; }
+100% {opacity: 1; margin-top: 100px;}
+}
+@-webkit-keyframes loginbanertext 
+{
+0%   {opacity: 0;margin-top: 0px; }
+100% {opacity: 1; margin-top: 100px;}
+}
+@-o-keyframes loginbanertext 
+{
+0%   {opacity: 0;margin-top: 0px; }
+100% {opacity: 1; margin-top: 100px;}
+}
+
+
+
+@keyframes loginform
+{
+0%   {opacity: 0;right:-180px;}
+100% {opacity: 1; right:0;}
+}
+@-moz-keyframes loginform 
+{
+0%   {opacity: 0;right:-180px;}
+100% {opacity: 1; right:0;}
+}
+@-webkit-keyframes loginform 
+{
+0%   {opacity: 0;right:-180px;}
+100% {opacity: 1; right:0;}
+}
+@-o-keyframes loginform 
+{
+0%   {opacity: 0;right:-180px;}
+100% {opacity: 1; right:0;}
+}
+
+
+.hg-keyboard{width:330px;border:1px solid #ddd;padding:10px;position: relative;    margin: 10px 0;}
+.hg-keyboard:after,.keyboard-key-box ul:after{display: table; content: " ";clear: both;}
+.keyboard-keys{    position: absolute; top: -30px;   left: 0;}
+.keyboard-keys span{font-size: 15px; border-top-left-radius: 5px; border-top-right-radius: 5px;line-height: 30px; padding: 0 5px; height: 30px; border: 1px solid #ddd; display: block;}
+.keyboard-head{padding:2px;height: 39px;}
+.keyboard-head a,.keyboard-more-box a{display: inline-block;width: 37px;line-height: 35px;text-align: center;    color: #333;}
+.keyboard-head a.del {border-left: 1px solid #ddd;position: absolute; right: 10px;font-size:36px;background: #64c5f1;
+    color: #fff;box-shadow: 0 0.2em 0.4em rgba(0,0,0,.5);border-radius: 4px;width:40px;}
+.keyboard-side-left{width: 60px;position: absolute; height: 274px; left: -60px; margin-top: 6px; border-radius: 5px; padding: 2px;}
+.keyboard-side-left-box{overflow:auto;height:273px;border: 1px solid #ddd;}
+.keyboard-side-left-list{}
+.keyboard-side-left a{display: block;text-align: center;line-height: 48px;}
+.keyboard-side-left a.active{background-color: #ffc107;}
+.keyboard-side-left a+a{border-top:1px solid #ddd;}
+.keyboard-key-box {float: left;}
+.keyboard-key-box ul{width: 318px;position: relative; padding: 0;}
+.keyboard-key-box li:first-child{line-height: 60px;}
+.keyboard-key-box li{    width: 29.4%;  background-color: rgb(100, 197, 241);  margin-right: 0.4em; margin-bottom: 0.4em; box-shadow: 0 0.2em 0.4em rgba(0,0,0,.5); cursor: pointer; float: left; display: block; color: #fff; font-size: 20px;  text-decoration: none; text-align: center; height: 60px!important; margin: 5px;margin-top: 5px!important;-moz-border-radius: 4px;  border-radius: 4px; border-top: 1px solid #f5f5f5; }
+.keyboard-key-box li:active,.keyboard-key-box a:active{ color: #fff; background: #64c5f1; -webkit-box-shadow: inset 0 0 25px #ddd, 0 0 3px #333; -moz-box-shadow: inset 0 0 25px #ddd,0 0 3px #333; box-shadow: inset 0 0 25px #ddd, 0 0 3px #333; border-top: 1px solid #eee;}
+.keyboard-key-box li label{font-size: 14px!important;  width: 100%!important; text-align: center!important; display: initial!important;}
+.keyboard-key-box li label:after{display: none;}
+.keyboard-key-box li:last-child label:after{display: inline-block;}
+.keyboard-key-box li .keyboard-value{font-size: 16px;}
+.keyboard-key-box li.keyboard-other{background-color: #999;    height: 50px;}
+.keyboard-key-box li.keyboard-zero{height: 50px;line-height: 50px;}
+.keyboard-key-box li.keyboard-other label{    position: relative; left: -12px; color: #ddd;top: 0px;}
+.keyboard-key-box li.keyboard-other label:after{    content: "";  width: 15px;  height: 1px;  background-color: #ddd;  transform: rotate(-35deg);  -ms-transform: rotate(-35deg);  -moz-transform: rotate(-35deg);  -webkit-transform: rotate(-35deg);  -o-transform: rotate(-35deg);  position: absolute;  left: 16px;  top: 20px;}
+.keyboard-key-box li.keyboard-other .keyboard-value{    font-size: 18px; position: relative; left: 8px; top: 4px;}
+.keyboard-more-font{position: absolute;display: none;    overflow: auto; width: 100%; height: 279px; background: #fff; top: 50px; left: 0;}
+.keyboard-more-font.show{display: block;}
+.keyboard-more-box {padding:10px;}
+
+
+
+
+
+
+
+

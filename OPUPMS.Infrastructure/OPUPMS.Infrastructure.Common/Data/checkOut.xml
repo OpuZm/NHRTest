@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page Width="200" Heigth="700">
+  <Text Left="0" FontSize="10">{{OrderType}}\n</Text>
+  <Text Left="0" FontSize="10">{{RestaurantName}}\n</Text>
+  <Text Left="0" FontSize="10">结单人:{{CheckOutUser}}\n</Text>
+  <Text Left="0" FontSize="10">开单人:{{OpenUser}}\n</Text>
+  <Text Left="0" FontSize="10">预定人:{{ReserveUser}}\n</Text>
+  <Text Left="0" FontSize="10">打印时间:{{PrintDate}}\n</Text>
+  <Text Left="0" FontSize="10">账务日期:{{BillDate}}\n</Text>
+  <Text Left="0" FontSize="10">分市:{{Market}}\n</Text>
+  <Text Left="0" FontSize="10">人数:{{PersonNum}}\n</Text>
+  <Text Left="0" FontSize="18">单号:{{OrderNo}}\n</Text>
+  <Text Left="0" FontSize="7">台号:{{TableName}}\n</Text>
+  <Text Left="0" FontSize="7">---------------------\n</Text>
+  <Text Left="0" FontSize="7">名称</Text>
+  <Text Left="50" FontSize="7">数量</Text>
+  <Text Left="70" FontSize="7">单价</Text>
+  <Text Left="110" FontSize="7">金额</Text>
+  <Text Left="150"  FontSize="7">折后  \n</Text>
+  <Text Left="0" FontSize="7">---------------------\n</Text>
+  <Loop Values="Detials">
+    <Text Left="0" FontSize="7">{{CyddMxName}}</Text>
+    <Text Left="50" FontSize="7">{{Num}}</Text>
+    <Text Left="70" FontSize="7">{{Price}}</Text>
+    <Text Left="110" FontSize="7">{{Amount}}</Text>
+    <Text Left="150" FontSize="7">{{DiscountedAmount}}\n</Text>
+    <Text Left="0" FontSize="7">---------------------</Text>
+  </Loop>
+  <Text Left="0" FontSize="18">消费金额:{{ConAmount}}</Text>
+  <Text Left="0" FontSize="18">赠送金额:{{GiveAmount}}</Text>
+  <Text Left="0" FontSize="18">折扣比率:{{DiscountRateNow}}</Text>
+  <Text Left="0" FontSize="18">折扣优惠:{{DiscountAmount}}</Text>
+  <Text Left="0" FontSize="18">应收金额:{{OriginalAmount}}</Text>
+  <Text Left="0" FontSize="18">客户名称:{{ContactPerson}}</Text>
+  <Text Left="0" FontSize="18">谢  谢  惠  顾</Text>
+  <Text Left="0" FontSize="7">奥普软件 400-0773-021</Text>
+</Page>

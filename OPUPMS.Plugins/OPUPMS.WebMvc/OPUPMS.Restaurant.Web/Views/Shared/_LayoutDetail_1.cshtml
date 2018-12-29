@@ -1,0 +1,33 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>@ViewBag.Title</title>
+    @StylesEx.Render(FrameworkInfo.Name, "CommonStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "DatetimepickerStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "SelectStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "IcheckStyle")
+    @RenderSection("Styles", false)
+    @RenderSection("HeaderScripts", false)
+    <!--layui-form-->
+    <!--[if lte IE 8]>
+        <div id="errorie"><div>您还在使用老掉牙的IE，正常使用系统前请升级您的浏览器到 IE8以上版本 <a target="_blank" href="http://windows.microsoft.com/zh-cn/internet-explorer/ie-8-worldwide-languages">点击升级</a>&nbsp;&nbsp;强烈建议您更改换浏览器：<a href="http://down.tech.sina.com.cn/content/40975.html" target="_blank">谷歌 Chrome</a></div></div>
+    <![endif]-->
+</head>
+<body>
+    @RenderBody()
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "LayerJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "DatetimepickerJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "SelectJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "JqueryValidateJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "IcheckJs")
+    @RenderSection("FooterScripts", false)
+</body>
+</html>
+

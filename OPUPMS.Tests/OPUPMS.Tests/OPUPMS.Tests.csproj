@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{557C37E3-C7DB-4D79-A2B0-C872CDD986D2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.Tests</RootNamespace>
+    <AssemblyName>OPUPMS.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMapper.6.1.1\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Attributes, Version=6.0.0.0, Culture=neutral, PublicKeyToken=bbc347385eae1a0e, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMapper.Attributes.6.0.0\lib\net45\AutoMapper.Attributes.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.FastCrud, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Dapper.FastCrud.2.4.1\lib\net45\Dapper.FastCrud.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject, Version=3.2.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Shouldly, Version=2.8.3.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Shouldly.2.8.3\lib\net451\Shouldly.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.Dapper.Repository.UnitOfWork, Version=0.4.6294.20582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Smooth.IoC.Dapper.Repository.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.Dapper.Repository.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.UnitOfWork, Version=0.4.6294.20580, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Smooth.IoC.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\StringInterpolationBridge.0.9.1\lib\net40\StringInterpolationBridge.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.abstractions.2.0.1\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.assert.2.2.0\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.core.2.2.0\lib\netstandard1.1\xunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\xunit.extensibility.execution.2.2.0\lib\net452\xunit.execution.desktop.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AutoMapperTests.cs" />
+    <Compile Include="DbFactroyInjectTest.cs" />
+    <Compile Include="StringKeyModelTest.cs" />
+    <Compile Include="TestBase.cs" />
+    <Compile Include="TestModelDomainServiceTests.cs" />
+    <Compile Include="TestModelRepositroyTests.cs" />
+    <Compile Include="TestSetup.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Base\OPUPMS.Domain.Base.csproj">
+      <Project>{92cfcdbe-99df-460b-9375-9de7c431145c}</Project>
+      <Name>OPUPMS.Domain.Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Repository\OPUPMS.Domain.Repository.csproj">
+      <Project>{27d3d983-7190-4544-8ecd-c9320e07b2f7}</Project>
+      <Name>OPUPMS.Domain.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Domain\OPUPMS.Domain\OPUPMS.Domain.Services\OPUPMS.Domain.Services.csproj">
+      <Project>{361cc697-b74d-4f94-94d9-a10ee6400df2}</Project>
+      <Name>OPUPMS.Domain.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Framework\OPUPMS.Web.Framework.Core\OPUPMS.Web.Framework.Core.csproj">
+      <Project>{9260e709-81c7-48a9-9435-475be75b2c5b}</Project>
+      <Name>OPUPMS.Web.Framework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Common\OPUPMS.Infrastructure.Common.csproj">
+      <Project>{68fa3e1c-9c35-4ee4-89f0-2fccb510f85c}</Project>
+      <Name>OPUPMS.Infrastructure.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Dapper\OPUPMS.Infrastructure.Dapper.csproj">
+      <Project>{b7f79bca-a547-482c-94e4-bc33674287cf}</Project>
+      <Name>OPUPMS.Infrastructure.Dapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

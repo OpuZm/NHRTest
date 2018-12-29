@@ -1,0 +1,1864 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@using OPUPMS.Domain.Base.ConvertModels;
+@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = null;
+    var StatusList = (List<BaseDto>)ViewBag.StatusList;
+    var MarketList = ViewBag.MarketList;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    var resId = ViewBag.RestaurantId;
+    bool IsDelete = ViewBag.IsDelete || false;
+    bool IsSearchDelete = ViewBag.IsSearchDelete || false;
+    var CustomerList = ViewBag.CustomerList as List<TypeCodeInfo>;
+    var TableList = ViewBag.TableList as List<TableListIndexDTO>;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewportdetails-table" content="width=device-width" />
+    <title>查单页面</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.layui-tab{margin:0;}
+    	
+        .record table td, .record table th {
+            vertical-align: middle;
+        }
+
+        #isCheckDel .layui-form-switch {
+            margin-top: 0;
+            height: 38px;
+            width: 57px;
+        }
+
+        #isCheckDel .layui-form-switch em {
+            top: 7px;
+        }
+
+        #isCheckDel .layui-form-switch i {
+            width: 32px;
+            height: 32px;
+        }
+        
+        #searchTableList .layui-table-view .layui-table td,#searchTableList .layui-table-view .layui-table th{padding:0;}
+        .fixed-right-t .layui-form-item{margin-bottom:0;}
+        .fixed-right-t .layui-form-item .layui-form-label{padding: 9px 0 9px 0px;}
+        .fixed-right-t .layui-form-item .layui-inline{margin-right:0;}
+        .fixed-right-t .layui-form-item .layui-input-inline{width: 165px;margin:0;}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <!--搜索内容详情  开始-->
+        <div class="search-details">
+            <!--顶部内容模块  开始-->
+            <div class="panel container" id="searchPanel_view"></div>
+            <script id="searchPanelTpl" type="text/html">
+                <div class="layui-row">
+                    <div class="layui-col-md6 layui-col-mx6">
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">单号：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.OrderNo ){ }}
+                                {{d.OrderObj.OrderNo}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">人数：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.PersonNum ){ }}
+                                {{d.OrderObj.PersonNum}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">开单时间：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.CreateDate ){ }}
+                                {{d.OrderObj.CreateDate}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">类型：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.OrderTypeName ){ }}
+                                {{d.OrderObj.OrderTypeName}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">开单人：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.CreateUserName ){ }}
+                                {{d.CreateUserName}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">状态：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderStautsName ){ }}
+                                {{d.OrderStautsName}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx6">
+                            <span class="aglin-right">菜品数量：</span>
+                            {{# if( d.OrderObj && d.DetailCounts !== ""){ }}
+                            <span>{{d.DetailCounts}}</span>
+                            {{# } }}
+                        </div>
+                    </div>
+                    <div class="layui-col-md6 layui-col-mx6">
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">抹零：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.ClearAmount !== "" ){ }}
+                                {{d.OrderObj.ClearAmount.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">四舍五入：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderObj.Fraction !== "" ){ }}
+                                {{d.OrderObj.Fraction.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">折扣：</span>
+                            <span>
+                                {{# if( d.OrderObj && d.OrderObj.DiscountAmount !== "" ){ }}
+                                {{d.OrderObj.DiscountAmount.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <!--<div class="layui-col-md6 layui-col-mx4">
+                            <span class="aglin-right"></span>
+                            <span class="price"></span>
+                        </div>-->
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">服务费：</span>
+                            {{# if( d.OrderObj && d.OrderObj.ServiceAmount !== ""){ }}
+                            <span>{{d.OrderObj.ServiceAmount.toFixed(2)}}</span>
+                            {{# } }}
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">消费金额：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderObj.ConAmount !== "" ){ }}
+                                {{d.OrderObj.ConAmount.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">实付金额：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderObj.RealAmount !== "" ){ }}
+                                {{d.OrderObj.RealAmount.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">找零：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderObj.GiveChange !== ""){ }}
+                                {{d.OrderObj.GiveChange.toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                        <div class="layui-col-md12 layui-col-mx4">
+                            <span class="aglin-right">实收金额：</span>
+                            <span class="price">
+                                {{# if( d.OrderObj && d.OrderObj.RealAmount !== "" ){ }}
+                                {{(d.OrderObj.RealAmount + d.OrderObj.GiveChange).toFixed(2)}}
+                                {{# } }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </script>
+            <!--顶部内容模块  结束-->
+            <!--中间表格模块  开始-->
+            <div class="details-table" id="searchTable_view"></div>
+            <script id="searchTableTpl" type="text/html">
+                <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">菜品信息</li>
+                        <li>支付记录</li>
+                        <li>操作记录</li>
+                        <li>发票记录</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <!--菜品信息  开始-->
+                            {{# if(d.OrderObj.OrderTableList.length !== 0){ }}
+                            <div class="details-info">
+                                <div class="layui-tab layui-tab-card" style="margin:0">
+                                    <ul class="layui-tab-title clearfix" style="height:auto;">
+                                        {{#  layui.each(d.OrderObj.OrderTableList, function(index, item){  }}
+                                        <li {{#  if(index == 0){  }} class="layui-this" {{#  } }} lay-id="TableTab{{ index }}" style="float: left;margin-right: 2px;margin-bottom: 2px;">{{ item.Name }}</li>
+                                        {{#  }); }}
+                                    </ul>
+                                    <div class="layui-tab-content" id="info-table">
+                                        {{#  layui.each(d.OrderObj.OrderTableList, function(index, item){  }}
+                                        <div class="layui-tab-item {{#  if(index == 0){  }} layui-show {{#  } }}">
+                                            {{# if( item.OrderDetailList.length === 0){ }}
+                                            <p class="nodata">暂无数据</p>
+                                            {{#  }else{ var sumPrice = 0,sum = 0; }}
+                                            <table class="layui-table table-header table-default" lay-skin="line" style="margin:0;">
+                                                <colgroup>
+                                                    <col width="80">
+                                                    <col width="50">
+                                                    <col width="50">
+                                                    <col width="60">
+                                                    <col width="60">
+                                                    <col width="60">
+                                                    <col width="60">
+                                                    <col width="170">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th class="tl">菜品名称</th>
+                                                        <th>单位</th>
+                                                        <th>数量</th>
+                                                        <th>单价</th>
+                                                        <th>总价</th>
+                                                        <th>折扣率</th>
+                                                        <th>折后价</th>
+                                                        <th>时间</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <div class="div-table">
+                                                <table class="layui-table table-default" lay-skin="line">
+                                                    <colgroup>
+                                                        <col width="80">
+                                                        <col width="50">
+                                                        <col width="50">
+                                                        <col width="60">
+                                                        <col width="60">
+                                                        <col width="60">
+                                                        <col width="60">
+                                                        <col width="170">
+                                                    </colgroup>
+                                                    <tbody>
+                                                        {{#  layui.each(item.OrderDetailList, function(dIndex, dItem){  }}
+                                                        {{# sumPrice += dItem.Amount; sum += dItem.Num; }}
+                                                        <tr>
+                                                            <td class="tl">
+                                                                <p>
+                                                                	{{# if(dItem.CyddMxStatus == 2){ }}
+                                                                	<i class="iconfont" style="color:#1E9FFF;">&#xe603;</i>
+                                                                	{{# } }}
+                                                                	{{ dItem.CyddMxName }}
+                                                                </p>
+                                                                {{#  if(dItem.ProExtend.length > 0){ }}
+                                                                <p>
+                                                                    <span class="remark">
+                                                                        「做法」:
+                                                                        <span class="msg">
+                                                                            {{#  layui.each(dItem.ProExtend, function(pIndex, Pitem){  }}
+                                                                            {{#  if(pIndex > 0){  }} 、 {{#  } }}
+                                                                            {{ Pitem.Name }}（{{ Pitem.Price }}元）
+                                                                            {{#  }); }}
+                                                                        </span>
+                                                                    </span>
+                                                                </p>
+                                                                {{# } }}
+
+                                                                {{#  if(dItem.ProExtendRequire.length > 0){ }}
+                                                                <p>
+                                                                    <span class="remark">
+                                                                        「要求」:
+                                                                        <span class="msg">
+                                                                            {{#  layui.each(dItem.ProExtendRequire, function(pIndex, Pitem){  }}
+                                                                            {{#  if(pIndex > 0){  }} 、 {{#  } }}
+                                                                            {{ Pitem.Name }}（{{ Pitem.Price }}元）
+                                                                            {{#  }); }}
+                                                                        </span>
+                                                                    </span>
+                                                                </p>
+                                                                {{# } }}
+
+                                                                {{#  if(dItem.ProExtendExtra.length > 0){  }}
+                                                                <p>
+                                                                    <span class="remark">
+                                                                        「配菜」:
+                                                                        <span class="msg">
+                                                                            {{#  layui.each(dItem.ProExtendExtra, function(pIndex, Pitem){  }}
+                                                                            {{#  if(pIndex > 0){  }} 、 {{#  } }}
+                                                                            {{ Pitem.Name }}（{{ Pitem.Price }}元）
+                                                                            {{#  }); }}
+                                                                        </span>
+                                                                </p>
+                                                                {{#  } }}
+
+                                                                {{#  if(dItem.ODRecordCountList && dItem.ODRecordCountList.length > 0){ }}
+                                                                {{#  layui.each(dItem.ODRecordCountList, function(pIndex, Pitem){ }}
+
+                                                                <span class="zt-data">
+                                                                    {{#  if(Pitem.CyddMxCzType==1){ }}
+                                                                    <span class="layui-badge layui-bg-green">赠</span>
+                                                                    {{#  }else if(Pitem.CyddMxCzType==2){ }}
+                                                                    <span class="layui-badge">退</span>
+                                                                    {{#  }else if(Pitem.CyddMxCzType==3){ }}
+                                                                    <span class="layui-badge layui-bg-gray">转入</span>
+                                                                    {{#  }else if(Pitem.CyddMxCzType==4){ }}
+                                                                    <span class="layui-badge layui-bg-gray">转出</span>
+                                                                    {{#  } }}
+                                                                    <span>{{ Pitem.Num }}</</span>
+                                                                </span>
+                                                                {{#  }); }}
+                                                                {{#  } }}
+                                                            </td>
+                                                            <td>{{ dItem.Unit }}</td>
+                                                            <td>{{ dItem.Num }}</td>
+                                                            <td>{{ dItem.Price.toFixed(2) }}</td>
+                                                            <td>{{ dItem.Amount.toFixed(2) }}</td>
+                                                            <td>{{ dItem.DiscountRate.toFixed(2) }}</td>
+                                                            <td>{{ dItem.DiscountedAmount.toFixed(2) }}</td>
+                                                            <td>{{ dItem.CreateDate }}</td>
+                                                        </tr>
+                                                        {{#  }); }}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="layui-row" style="padding:10px">
+                                                <div class="layui-col-md6"><span>数量：</span><span>{{sum}}</span></div>
+                                                <div class="layui-col-md6"><span>本台消费金额：</span><span class="price">{{sumPrice.toFixed(2)}}</span></div>
+                                            </div>
+                                            {{# } }}
+                                        </div>
+                                        {{#  }); }}
+                                    </div>
+                                </div>
+                            </div>
+                            {{# } }}
+                            <!--菜品信息  结束-->
+                        </div>
+                        <div class="layui-tab-item">
+                            <!--支付记录 开始-->
+                            {{# if(d.OrderObj.PaidRecordList.length !== 0){ }}
+                            <div class="payment">
+                                <table class="layui-table table-header table-default" lay-skin="line">
+                                    <colgroup>
+                                    	<col width="180">
+                                        <col width="60">
+                                        <col width="60">
+                                        <col width="80">
+                                        <col width="80">
+                                        <col width="72">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>方式</th>
+                                            <th>类型</th>
+                                            <th>状态</th>
+                                            <th>金额</th>
+                                            <th>操作员</th>
+                                            <th>操作时间</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div id="payment-table" class="div-table">
+                                    <table class="layui-table table-header table-default" lay-skin="line">
+                                        <colgroup>
+                                            <col width="180">
+                                            <col width="60">
+                                            <col width="60">
+                                            <col width="80">
+                                            <col width="80">
+                                            <col width="72">
+                                        </colgroup>
+                                        <tbody>
+                                            {{#  layui.each(d.OrderObj.PaidRecordList, function(index, item){ }}
+                                            {{# if(item.CyddPayType !== 0 ){ }}
+                                            <tr>
+                                                <td style="text-align: left;">
+                                                    <p>{{item.PayTypeName}} {{item.SourceName}}</p>
+                                                    {{# if(item.Remark !== ""){ }}
+                                                    <p class="remark">
+                                                        <span class="remark">「备注」:<span class="msg">{{item.Remark}}</span></span>
+                                                    </p>
+                                                    {{# } }}
+                                                </td>
+                                                <td>{{item.JzTypeName}}</td>
+                                                <td>{{item.JzStatusName}}</td>
+                                                <td>{{item.PayAmount.toFixed(2)}}</td>
+                                                <td>{{item.CreateUserName}}</td>
+                                                <td>{{item.CreateDate}}</td>
+                                            </tr>
+                                            {{# } }}
+                                            {{#  }); }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {{# }else{ }}
+                            <p class="nodata">暂无数据</p>
+                            {{# } }}
+                            <!--支付记录  结束-->
+                        </div>
+                        <div class="layui-tab-item">
+                            <!--操作记录  开始-->
+                            {{# if(d.OrderRecordList.length !== 0){ }}
+                            <div class="record">
+                                <table class="layui-table table-header table-default" lay-skin="line">
+                                    <colgroup>
+                                        <col width="55">
+                                        <col width="80">
+                                        <col width="50">
+                                        <col width="155">
+                                        <col width="80">
+                                        <col width="180">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>操作人</th>
+                                            <th>用户类型</th>
+                                            <th>类型</th>
+                                            <th>时间</th>
+                                            <th>关联台</th>
+                                            <th class="tl">备注信息</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div id="record-table" class="div-table">
+                                    <table class="layui-table table-header table-default" lay-skin="line">
+                                        <colgroup>
+                                            <col width="55">
+                                            <col width="80">
+                                            <col width="50">
+                                            <col width="155">
+                                            <col width="80">
+                                            <col width="180">
+                                        </colgroup>
+                                        <tbody>
+                                            {{#  layui.each(d.OrderRecordList, function(index, item){ }}
+                                            <tr>
+                                                <td>{{ item.UserName }}</td>
+                                                <td>{{ item.UserTypeName }}</td>
+                                                <td>{{ item.OperatorTypeName }}</td>
+                                                <td>{{ item.CreateDate }}</td>
+                                                <td>
+                                                    {{# if(item.TableName != null){ }}
+                                                    {{ item.TableName }}
+                                                    {{# }else{ }}
+                                                    -
+                                                    {{# } }}
+                                                </td>
+                                                <td class="tl">{{ item.Remark }}</td>
+                                            </tr>
+
+                                            {{#  }); }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {{# }else{ }}
+                            <p class="nodata">暂无数据</p>
+                            {{# } }}
+                            <!--操作记录  结束-->
+                        </div>
+                        <div class="layui-tab-item">
+                            <!--发票信息  开始-->
+                            {{# if(d.InvoiceList.length !== 0){ }}
+                            <div class="invoice" style="min-width: 601px;overflow-x: scroll;">
+                                <table class="layui-table table-header table-default" lay-skin="line">
+                                    <colgroup>
+                                        <col width="50">
+                                        <col width="90">
+                                        <col width="90">
+                                        <col width="50">
+                                        <col width="125">
+                                        <col width="75">
+                                        <col width="120">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th>结账分市</th>
+                                            <th>票号</th>
+                                            <th>发票标题</th>
+                                            <th>金额</th>
+                                            <th>开票时间</th>
+                                            <th class="tl">备注信息</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div id="invoice-table" class="div-table">
+                                    <table class="layui-table table-header table-default" lay-skin="line">
+                                        <colgroup>
+                                            <col width="50">
+                                            <col width="90">
+                                            <col width="90">
+                                            <col width="50">
+                                            <col width="125">
+                                            <col width="75">
+                                            <col width="120">
+                                        </colgroup>
+                                        <tbody>
+                                            {{#  layui.each(d.InvoiceList, function(index, item){ }}
+                                            <tr>
+                                                <td>{{ item.OrderMainPayMarket }}</td>
+                                                <td>{{ item.Number }}</td>
+                                                <td>{{ item.Title }}</td>
+                                                <td>{{ item.TotalPrice }}</td>
+                                                <td>{{ item.CreateDate }}</td>
+                                                <td class="tl">{{# if(item.Remark){ }} {{ item.Remark }} {{# } }}</td>
+                                                <td class="tl">
+                                                    <a href="javascript:;" class="layui-btn layui-btn-sm" onclick="editInvoice({{item.Id}},{{index}})">编辑</a>
+                                                    <a href="javascript:;" class="layui-btn layui-btn-sm layui-btn-danger" onclick="deleteInvoice({{item.Id}},{{index}},this)">删除</a>
+                                                </td>
+                                            </tr>
+                                            {{#  }); }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {{# }else{ }}
+                            <p class="nodata">暂无数据</p>
+                            {{# } }}
+                            <!--发票信息 结束-->
+                        </div>
+                    </div>
+                </div>
+            </script>
+            <!--中间表格模块  结束-->
+            <!--按钮组	开始-->
+            <div class="actions-box pbr Tbtns" id="btnBox_view"></div>
+            <script id="btnBoxTpl" type="text/html">
+                <a href="javascript:void(0);" onclick="PrintOrder()" class="layui-btn layui-btn-normal layui-btn-lg">打单</a>
+                <a href="javascript:void(0);" onclick="PrintInvoice()" class="layui-btn layui-btn-lg">打发票</a>
+                {{# if(d.OrderObj && d.OrderObj.Id){ }}
+                <a href="javascript:void(0);" onclick="editOrder({{ d.OrderObj.Id }})" class="layui-btn layui-btn-primary layui-btn-lg">编辑</a>
+                {{# } }}
+                <!--<a href="javascript:void(0);" class="layui-btn layui-btn-lg">发票</a>-->
+                {{# if(d.OrderObj && d.OrderObj.Id > 0){ }}
+                <a href="javascript:void(0);" onclick="openDeposit({{ d.OrderObj.Id }},{{ d.OrderObj.OrderNo }})"
+                   class="layui-btn layui-btn-lg">定金管理</a>
+                {{# if(d.OrderObj.CyddStatus == 6){ }}
+                <a href="javascript:void(0);" onclick="recheckoutPay({{ d.OrderObj.Id }})"
+                   class="layui-btn layui-btn-primary layui-btn-lg">反结</a>
+                {{# }else if(d.OrderObj.CyddStatus > 1 && d.OrderObj.CyddStatus < 6){ }}
+                
+                {{# }else if(d.OrderObj.CyddStatus == 1 || d.OrderObj.CyddStatus == 2){ }}
+                <a href="javascript:void(0);" onclick="cancelOrder({{ d.OrderObj.Id }})"
+                   class="layui-btn layui-btn-primary layui-btn-lg">取消订单</a>
+                {{# } }}
+                {{#  }else{ }}
+                <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-btn-lg t-disabled" onclick="layer.msg('请选择订单')">定金管理</a>
+                {{# } }}
+                @{
+                    if (IsDelete)
+                    {
+                        <a href="javascript:void(0);" class="layui-btn layui-btn-danger layui-btn-lg" onclick="orderDelete()">删除</a>
+                    }
+                }
+            </script>
+            <!--按钮组	结束-->
+        </div>
+        <!--搜索内容详情  结束-->
+        <!--右侧悬浮搜索  开始-->
+        <div class="fixed-right-t right-side" style="width:719px;border-left:1px solid #bbb">
+            <!--顶部搜索条件  开始-->
+            <form class="layui-form xs-form">
+                <!--s-form 用于缩小input-->
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">单号：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="单号或订单ID" class="layui-input" id="OrderNo" name="OrderNo" data-type="number" onfocus="ShowKeyboard(this.name)">
+                            <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">开单分市：</label>
+                        <div class="layui-input-inline">
+                            <select id="MarketId" name="MarketId" class="form-control" lay-search>
+                                <option value="">--所有--</option>
+                                @{
+                                    if (MarketList != null)
+                                    {
+                                        foreach (var item in MarketList)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                    	<label class="layui-form-label">开始日期：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="StartDate" placeholder="开始日期" id="StartDate" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                    	<label class="layui-form-label">结束日期：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="EndDate" placeholder="结束日期" id="EndDate" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+					    <input type="radio" name="OrderSearchListType" value="1" title="创建时间" checked>
+					    <input type="radio" name="OrderSearchListType" value="2" title="用餐时间">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">订单状态：</label>
+                        <div class="layui-input-inline">
+                            <select id="OrderStatus" name="OrderStatus" class="form-control" lay-search>
+                                <option value="">--所有--</option>
+                                @{
+                                    if (StatusList != null)
+                                    {
+                                        foreach (var item in StatusList)
+                                        {
+                                            <option value="@item.Key">@item.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">台号：</label>
+                        <div class="layui-input-inline">
+                            <select id="TableId" name="TableId" class="form-control" lay-search>
+                                <option value="0">--所有--</option>
+                                @{
+                                    if (TableList != null)
+                                    {
+                                        foreach (var item in TableList)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <a href="JavaScript:;" class="layui-btn layui-btn-normal" lay-submit lay-filter="searchTable" id="SearchSubmit">查找</a>
+                        <a href="#" class="layui-btn layui-btn-primary" id="condition-empty">清空</a>
+                    </div>
+                    <div class="layui-inline" id="isCheckDel">
+                        @{
+                            if (IsSearchDelete == true)
+                            {
+                                <input type="checkbox" name="IsIncludeDelete" id="IsIncludeDelete" lay-skin="switch" lay-text="是|否">
+                            }
+                        }
+                    </div>
+                </div>
+            </form>
+            <!--顶部搜索条件  结束-->
+            <!--搜索表格内容  开始-->
+            <div class="search-con table-default table-center" id="searchTableList">
+                <table class="layui-hide table-header" lay-filter="table"></table>
+                <!--根据状态添加不同样式-->
+                <script type="text/html" id="TableOrderStatusTpl">
+                    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="t-del" data-id="{{d.Id}}" style="display:none;">删除</a>
+                    {{# switch(d.CyddStatus){ case 1: }}
+                    <span class="layui-badge">{{d.OrderStatus}}</span>
+                    {{# break; case 2: }}
+                    <span class="layui-badge layui-bg-orange">{{d.OrderStatus}}</span>
+                    {{# break; case 3: }}
+                    <span class="layui-badge layui-bg-green">{{d.OrderStatus}}</span>
+                    {{# break; case 4: }}
+                    <span class="layui-badge" style="background-color: #d9534f;">{{d.OrderStatus}}</span>
+                    {{# break; case 5: }}
+                    <span class="layui-badge" style="background-color:#5cb85c">{{d.OrderStatus}}</span>
+                    {{# break; case 6: }}
+                    <span class="layui-badge layui-bg-blue">{{d.OrderStatus}}</span>
+                    {{# break; case 7: }}
+                    <span class="layui-badge layui-bg-gray">{{d.OrderStatus}}</span>
+                    {{# break; case 9: }}
+                    <span class="layui-badge" style="background-color: #d9534f;">{{d.OrderStatus}}</span>
+                    {{# break; default :  }}
+                    <span class="layui-badge layui-badge-rim" style="background:red;color:#fff;border:none;">{{d.OrderStatus}}</span>
+                    {{# } }}
+
+                </script>
+            </div>
+            <!--搜索表格内容  结束-->
+            <!--搜索内容概括  开始-->
+            <div class="con-summary fixed-bottom-l">
+                <div class="summary-wrap" id="summaryWrap_view"></div>
+                <script id="summaryWrapTpl" type="text/html">
+                    <div class="layui-row layui-col-space10">
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>单数：{{d.TotalRecords}}</span>
+                        </div>
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>人数：{{d.TotalPeopleNum}}</span>
+                        </div>
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>四舍五入：{{d.TotalFractionAmount.toFixed(2)}}</span>
+                        </div>
+                    </div>
+                    <div class="layui-row layui-col-space10">
+                        
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>折扣：{{d.TotalDiscountAmount.toFixed(2)}}</span>
+                        </div>
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>抹零：{{d.TotalClearAmount.toFixed(2)}}</span>
+                        </div>
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>服务费：{{d.TotalServiceAmount.toFixed(2)}}</span>
+                        </div>
+                    </div>
+                    <div class="layui-row layui-col-space10"> 
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>消费金额：<span class="price">¥{{d.TotalConAmount.toFixed(2)}}</span></span>
+                        </div>
+                        <div class="layui-col-md4 layui-col-sm4">
+                            <span>实收金额：<span class="price">¥{{d.TotalRealAmount.toFixed(2)}}</span></span>
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <!--搜索内容概括  结束-->
+        </div>
+        <!--右侧悬浮搜索  结束-->
+    </div>
+    <!-- 发票信息填写form -->
+    <div id="printInvoiceFormDemo" style="display:none;">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">票号：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Number" placeholder="请输入票号" lay-verify="required" lay-required-msg="请输入票号" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">客户：</label>
+                <div class="layui-input-inline">
+                    <select class="CustomerList" name="Company" class="form-control" lay-verify="required" lay-required-msg="请选择客户类型" lay-search>
+                        <option value="0">--请选择--</option>
+                        @{
+                            if (CustomerList != null)
+                            {
+                                foreach (var item in CustomerList)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">发票标题：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Title" placeholder="请输入发票抬头" lay-required-msg="请输入发票抬头" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">金额：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="TotalPrice" placeholder="请输入金额" lay-verify="number|required|price" lay-required-msg="请输入金额" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="width: 100%;">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <textarea id="Remark" name="Remark" class="layui-textarea" rows="3" style="width: 87%;"></textarea>
+            </div>
+        </div>
+        <input type="hidden" class="orderId" name="orderId" value="" />
+        <input type="hidden" class="invoiceId" name="invoiceId" value="" />
+        <input type="hidden" class="isInvoiceId" name="isInvoiceId" value="" />
+        <div class="layer-btns-bottom" style="position:absolute;">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary" onclick="layer.closeAll('page');">取消</button>
+        </div>
+    </div>
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Report")
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+    	
+    	
+        var laytpl;
+        var form;
+        var searchPanel;
+        var PanelView;
+        var searchTable;
+        var TableView;
+        var btnBox;
+        var btnBoxView;
+        var msgW;
+        var leftTableH;
+        var winHeight = $(window).height();
+        var winWidth = $(window).width();
+        layui.use(['element', 'table', 'layer', 'laydate', 'form', 'laytpl'], function () {
+            var element = layui.element,
+                laydate = layui.laydate,
+                layer = layui.layer;
+                table = layui.table,
+//              printOrderData = {};//打印数据
+				thisOrderDetail = {};
+            	laytpl = layui.laytpl;
+            	form = layui.form;
+            	
+            	
+
+			//是否包含删除 form表单  check  tips提示
+			hintTips($('#isCheckDel'),'是否包含已经删除的订单')
+
+
+			//左侧所有数据模板
+            searchPanel = searchPanelTpl.innerHTML;
+            PanelView = document.getElementById('searchPanel_view');
+            searchTable = searchTableTpl.innerHTML;
+            TableView = document.getElementById('searchTable_view');
+            btnBox = btnBoxTpl.innerHTML;
+            btnBoxView = document.getElementById('btnBox_view');
+            //右侧下方 总共数据 模板
+            var summaryWrap = summaryWrapTpl.innerHTML,
+                summaryWrapView = document.getElementById('summaryWrap_view');
+
+            var RightTableH = winHeight - 270;//右侧表格高度
+            var limits = Math.floor((RightTableH - 86) / 34);
+            if (limits <= 10) { limits = 10 }
+
+            //左侧表格 高度  留言宽度
+            leftTableH = winHeight - 300;
+            msgW = (winWidth - 840);
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#StartDate', //指定元素
+                type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+
+            laydate.render({
+                elem: '#EndDate', //指定元素
+                type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+
+            form.verify({
+				price: function(value, item){
+					if(value < 0 ){
+						return '价格必须是正数';
+					}
+					if(value.split(".")[1] && value.split(".")[1].length > 2){
+						return '价格最多只能有两位小数'
+					}
+				}
+			})
+
+            //基本要求提交
+	        form.on('submit(form1)',function(data) {
+				var para = data.field;
+				para.RestaurantId = thisOrderDetail.OrderObj.R_Restaurant_Id;
+				if(para.isInvoiceId == "" ){
+					invoiceSubmit(para)
+				}else{
+					editInvoiceSubmit(para)
+				}
+
+				//打发票
+				function invoiceSubmit(para){
+
+					para.R_OrderMainPay_Id = thisOrderDetail.OrderObj.MainPayList[para.orderId].Id;
+					para.Id = 0;
+
+					$.ajax({
+					type: "post",
+						url: "/Res/Order/CreateInvoice",
+						dataType: "json",
+						//contentType: "application/json; charset=utf-8",
+						data: para,
+						async: false,
+						beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+						success: function(data, textStatus) {
+							if(data["Data"] == true) {
+								layer.closeAll('page');
+
+								parent.layer.msg('打发票成功');
+
+
+			                    var id = $('#searchTableList .layui-table-body tr.layui-this').attr('data-index');
+			                    RefreshOrdeInfo(searchData[id].Id,function(){
+			                    	$('#searchTable_view .layui-tab-title li').eq(3).click();
+			                    	$('#invoice-table').scrollTop($('#invoice-table').children('.layui-table').height());
+			                    });
+							} else {
+								layer.alert(data["Message"]);
+							}
+						}
+					});
+				}
+
+				function editInvoiceSubmit(para){
+					para.R_OrderMainPay_Id = para.RecordId
+					para.Id = para.orderId;
+
+					$.ajax({
+					type: "post",
+						url: "/Res/Order/CreateInvoice",
+						dataType: "json",
+						//contentType: "application/json; charset=utf-8",
+						data: para,
+						async: false,
+						beforeSend: function (XMLHttpRequest) {
+			                layindex = layer.open({type: 3});
+			            },
+			            complete: function (XMLHttpRequest, textStatus) {
+			                layer.close(layindex);
+			            },
+						success: function(data, textStatus) {
+							if(data["Data"] == true) {
+								layer.closeAll('page');
+
+								//设置编程后内容
+//								$('#invoice-table').scrollTop($('#invoice-table')
+								var $td = $('#invoice-table .layui-table tr').eq(para.isInvoiceId).children('td');
+								$td.eq(1).html(para.Number)
+								$td.eq(2).html(para.Title)
+								$td.eq(3).html(para.TotalPrice)
+								$td.eq(5).html(para.Remark)
+								//设置编辑后    数组对象内容
+								var thisInvoice = thisOrderDetail.InvoiceList[para.isInvoiceId];
+								thisInvoice.Number = para.Number;
+								thisInvoice.Title = para.Title;
+								thisInvoice.TotalPrice = para.TotalPrice;
+								thisInvoice.Remark = para.Remark;
+
+								parent.layer.msg('发票编辑完成');
+							} else {
+								layer.alert(data["Message"]);
+							}
+						}
+					});
+				}
+
+
+				return false;//阻止表单跳转。如果需要表单跳转，去掉这段即可。
+	        });
+
+			//表单搜索条件
+			SerachTablePara = { ListType: '1', Restaurant: @resId, IsReserveList: false }
+            //右侧表单
+            table.render({
+                elem: '.search-con .layui-hide',
+                url: "/Res/Order/SearchOrder",
+                where: SerachTablePara,
+                cellMinWidth: 50,
+                height: RightTableH,
+                request: {
+                    pageName: 'offset' //页码的参数名称，默认：page
+                },
+                response: {
+                    countName: 'total' //数据总数的字段名称，默认：count
+                    , dataName: 'rows' //数据列表的字段名称，默认：data
+                },
+                cols: [
+                    [
+                        { field: 'Id', title: 'ID', width: '50'},
+                        { field: 'OrderStatus', title: '状态', width: '50', toolbar: '#TableOrderStatusTpl' },
+                        { field: 'OrderNo', title: '单号', width: '150' },
+                        { field: 'MarketName', title: '分市', width: '40' },
+//                      { field: 'OrderTypeName', title: '类型', width: '40'},
+                        { field: 'OrderTableNames', title: '台号',width:'80'},
+                        { field: 'SumPeopleNum', title: '人数' ,width: '40'},
+                        { field: 'ConAmount', title: '消费金额', width: '80' },
+                        { field: 'SumRealAmount', title: '实收金额', width: '80' },
+                        { field: 'CreateDate', title: '创建时间', minWidth: '150', unresize: true },
+                    ]
+                ],
+                //data: tableJson,
+                page: {
+                	hash: 'fenye' //自定义hash值
+                },
+                limits: [limits, 20, 50],
+                limit: limits,  //每页默认显示的数量
+                id: 'tableReload',
+                done: function (res, curr, count) {
+                	console.log(res)
+                	inidata = res;
+                	
+                	thisOrderDetail = {};
+                    res.code === 0 ? searchData = res.rows : searchData = "";
+
+                    laytpl(searchPanel).render({}, function (html) {
+                        PanelView.innerHTML = html;
+                    });
+
+                    laytpl(btnBox).render({}, function (html) {
+                        btnBoxView.innerHTML = html;
+                    });
+
+                    laytpl(summaryWrap).render(res.summaryObj, function (html) {
+                        summaryWrapView.innerHTML = html;
+                    });
+
+                    TableView.innerHTML = "";
+                },
+                skin: 'line'
+            });
+
+            //监听左侧tab切换
+			element.on('tab(docDemoTabBrief)', function(data){
+				leftTableAuto(data.index)
+			});
+
+
+            //清空搜索栏内容
+            $('#condition-empty').on('click', function () {
+                $('.right-side .xs-form input,.right-side .xs-form select').val('');
+                form.render('select');
+            });
+
+			//点击键盘 Enter 自动提交
+            $('.right-side .xs-form input').focus(function () {
+                $(this).on('keypress', function (e) {
+                    if (event.keyCode == 13) {
+                        $('#SearchSubmit').trigger('click');
+                        $(this).blur();
+                    }
+                });
+            }).blur(function () {
+                $(this).off('keypress');
+            });
+
+
+            //搜索查询  订单
+            form.on('submit(searchTable)',function(data) {
+				console.log(data)
+				var Data = data.field;
+//				Data.Date = Data.Date.replace(/\s\-\s/,'+').split('+')
+//				Data.StartDate = Data.Date[0];
+//				Data.EndDate = Data.Date[1];
+				Data.TableId = parseInt(Data.TableId);
+				if (Data.TableId > 0) {
+                    Data.TableName = $('#TableId').find("option:selected").text();
+                } else{
+                	Data.TableName = '';
+                }
+                //是否包含已经删除的
+                var $IsIncludeDelete = $('#IsIncludeDelete');
+                Data.IsIncludeDelete = $IsIncludeDelete.length == 0 ? false : $IsIncludeDelete.is(':checked');
+                //搜索表单数据
+                SerachTablePara = { //请求参数
+                    ListType: '1'
+                    , Restaurant: @resId
+                    , OrderNo: Data.OrderNo
+                    , BeginDate: Data.StartDate
+                    , EndDate: Data.EndDate
+                    , CyddStatus: Data.OrderStatus
+                    , OrderSearchListType: Data.OrderSearchListType
+//                  , OrderType: Data.orderType
+                    , MarketId: Data.MarketId
+                    , IsReserveList: false
+                    , IsIncludeDelete: Data.IsIncludeDelete
+                    , TableId: Data.TableId
+                    , TableName: Data.TableName
+                }
+                table.reload('tableReload', {
+                    where: SerachTablePara
+                    ,page: {
+                    	hash: 'fenye',
+					    curr: 1 //重新从第 1 页开始
+					}
+                });
+				return false;//阻止表单跳转。如果需要表单跳转，去掉这段即可。
+	        });
+            /*
+            $('#SearchSubmit').click(function () {
+                var orderNo = $('#OrderNo').val();//单号
+                var startDate = $('#StartDate').val();
+                var endDate = $('#EndDate').val();
+                var orderStatus = $('#orderStatus').val();
+                var orderType = $('#OrderType').val();
+                var marketId = $('#MarketId').val();
+                var TableId = $('#TableId').val();
+                var TableName = "";
+                if (TableId > 0) {
+                    TableName = $('#TableId').find("option:selected").text();
+                } 
+                //搜索表单数据
+                SerachTablePara = { //请求参数
+                    ListType: '1'
+                    , Restaurant: @resId
+                    , OrderNo: orderNo
+                    , BeginDate: startDate
+                    , EndDate: endDate
+                    , CyddStatus: orderStatus
+                    , OrderType: orderType
+                    , MarketId: marketId
+                    , IsReserveList: false
+                    , IsIncludeDelete: IsIncludeDelete
+                    , TableId: TableId
+                    , TableName: TableName
+                }
+                table.reload('tableReload', {
+                    where: SerachTablePara
+                    ,page: {
+                    	hash: 'fenye',
+					    curr: 1 //重新从第 1 页开始
+					}
+                });
+            });
+			*/
+
+
+
+			//双击开始订单明细查询
+            $(document).on('dblclick', '.search-con .layui-table-body tr', function () {
+                if ($(this).hasClass('layui-this')) return
+                if (searchData !== "") {
+                    $('.search-con .layui-table-body tr').removeClass('layui-this')
+                    $(this).addClass('layui-this');
+
+                    var id = $(this).attr('data-index');
+                    id = searchData[id].Id;
+                    RefreshOrdeInfo(id);
+                }
+            });
+
+            //删除订单方法
+            table.on('tool(table)', function (obj) {
+		        if(obj.event === 't-del'){
+		        	var data = obj.data;
+		        	var id = data.Id;
+		        	layer.confirm('删除订单会导致系统不再显示此订单，请确定该订单已打印单据', {
+						icon: 7, title:'提示',
+				        btn: ['继续删除', '取消'] //按钮
+				    }, function (index) {
+				        $.ajax({
+				            type: "post",
+				            url: '/Res/Order/DeleteOrder',
+				            dataType: "json",
+				            //contentType: "application/json; charset=utf-8",
+				            data: {id:id,isDelete:true},
+				            async: false,
+				            beforeSend: function (XMLHttpRequest) {
+				                layindex = layer.open({type: 3});
+				            },
+				            complete: function (XMLHttpRequest, textStatus) {
+				                layer.close(layindex);
+				            },
+				            success: function (data, textStatus) {
+				                if (data["Data"] == true) {
+									var orderNo = $('#OrderNo').val();//单号
+					                var startDate = $('#StartDate').val();
+					                var endDate = $('#EndDate').val();
+					                var orderStatus = $('#orderStatus').val();
+					                var orderType = $('#OrderType').val();
+					                var marketId = $('#MarketId').val();
+					                //是否包含已经删除的
+					                var $IsIncludeDelete = $('#IsIncludeDelete');
+					                var IsIncludeDelete = $IsIncludeDelete.length == 0 ? false : $IsIncludeDelete.is(':checked');
+
+					                SerachTablePara = { //请求参数
+					                    ListType: '1'
+					                    , Restaurant: @resId
+					                    , OrderNo: orderNo
+					                    , BeginDate: startDate
+					                    , EndDate: endDate
+					                    , CyddStatus: orderStatus
+					                    , OrderType: orderType
+					                    , MarketId: marketId
+					                    , IsReserveList: false
+					                    , IsIncludeDelete : IsIncludeDelete
+					                }
+					                //如果当前页只有一条并且即将删除
+				                	if($('.search-con .layui-hide').next().find('.layui-table-body tr').length == 1){
+	                                	var curr = location.hash.replace('#!fenye=', '');
+	                                	location.hash = '#!fenye=' + curr == 1 ? curr : --curr
+	                                }
+					                table.reload('tableReload', {
+					                    where: SerachTablePara
+					                    ,page: {
+					                    	hash: 'fenye',
+										    curr: location.hash.replace('#!fenye=', '') //重新从第 1 页开始
+										}
+					                });
+
+
+									layer.close(index);
+				                    layer.msg("删除成功");
+
+				                    laytpl(searchPanel).render({}, function (html) {
+				                        PanelView.innerHTML = html;
+				                    });
+
+				                    laytpl(btnBox).render({}, function (html) {
+				                        btnBoxView.innerHTML = html;
+				                    });
+
+				                    TableView.innerHTML = "";
+				                } else {
+				                    layer.alert(data["Message"]);
+				                }
+				            }
+				        });
+				    }, function (index) {
+				        layer.close(index);
+				    });
+		        }
+
+		    });
+        });
+
+
+
+        //左下 删除按钮
+        function orderDelete(){
+        	var $this = $('#searchTableList .layui-table-body tr.layui-this');
+        	if($this.length === 0){
+        		layer.msg('请选择订单');
+                return;
+        	}
+        	$this.find('.layui-btn[lay-event=t-del]').click();
+        }
+
+
+		//订单明细查询 ajax
+        function RefreshOrdeInfo(id,callback) {
+            $.ajax({
+                url: "/Res/CheckOut/OrderSearchById",
+                data: { orderId: id },
+                type: "post",
+                dataType: "json",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                	thisOrderDetail = data;//当前选中订单信息
+
+//                  printOrderDataReset(data);//打印数据重置
+                    laytpl(searchPanel).render(data, function (html) {
+                        PanelView.innerHTML = html;
+                    });
+
+                    laytpl(searchTable).render(data, function (html) {
+                        TableView.innerHTML = html;
+
+                        var remark = $(TableView).find('.remark');
+                        remark.children('.msg').css('width', msgW)
+                        $.each(remark, function () {
+                            $(this).height($(this).children('.msg').height());
+                        })
+
+                        callback && callback();
+                    });
+
+                    laytpl(btnBox).render(data, function (html) {
+                        btnBoxView.innerHTML = html;
+                    });
+
+
+					leftTableAuto(0)
+                    //表格高度设置
+//                  $('#payment-table,#record-table').css('max-height', leftTableH);
+//                  $('#info-table .div-table').css('max-height', leftTableH - 90);
+
+
+                },
+                error: function (XMLHttpRequest, textStatus) {
+                    layer.close(index);
+                    layer.msg('加载失败，请刷新后重试')
+                }
+            });
+        }
+
+		//查询
+        function Refresh() {
+            $('#SearchSubmit').click();
+        }
+
+
+		//定金管理
+        function openDeposit(orderId, orderNo) {
+            if (orderId <= 0){
+            	layer.msg('请选择订单');
+                return;
+			}
+            layer.open({
+                type: 2,
+                title: "<h5>" + orderNo + " 订单-定金管理 </h5>",
+                area: ['860px', '500px'],
+                content: "/Res/Order/DepositList?orderId=" + orderId,
+                maxmin: false
+            });
+        }
+
+		//反结弹窗
+        function recheckoutPay(id) {
+            if (id <= 0) {
+                layer.msg("无效订单，请确认刷新后重试！");
+                return;
+            }
+			var res = thisOrderDetail.OrderObj.MainPayList;
+			//thisOrderDetail.MainPayList
+			if(res.length==1){
+        	   openReturnCheckout(id,res[0]);
+        	}else{
+        		var aHtml = "";
+                for (var i = 0; i < res.length; i++) {
+                    aHtml += '<li data-index="'+i+'"><a href="javascript:void(0);">'
+                        + '<h4>' + res[i].BillDate + res[i].MarketName + (i+1) + '</h4><p>选中记录</p>'
+                        + '</a></li>';
+                }
+                layer.open({
+                    type: 1,
+                    title: "选择结账记录",
+                    area: ["600px", "500px"],
+                    content: '<ul class="choice-shop" id="ReturnCheckout_select">' + aHtml + '</ul>',
+                    maxmin: false,
+                    success:function(layero, index){
+                    	$('#ReturnCheckout_select li').click(function(){
+                    		var no=$(this).attr('data-index');
+                    		openReturnCheckout(id,res[no]);
+                    		layer.close(index);
+
+                    	})
+                    }
+                });
+        	}
+//          var para = { orderId: id };
+//          $.ajax({
+//              type: "post",
+//              url: "/Res/CheckOut/GetOrderTableIds",
+//              dataType: "json",
+//              data: JSON.stringify(para),
+//              contentType: "application/json; charset=utf-8",
+//              beforeSend: function (xhr) {
+//                  layindex = layer.open({
+//                      type: 3,
+//                      shadeClose: true, //点击遮罩关闭层
+//                  });
+//              },
+//              success: function (data, textStatus) {
+//                  var res = data.Data;
+//
+//                  if (data.Successed == true) {
+//                  	if(res.length==1){
+//                  	   openReturnCheckout(id,res[0]);
+//                  	}else{
+//                  		var aHtml = "";
+//			                for (var i = 0; i < res.length; i++) {
+//			                    aHtml += '<li data-index="'+i+'"><a href="javascript:void(0);">'
+//			                        + '<h4>' + res[i].BillDate + res[i].MarketName + (i+1) + '</h4><p>选中记录</p>'
+//			                        + '</a></li>';
+//			                }
+//			                layer.open({
+//			                    type: 1,
+//			                    title: "选择结账记录",
+//			                    area: ["600px", "500px"],
+//			                    content: '<ul class="choice-shop" id="ReturnCheckout_select">' + aHtml + '</ul>',
+//			                    maxmin: false,
+//			                    success:function(layero, index){
+//			                    	$('#ReturnCheckout_select li').click(function(){
+//			                    		var no=$(this).attr('data-index');
+//			                    		openReturnCheckout(id,res[no]);
+//			                    		layer.close(index);
+//
+//			                    	})
+//			                    }
+//			                });
+//                  	}
+//                  } else {
+//                      layer.alert(data.Message);
+//                  }
+//              },
+//              complete: function (XMLHttpRequest, textStatus) {
+//                  layer.close(layindex);
+//              }
+//          });
+        }
+
+		//反结
+        function openReturnCheckout(id, res) {
+            var chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+            var para = { mainPayId: res.Id }
+        	$.ajax({
+                type: "post",
+                url: "/Res/CheckOut/ReverseOrder",
+                dataType: "json",
+                data: JSON.stringify(para),
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data.Data!=null) {
+                        $.connection.hub.start().done(function () {//通知刷新工作台界面
+                            chat.server.notifyResServiceRefersh(true);
+                        });
+
+                        table.reload('tableReload', {
+			                where: SerachTablePara
+			                ,page: {
+			                	hash: 'fenye',
+							    curr: location.hash.replace('#!fenye=', '') || 1
+							}
+			            });
+
+                        layer.confirm('( ' + data.Data.ReverTableNames + ' ) 反结成功，请选择操作？', {
+                            skin: 'OperationConfirm',
+                            btn: ['继续查单', '返回控制台'],
+                            closeBtn: 0
+                        }, function (index, layero) {
+
+                            layer.closeAll();
+                        }, function (index) {
+                            parent.layer.closeAll();
+                        });
+                	}else{
+                		layer.alert(data.Message);
+                	}
+                }
+            });
+//      	parent.layer.open({
+//              type: 2,
+//              anim: -1,
+//              title: '反结',
+//              shadeClose: true,
+//              skin: 'layer-header',
+//              shade: 0.8,
+//              area: ['100%', '100%'],
+//              content: "/Res/CheckOut/ReverseOrder?mainPayId=" + res.Id,
+//              success:function(layero, index){
+//              	//Page_Check_layerindex=index;
+//              	parent.newPage_Check_layerindex(index);
+//              }
+//          });
+//      	parent.layer.open({
+//              type: 2,
+//              anim: -1,
+//              title: '反结',
+//              shadeClose: true,
+//              skin: 'layer-header',
+//              shade: 0.8,
+//              area: ['100%', '100%'],
+//              content: "/Res/CheckOut/ReturnCheckout?orderId=" + id + "&tableIds=" + res.TabIdList.join(','),
+//              success:function(layero, index){
+//              	//Page_Check_layerindex=index;
+//              	parent.newPage_Check_layerindex(index);
+//              }
+//
+//          });
+        }
+
+		//编辑订单
+        function editOrder(id) {
+            if (id <= 0){
+            	layer.msg('请选择订单');
+                return;
+			}
+            layerBox('/Res/Order/NewOrderEdit', id, '订单编辑', 700);
+        }
+
+		//取消订单
+        function cancelOrder(id) {
+            if (id <= 0) {
+                layer.msg('当前订单Id 无效');
+                return;
+            }
+            layer.confirm("确定取消订单吗？", { title: '取消提示', btn: ['确认取消', '返回'] }, function () {
+                var para = { orderId: id };
+
+                var chat = $.connection.systemHub;
+                chat.hubName = 'systemHub';
+                chat.connection.start();
+
+                $.ajax({
+                    type: "post",
+                    url: "/Res/Home/CancelOrder",
+                    dataType: "json",
+                    data: JSON.stringify(para),
+                    contentType: "application/json; charset=utf-8",
+                    async: false,
+                    beforeSend: function (XMLHttpRequest) {
+		                layindex = layer.open({type: 3});
+		            },
+		            complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+                    success: function (data, textStatus) {
+                        var res = data.Data;
+                        if (res == true) {
+                            $.connection.hub.start().done(function () {
+                                chat.server.notifyResServiceRefersh(true);
+                            });
+
+                            layer.alert("取消订单成功", function () {
+                                Refresh();
+                                layer.closeAll();
+                            });
+                        } else {
+                            layer.alert(data["Message"]);
+                        }
+                    }
+                });
+            });
+        }
+
+		//打单判断
+        function PrintOrder() {
+        	if(isEmptyObject(thisOrderDetail)){
+        		layer.msg('请选择订单');
+        		return false;
+        	}
+        	var list = thisOrderDetail.OrderObj.MainPayList;
+        	var len = list.length;
+        	switch(len){
+        		case 0:
+        			layer.msg('请选择结账的订单');
+        			break;
+        		case 1:
+        			printOrderStart(0)
+        			break;
+        		default:
+        			var str = '<div style="padding:20px 10px 20px 20px;"><table class="table-header layui-table" lay-filter="printOrderTable" lay-skin="line">' +
+        						'<thead>' +
+									'<tr>' +
+										'<th lay-data="{field:\'a\',align:\'center\',width:\'156\'}">分市</th>' +
+										'<th lay-data="{field:\'b\',align:\'center\',width:\'156\'}">时间</th>' +
+										'<th lay-data="{field:\'c\',align:\'center\',width:\'156\'}">操作</th>' +
+									'</tr>' +
+								'</thead>' +
+								'<tbody>';
+					for(var i=0;i<len;i++){
+						str += "<tr>" +
+									"<td>" + list[i].MarketName + "</td>" +
+									"<td>" + list[i].CreateDate + "</td>" +
+									"<td><a href='javascript:;' class='layui-btn' onclick='printOrderStart(" + i + ")'>打单</a></td>" +
+								"</tr>"
+					}
+					str += '</tbody></table></div>';
+					var maxH = winHeight*0.8;
+        			layer.open({
+						type: 1,
+						shadeClose: true,
+						skin: 'layer-header',
+						offset: 'auto',
+						area: '500px',
+						maxHeight:maxH,
+						content: str,
+						success: function(layero, index){
+//							layero.find('.printOrderLayer').append($(str));
+
+							table.init('printOrderTable', {
+								skin: 'line',
+								height: layero.find('.layui-layer-content').height() - 60,
+								limit: 99999999,
+								unresize: true,
+								done: function(){
+									layero.find('.layui-btn').css({'height':'32px','line-height':'32px'})
+								}
+							});
+						}
+		        	})
+        	}
+//      	console.log(printOrderData)
+//          reportorJs.showPdb(8802, printOrderData.id, 0, "'" + printOrderData.ids + "'", 0, 0, 0, '', "'" + printOrderData.price + "'", '');
+//      	console.log(printOrderData)
+//          reportorJs.showPdb(8802, printOrderData.id, 0, "'" + printOrderData.ids + "'", 0, 0, 0, '', "'" + printOrderData.price + "'", '');
+//          console.log(printOrderData)
+//          reportorJs.showPdb(8802, printOrderData.id, 0, "'" + printOrderData.ids + "'", 0, 0, 0, '', "'" + printOrderData.price + "'", '');
+          //reportorJs.showPdb(8804, 订单ID[int], 主结单ID[int], 订单台号IDS[string(多个以','分隔)], 0, 0, 0, '','');
+          //														OrderTableIds
+          //MainPayList
+
+        }
+
+
+
+        //开始打单
+        function printOrderStart(i) {
+            reportorJs.printPdb(8804, thisOrderDetail.OrderObj.Id, thisOrderDetail.OrderObj.MainPayList[i].Id, "'" + thisOrderDetail.OrderObj.MainPayList[i].OrderTableIds + "'", 0, 0, inidata.PrintModel, '','');
+        }
+
+
+        //打发票判断
+        function PrintInvoice(){
+        	if(isEmptyObject(thisOrderDetail)){
+        		layer.msg('请选择订单');
+        		return false;
+        	}
+        	var list = thisOrderDetail.OrderObj.MainPayList;
+        	var len = list.length;
+        	switch(len){
+        		case 0:
+        			layer.msg('请选择结账的订单');
+        			break;
+        		case 1:
+        			printInvoiceStart(0)
+        			break;
+        		default:
+        			var str = '<div style="padding:20px 10px 20px 20px;"><table class="table-header layui-table" lay-filter="printOrderTable" lay-skin="line">' +
+        						'<thead>' +
+									'<tr>' +
+										'<th lay-data="{field:\'a\',align:\'center\',width:\'156\'}">分市</th>' +
+										'<th lay-data="{field:\'b\',align:\'center\',width:\'156\'}">时间</th>' +
+										'<th lay-data="{field:\'c\',align:\'center\',width:\'156\'}">操作</th>' +
+									'</tr>' +
+								'</thead>' +
+								'<tbody>';
+					for(var i=0;i<len;i++){
+						str += "<tr>" +
+									"<td>" + list[i].MarketName + "</td>" +
+									"<td>" + list[i].CreateDate + "</td>" +
+									"<td><a href='javascript:;' class='layui-btn' onclick='printInvoiceStart(" + i + ")'>打发票</a></td>" +
+								"</tr>"
+					}
+					str += '</tbody></table></div>';
+					var maxH = winHeight*0.8;
+        			layer.open({
+						type: 1,
+						shadeClose: true,
+						skin: 'layer-header',
+						offset: 'auto',
+						area: '500px',
+						maxHeight:maxH,
+						content: str,
+						success: function(layero, index){
+//							layero.find('.printOrderLayer').append($(str));
+
+							table.init('printOrderTable', {
+								skin: 'line',
+								height: layero.find('.layui-layer-content').height() - 60,
+								limit: 99999999,
+								unresize: true,
+								done: function(){
+									layero.find('.layui-btn').css({'height':'32px','line-height':'32px'})
+								}
+							});
+						}
+		        	})
+        	}
+        }
+
+
+		//弹出窗口 填写打发票信息
+		function printInvoiceStart(i) {
+			layer.closeAll('page')
+			var str = '<div style="padding:10px 10px 60px;position:relative;"><form class="layui-form" id="printInvoiceForm" lay-filter="printInvoiceForm">' + $('#printInvoiceFormDemo').html() +'</form></div>';
+			layer.open({
+				type: 1,
+				title: '发票信息填写',
+				shadeClose: false,
+				area: ['680px'],
+				content: str,
+				success: function(layero, index){
+					layero.find('.CustomerList').val(thisOrderDetail.OrderObj.CustomerId);//设置默认值
+					layero.find('.orderId').val(i);
+					form.render(null, 'printInvoiceForm');
+					layero.find('.layui-anim').css('max-height',180);//防止select过长导致BUG
+				}
+			});
+		};
+
+		//编辑发票信息
+		function editInvoice(ID,$index){
+			$.ajax({
+                type: "post",
+                url: "/Res/Order/GetInvoice?id=" + ID,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    var res = data.Data;
+
+                	var str = '<div style="padding:10px 10px 60px;position:relative;"><form class="layui-form" id="printInvoiceForm" lay-filter="printInvoiceForm">' + $('#printInvoiceFormDemo').html() +'</form></div>';
+					layer.open({
+						type: 1,
+						title: '发票信息编辑',
+						shadeClose: false,
+						area: ['680px'],
+						content: str,
+						success: function(layero, index){
+							var defalutInfo = thisOrderDetail.InvoiceList[$index];
+							layero.find('.CustomerList').val(thisOrderDetail.OrderObj.CustomerId);//设置默认值
+
+							layero.find('.orderId').val(ID);
+							layero.find('.InvoiceId').val(res.R_OrderMainPay_Id);
+							layero.find('.isInvoiceId').val($index);
+
+							//填写默认信息
+							var $input = $('#printInvoiceForm').find('input');
+							$input.eq(0).val(defalutInfo.Number);//票号
+							$input.eq(1).val(defalutInfo.Title);//标题
+							$input.eq(2).val(defalutInfo.TotalPrice);//金额
+							$('#printInvoiceForm').find('.layui-textarea').val(defalutInfo.Remark)
+
+							form.render(null, 'printInvoiceForm');
+							layero.find('.layui-anim').css('max-height',180);//防止select过长导致BUG
+						}
+					});
+
+//	                    layer.alert(data["Message"]);
+                }
+            });
+		}
+
+
+		//删除发票
+		function deleteInvoice(ID,$index,$this){
+			var $tr = $($this).closest('tr');
+			layer.confirm("是否确认删除该发票？", { icon: 3, title:'提示', btn: ['确认', '取消'] }, function (index) {
+				layer.close(index);
+                $.ajax({
+			        type: "post",
+			        url: "/Res/Order/DeleteInvoice?id=" + ID,
+			        dataType: "json",
+			        async: false,
+			        success: function (data, textStatus) {
+			            if(data.Data == true){
+			            	layer.msg('删除成功')
+			            	var $tr = $($this).closest('tr');
+			            	if($tr.siblings().length == 0){
+			            		$tr.closest('.layui-tab-item').empty().append('<p class="nodata">暂无数据</p>');
+			            	}else{
+			            		$tr.remove();
+			            	}
+			            }else{
+			            	layer.alert(data.Message)
+			            }
+			        },
+			        beforeSend: function (XMLHttpRequest) {
+		                layindex = layer.open({type: 3});
+		            },
+		            complete: function (XMLHttpRequest, textStatus) {
+		                layer.close(layindex);
+		            },
+			    });
+            });
+            
+		}
+
+		//打印数据重置
+//      function printOrderDataReset(d){
+//      	if(d.OrderObj){
+//      		printOrderData = {};
+//
+//	        	printOrderData.id = d.OrderObj.Id;//订单ID
+//
+//	        	printOrderData.ids = [];  //订单台号
+//	        	$.each(d.OrderObj.OrderTableList,function(i,item){
+//	        		printOrderData.ids.push(item.Id)
+//	        	})
+//
+//	        	printOrderData.price = []; //订单金额
+//
+//	        	printOrderData.price.push(d.OrderObj.ConAmount.toFixed(2));//消费金额
+//	        	printOrderData.price.push(d.OrderObj.ServiceAmount.toFixed(2));//服务费
+//	        	printOrderData.price.push(d.OrderObj.DiscountAmount.toFixed(2));//折扣
+//	        	printOrderData.price.push(d.OrderObj.ClearAmount.toFixed(2));//抹零
+//	        	printOrderData.price.push(d.OrderObj.Fraction.toFixed(2));//四舍五入
+//
+//	        	var givePrice = 0;
+//	        	$.each(d.OrderObj.OrderTableList,function(i,item){
+//	        		if(item.OrderDetailList && item.OrderDetailList.length > 0){
+//		        		$.each(item.OrderDetailList,function(dIndex,dItem){
+//		        			var Price = dItem.Price;
+//		        			var num = 0;
+//		        			//做法
+//		        			if(dItem.ProExtend && dItem.ProExtend.length > 0){
+//		        				$.each(dItem.ProExtend,function(pIndex,pItem){
+//			        				Price += pItem.Price
+//			        			})
+//		        			}
+//		        			//要求
+//		        			if(dItem.ProExtendRequire && dItem.ProExtendRequire.length > 0){
+//		        				$.each(dItem.ProExtendRequire,function(pIndex,pItem){
+//			        				Price += pItem.Price
+//			        			})
+//		        			}
+//		        			//配菜
+//		        			if(dItem.ProExtendExtra && dItem.ProExtendExtra.length > 0){
+//		        				$.each(dItem.ProExtendExtra,function(pIndex,pItem){
+//			        				Price += pItem.Price
+//			        			})
+//		        			}
+//		        			//数量
+//		        			if(dItem.ODRecordCountList && dItem.ODRecordCountList.length > 0){
+//		        				$.each(dItem.ODRecordCountList,function(pIndex,pItem){
+//			        				if(pItem.CyddMxCzType === 1){
+//			        					num = pItem.Num;
+//			        					return false
+//			        				}
+//			        			})
+//		        			}
+//		        			givePrice += Price*num;
+//		        		})
+//	        		}
+//	        	})
+//	        	printOrderData.price.push(givePrice.toFixed(2));//赠送
+//
+//	        	printOrderData.price.push(d.OrderObj.RealAmount.toFixed(2));//应付总价
+//      	}
+//      }
+
+		//左侧表格自适应
+		function leftTableAuto(index){
+			var PanelViewH = $(PanelView).outerHeight();
+			if(index == 0){
+				var maxH = winHeight - PanelViewH - $(TableView).find('.layui-tab-card .layui-tab-title').height() - 200;
+				$('#searchTable_view').find('.layui-tab > .layui-tab-content > .layui-tab-item').eq(index).find('.div-table').css('max-height',maxH)
+			}else{
+				var maxH = winHeight - PanelViewH - $(TableView).find('.layui-tab-card .layui-tab-title').height() - 160;
+				$('#searchTable_view').find('> .layui-tab > .layui-tab-content > .layui-tab-item').eq(index).find('.div-table').css('max-height',maxH)
+			}
+		}
+
+
+
+
+		function isEmptyObject(e) {
+		    var t;
+		    for (t in e)
+		        return !1;
+		    return !0
+		}
+    </script>
+</body>
+</html>

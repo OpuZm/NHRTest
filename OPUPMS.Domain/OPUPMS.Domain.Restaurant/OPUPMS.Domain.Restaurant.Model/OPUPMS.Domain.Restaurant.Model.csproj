@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8364931B-3DB0-4B73-B4C4-4BBE5B729222}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.Domain.Restaurant.Model</RootNamespace>
+    <AssemblyName>OPUPMS.Domain.Restaurant.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.FastCrud, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.FastCrud.2.4.1\lib\net45\Dapper.FastCrud.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.Dapper.Repository.UnitOfWork, Version=0.4.6294.20582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.Dapper.Repository.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.Dapper.Repository.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.UnitOfWork, Version=0.4.6294.20580, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\StringInterpolationBridge.0.9.1\lib\net40\StringInterpolationBridge.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Dtos\AreaDTO.cs" />
+    <Compile Include="Dtos\AreaPrintDTO.cs" />
+    <Compile Include="Dtos\AutoAdditionDTO.cs" />
+    <Compile Include="Dtos\BaseSearch.cs" />
+    <Compile Include="Dtos\BoxDTO.cs" />
+    <Compile Include="Dtos\CategoryDTO.cs" />
+    <Compile Include="Dtos\CheckOutDTO.cs" />
+    <Compile Include="Dtos\CustomConfigDTO.cs" />
+    <Compile Include="Dtos\DiscountDTO.cs" />
+    <Compile Include="Dtos\ExtendDTO.cs" />
+    <Compile Include="Dtos\ExtendItemDTO.cs" />
+    <Compile Include="Dtos\MarketDTO.cs" />
+    <Compile Include="Dtos\OrderDTO.cs" />
+    <Compile Include="Dtos\OrderPayRecordDTO.cs" />
+    <Compile Include="Dtos\OrderRecordDTO.cs" />
+    <Compile Include="Dtos\PackageDTO.cs" />
+    <Compile Include="Dtos\PayMethodDTO.cs" />
+    <Compile Include="Dtos\ProjectDTO.cs" />
+    <Compile Include="Dtos\RestaurantDTO.cs" />
+    <Compile Include="Dtos\PrinterDTO.cs" />
+    <Compile Include="Dtos\StallsDTO.cs" />
+    <Compile Include="Dtos\StatisticsDTO.cs" />
+    <Compile Include="Dtos\TableDTO.cs" />
+    <Compile Include="Models\Cpdy.cs" />
+    <Compile Include="Models\R_Area.cs" />
+    <Compile Include="Models\R_AutoAddition.cs" />
+    <Compile Include="Models\R_AutoAdditionProject.cs" />
+    <Compile Include="Models\R_Box.cs" />
+    <Compile Include="Models\R_BoxTable.cs" />
+    <Compile Include="Models\R_Category.cs" />
+    <Compile Include="Models\R_CustomConfig.cs" />
+    <Compile Include="Models\R_Discount.cs" />
+    <Compile Include="Models\R_DiscountCategory.cs" />
+    <Compile Include="Models\R_Invoice.cs" />
+    <Compile Include="Models\R_Market.cs" />
+    <Compile Include="Models\R_Order.cs" />
+    <Compile Include="Models\R_OrderDetail.cs" />
+    <Compile Include="Models\R_OrderDetailCause.cs" />
+    <Compile Include="Models\R_OrderDetailExtend.cs" />
+    <Compile Include="Models\R_OrderDetailPackageDetail.cs" />
+    <Compile Include="Models\R_OrderDetailRecord.cs" />
+    <Compile Include="Models\R_OrderMainPay.cs" />
+    <Compile Include="Models\R_OrderPayRecord.cs" />
+    <Compile Include="Models\R_OrderRecord.cs" />
+    <Compile Include="Models\R_OrderTable.cs" />
+    <Compile Include="Models\R_Package.cs" />
+    <Compile Include="Models\R_PackageDetail.cs" />
+    <Compile Include="Models\R_PayMethod.cs" />
+    <Compile Include="Models\R_Project.cs" />
+    <Compile Include="Models\R_ProjectDetail.cs" />
+    <Compile Include="Models\R_ProjectExtend.cs" />
+    <Compile Include="Models\R_ProjectExtendAttribute.cs" />
+    <Compile Include="Models\R_ProjectExtendType.cs" />
+    <Compile Include="Models\R_ProjectImage.cs" />
+    <Compile Include="Models\R_ProjectStall.cs" />
+    <Compile Include="Models\R_ReOrderMainPay.cs" />
+    <Compile Include="Models\R_Restaurant.cs" />
+    <Compile Include="Models\Printer.cs" />
+    <Compile Include="Models\R_RestaurantCategory.cs" />
+    <Compile Include="Models\R_Stall.cs" />
+    <Compile Include="Models\R_Table.cs" />
+    <Compile Include="Models\R_WeixinPrint.cs" />
+    <Compile Include="Models\R_WeixinPrintArea.cs" />
+    <Compile Include="RestaurantConvertModelProfile.cs" />
+    <Compile Include="Models\PublicEnum.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Common\OPUPMS.Infrastructure.Common.csproj">
+      <Project>{68FA3E1C-9C35-4EE4-89F0-2FCCB510F85C}</Project>
+      <Name>OPUPMS.Infrastructure.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Domain\OPUPMS.Domain.Base\OPUPMS.Domain.Base.csproj">
+      <Project>{92CFCDBE-99DF-460B-9375-9DE7C431145C}</Project>
+      <Name>OPUPMS.Domain.Base</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

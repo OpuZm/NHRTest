@@ -1,0 +1,340 @@
+﻿@{
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/LayoutTemplate.cshtml"));
+}
+	
+    <div class="centent ov">
+        <div class="col-xs-3 col-sm-3 col-md-3  pl-none pr-none">
+            <div class="pop-date xian ov b-fff p-sm">
+                <div class="date ov xian-b pb-sm">
+                    <div class="col-xs-7 col-sm-7 col-md-7 pl-none pr-none">
+                        <h2>@ViewBag.CurrentTime</h2> 
+                    </div>
+                    <div class="col-xs-5 col-sm-5 col-md-5 pr-none tc">
+                        <h3 class="mt-sm">@ViewBag.Weekday</h3>
+                        <h3 class="lh-sm">@ViewBag.MonthDate</h3>
+                    </div>
+                </div>
+                <div class="next-data ov lh-lg">
+                    <label>值班经理:</label>
+                    <span>黄岗</span>
+                    <span class="fr">15977327890</span>
+                </div>
+                <ul class="date-service_list xian-t pt-sm">
+                    <li>  
+                        <a href="#">
+                            <img src="@Url.Content(Plugin.Instance.GetContentPath("images/svg/chuxing.svg"))" alt="">
+                            <p>出行交通</p>
+                        </a>
+                    </li>
+                    <li>  
+                        <a href="#">
+                            <img src="@Url.Content(Plugin.Instance.GetContentPath("images/svg/zhoubian.svg"))" alt="">
+                            <p>酒店周边</p>
+                        </a>
+                    </li>
+                    <li>  
+                        <a href="#">
+                            <img src="@Url.Content(Plugin.Instance.GetContentPath("images/svg/dianhua.svg"))" alt="">
+                            <p>常用电话</p>
+                        </a>
+                    </li>             
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-9 col-sm-9 col-md-9 pr-none">
+            <div class="pop-chart xian fl full b-fff p-sm">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="chart-price">
+                        <div id="chart_price" style="height:206px;"></div>
+                    </div>
+                </div>
+                <div class="col-xs-8 col-sm-8 col-md-8">
+                    <div class="pop_data_group">
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                        <a href="#">
+                            <div class="value">97</div>
+                            <p>总房数</p>
+                        </a>
+                    </div>
+             
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="centent mt-xl ov">     
+            <!-- Nav tabs -->
+            <div class="col-xs-6 col-sm-6 col-md-6  pl-none">
+                <div class="xian b-fff p-sm">
+                    <ul class="nav nav-tabs tbas_link" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#tabs1" aria-controls="tabs1" role="tab" data-toggle="tab">本日预抵</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs2" aria-controls="tabs2" role="tab" data-toggle="tab">本日预离<span class="label">1</span></a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs3" aria-controls="tabs3" role="tab" data-toggle="tab">实时房情<span class="label">2</span></a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs4" aria-controls="tabs4" role="tab" data-toggle="tab">接送机<span class="label">!</span></a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs5" aria-controls="tabs5" role="tab" data-toggle="tab">今日会议</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="tabs1">
+                            <table  class="layui-table" lay-skin="line" lay-even>
+                                <thead>
+                                    <tr>
+                                        <th>预订号</th>
+                                        <th>姓名</th>
+                                        <th>类型</th>
+                                        <th>房类</th>
+                                        <th>房数</th>
+                                        <th>房价</th>
+                                        <th>联系方式</th>
+                                        <th>保留时间</th>
+                                    </tr> 
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+               
+                                </tbody>
+                            </table>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="tabs2">...</div>
+                        <div role="tabpanel" class="tab-pane" id="tabs3">...</div>
+                        <div role="tabpanel" class="tab-pane" id="tabs4">...</div>
+                        <div role="tabpanel" class="tab-pane" id="tabs5">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 pr-none ">
+                <div class="xian b-fff p-sm">
+                    <ul class="nav nav-tabs tbas_link" role="tablist">
+                        <li role="presentation" class="active">
+                            <a href="#tabs10" aria-controls="tabs10" role="tab" data-toggle="tab">代办事宜</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs11" aria-controls="tabs11" role="tab" data-toggle="tab">欠费提醒<span class="label">!</span></a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#tabs12" aria-controls="tabs12" role="tab" data-toggle="tab">生日提醒<span class="label">!</span></a>
+                        </li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="tabs10">
+                            <table  class="layui-table" lay-skin="line" lay-even>
+                                <thead>
+                                    <tr>
+                                        <th>预订号</th>
+                                        <th>姓名</th>
+                                        <th>类型</th>
+                                        <th>房类</th>
+                                        <th>房数</th>
+                                        <th>房价</th>
+                                        <th>联系方式</th>
+                                        <th>保留时间</th>
+                                    </tr> 
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>a12345</td>
+                                        <td>黄岗</td>
+                                        <td>F</td>
+                                        <td>PLT</td>
+                                        <td>2</td>
+                                        <td>300.00</td>
+                                        <td>15977327890</td>
+                                        <td>20:00</td>
+                                    </tr>
+               
+                                </tbody>
+                            </table>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="tabs11">...</div>
+                        <div role="tabpanel" class="tab-pane" id="tabs12">...</div>
+       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "EchartJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "BasicJs")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.loader-box').remove();
+            //营业概况图
+            var myChart = echarts.init(document.getElementById('chart_price'));
+
+            option = {
+                title: {
+                    text: '',
+                    subtext: '',
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    x: 'left',
+                    // data:['房费收入','餐饮收入','其它收入','会议收入']
+                },
+                color: ['#d87a80', '#2ec7c9', '#b6a2de', '#5ab1ef'],
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: { show: true },
+                        dataView: { show: true, readOnly: false },
+                        magicType: {
+                            show: true,
+                            type: ['pie', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: true },
+                        saveAsImage: { show: true }
+                    }
+                },
+                calculable: true,
+                series: [
+                    {
+                        name: '收入数据',
+                        type: 'pie',
+                        radius: '65%',
+                        center: ['50%', '45%'],
+                        data: [
+                            { value: 335, name: '房费收入' },
+                            { value: 310, name: '餐饮收入' },
+                            { value: 234, name: '其它收入' },
+                            { value: 135, name: '会议收入' },
+
+                        ]
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+        });
+    </script>

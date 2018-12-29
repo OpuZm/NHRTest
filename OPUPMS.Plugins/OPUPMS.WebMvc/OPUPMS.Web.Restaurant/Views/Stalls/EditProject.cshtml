@@ -1,0 +1,285 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    StallsCreateDTO Stall = ViewBag.Stall ?? new StallsCreateDTO();
+    List<CategoryListDTO> Categorys = ViewBag.Categorys as List<CategoryListDTO>;
+}
+<style>
+    .morecheck {
+        padding: 5px 5px 5px 0;
+    }
+</style>
+
+<div class="container-fluid">
+    <form class="form-horizontal" id="ExtendForm">
+        <div class="" id="ProjectList">
+            <div class="btn-group" role="group" aria-label="...">
+                @{
+                    if (Categorys != null)
+                    {
+                        <button type="button" data-id="0" class="btn btn-primary" v-on:click="CategoryChange(0)">全部</button>
+                        foreach (var item in Categorys)
+                        {
+                            <button type="button" data-id="@item.Id" class="btn btn-primary" v-on:click="CategoryChange(@item.Id)">@item.Name</button>
+                        }
+                    }
+                }
+            </div>
+            <div class="">
+                <div class="col-xs-12 bg-info">
+                    <label v-for="(pro,index) in pros" class="morecheck"><input type="checkbox" :value="pro.Id" name="project" v-model="pro.checked" class="checkbox-inline" v-on:change="Add(pro,index)" />{{pro.Name}}</label>
+                </div>
+                <div class="form-group text-center">
+                    <button class="btn btn-primary" type="submit">提交</button>
+                    <button class="btn btn-default closeAll" type="button">取消</button>
+                </div>
+                @*<div class="col-xs-3">
+                    <div class="form-group text-danger" style="margin-bottom:0px;">
+                        <h4>已选:{{selects.length}} 成本:{{totalCostPrice}} 总价:{{totalPrice}}</h4>
+                    </div>
+                    <div class="form-group text-primary">
+                        <ul class="list-group">
+                            <li class="list-group-item" v-for="(sel,index) in selects">
+                                {{sel.ProjectName}} ({{sel.Unit}})
+                                <input type="number" v-model="sel.Num" class="form-control text-left" style="width:60px; display:inline-block" v-on:change="GetTotal()" min="1" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" />
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label for="Name" class="col-xs-5 control-label">成本价:</label>
+                        <div class="col-xs-7">
+                            <input type="text" class="form-control" id="CostPrice" name="CostPrice" placeholder="成本价" value="@Package.CostPrice">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Name" class="col-xs-5 control-label">销售价:</label>
+                        <div class="col-xs-7">
+                            <input type="text" class="form-control" id="Price" name="Price" placeholder="销售价" value="@Package.Price">
+                        </div>
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary" type="submit">提交</button>
+                        <button class="btn btn-default closeAll" type="button">取消</button>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </form>
+
+</div>
+@section FooterScripts{
+@ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                var vm = new Vue({
+                    el: '#ProjectList',
+                    data: {
+                        pros: [],
+                        selects: []
+                    },
+                    methods: {
+                        CategoryChange: function (category) {
+                            GetProjectDetails(category);
+                        },
+                        Add: function (pro, index) {
+                            AddSelect(pro,index);
+                        },
+                        Delete: function (index,id) {
+
+                        }
+                    }
+                })
+
+                function AddSelect(pro, index) {
+                    var bol = true;
+                    $(vm.selects).each(function (i, o) {
+                        if (o.Cyxm == pro.Id) {
+                            vm.selects.splice(i, 1);
+                            bol = false;
+                            return false;
+                        }
+                    })
+                    if (bol) {
+                        vm.selects.push(pro);
+                    }
+                }
+
+
+                function GetProjectDetails(category) {
+                    var para = { category: category };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetProjects",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushDown(data.Data);
+                            } else {
+                                layer.msg('不存在该类别菜品', {
+                                    time: 2000
+                                });
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function GetMyDetails() {
+                    var para = { id: '@Stall.Id' };
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Stalls/GetModel",
+                        data: para,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushInit(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function PushDown(data) {
+                    vm.pros = [];
+                    $(data).each(function (i, o) {
+                        if (!o.IsDelete) {
+                            var bol = true;
+                            $(vm.selects).each(function (j, obj) {
+                                if (o.Id == obj.Id) {
+                                    o.checked = true;
+                                    bol = false;
+                                    return false;
+                                } else {
+                                    o.checked = false;
+                                    bol = true;
+                                }
+                            })
+                            vm.pros.push(o);
+                        }
+                    })
+                }
+
+                function PushInit(data) {
+                    $(vm.pros).each(function (i, o) {
+                        $(data.CyxmDks).each(function (j, obj) {
+                            if (obj.Cyxm == o.Id) {
+                                o.checked = true;
+                                //o.tcmxId = obj.Id;
+                                vm.selects.push(o);
+                            }
+                        })
+                    })
+                }
+
+                $("#ExtendForm").validate({
+                    rules: {
+
+                    },
+                    messages: {
+
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        SubmitExtend();
+                    }
+                })
+
+                function SubmitExtend() {
+                    var modules = [];
+                    $(vm.selects).each(function (i, o) {
+                        modules.push({ Cyxm: o.Id, Cydk: '@Stall.Id' });
+                    })
+                    var para = { Id: '@Stall.Id', req: modules };
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Stalls/EditProject",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                })
+
+                GetProjectDetails(0);
+                GetMyDetails();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

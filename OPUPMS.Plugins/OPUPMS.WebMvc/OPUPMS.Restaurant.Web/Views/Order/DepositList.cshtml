@@ -1,0 +1,220 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "订金管理";
+    int OrderId = ViewBag.OrderId;
+    List<BaseDto> PayTypeList = ViewBag.PayTypeList;
+}
+
+@StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+@StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+
+<style type="text/css">
+    .layui-form .layui-btn {
+        float: left;
+    }
+</style>
+<div class="wrap">
+    <div class="layui-form" style="padding:12px 0 6px 15px;">
+        <div class="layui-form-item" style="margin-bottom:0;">
+            <label class="layui-form-label" style="width: 60px;">付款方式:</label>
+            <div class="layui-input-inline">
+                <select id="PayType" name="PayType" style="display:none;">
+                    <option value="0">请选择</option>
+                    @{
+                        if (PayTypeList != null)
+                        {
+                            foreach (var item in PayTypeList)
+                            {
+                                <option value="@item.Key">@item.Text</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <label class="layui-form-label" style="width: 60px;">定金金额:</label>
+            <div class="layui-input-inline" style="width: 160px;">
+                <input class="layui-input" type="text" id="PayAmount" name="PayAmount" placeholder="请输入定金" lay-verify="required" />
+            </div>
+            <button type="button" class="layui-btn add layui-btn-normal"><span class="layui-icon" style="font-size: 24px; color: #fff;"></span>添加定金</button>
+            <!--<button type="button" class="layui-btn print">打印</button>-->
+            @*<button type="button" class="layui-btn icon-minus layui-btn-danger"><span class="layui-icon" style="font-size: 38px; color: #fff;">-</span>退定金</button>*@
+        </div>
+
+
+    </div>
+    <div class="container table-head" style="padding:0 15px;">
+        <table id="table" lay-filter="table"></table>
+    </div>
+</div>
+
+
+<script type="text/html" id="bartable">
+    {{#  if(d.CyddJzStatus == 2){  }}
+    <a lay-event="refundPayment" class="layui-btn layui-btn-sm">退定金</a>
+    {{#  } }}
+    <a lay-event="print" class="layui-btn layui-btn-sm layui-btn-danger">打印</a>
+</script>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+@ScriptsEx.Render(Plugin.Instance.Name, "Report")
+
+<script>
+    layui.use(['table', 'form'], function () {
+        var table = layui.table;
+        var form = layui.form;
+
+        var RightTableH = $(window).height() - 80
+
+        //表格
+        table.render({
+            elem: '#table',
+            url: '/Res/Order/GetOrderDeposits',
+            where: { ListType: '1', orderId: @OrderId },
+            cellMinWidth: 80,
+            height: RightTableH,
+
+            cellMinWidth: 80,//全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            request: {
+                pageName: 'offset' //页码的参数名称，默认：page
+            },
+            response: {
+                countName: 'total' //数据总数的字段名称，默认：count
+                , dataName: 'rows' //数据列表的字段名称，默认：data
+            },
+            cols: [[
+                { field: 'PayTypeName', width: 80, title: '支付方式' },
+                { field: 'JzTypeName', width: 70, title: '类型' },
+                { field: 'PayAmount', width: 80, title: '金额' },
+                { field: 'JzStatusName', title: '状态', width: 80 },
+                { field: 'PrintNum', width: 80, title: '打印次数', sort: true },
+                { field: 'CreateUserName', title: '操作员', width: 80 },
+                { field: 'CreateDate', title: '操作时间', width: 150 },
+                { field: 'Remark', title: '备注', minWidth: 100 },//minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                { field: '', title: '操作',width: 150, toolbar: '#bartable' },
+            ]],
+            even: true, //开启隔行背景
+            limits: [10, 15, 20],
+            limit: 10,  //每页默认显示的数量
+            id: 'table',
+            skin: 'line',
+            done: function (res, curr, count) {
+				inidata = res;
+            }
+        });
+
+        //监听工具条
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            var id = data.Id;
+            if (obj.event === 'refundPayment') {
+                refundAmount(id);
+            }else if(obj.event == 'print'){
+            	reportorJs.printPdb(8805, data.Id, '', '', 0, 0, '', 1,'');
+            	table.reload('table');
+            }
+        });
+
+        //打印
+//      $('.layui-form .print').on('click', function () {
+//      	reportorJs.printPdb(8805, @OrderId, '', '', 0, 0, '', inidata.PrintModel,'');
+//      })
+
+		//添加弹窗
+        $('.layui-form .add').on('click', function () {
+            var payType = $('#PayType').val();
+            var payAmount = $("#PayAmount").val();
+            if (payType <= 0) {
+                parent.layer.msg("请选择支付方式！");
+                return;
+            }
+            if (payAmount <= 0 || isNaN(payAmount)) {
+                parent.layer.msg("请输入有效金额！");
+                return;
+            }
+
+            var para = { OrderId: @OrderId, CyddPayType: payType, PayAmount: payAmount };
+            $.ajax({
+                type: "post",
+                url: "/Res/Order/OrderDepositCreate",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(para),
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data.Successed == true) {
+
+                        layer.msg('提交完成');
+                        setTimeout(function () {
+                        	layer.open({type: 3,shadeClose: false});
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        layer.alert(data.Message);
+                    }
+                }
+            });
+        });
+
+        //添加弹窗
+        $('.layui-form .icon-minus').on('click', function () {
+            var payType = $('#PayType').val();
+            var payAmount = $("#PayAmount").val();
+            if (payType <= 0) {
+                layer.msg("请选择支付方式！");
+                return;
+            }
+            if (payAmount <= 0 || isNaN(payAmount)) {
+                layer.msg("请输入有效金额！");
+                return;
+            }
+
+        });
+
+    });
+
+    function refundAmount(id) {
+        if (id <= 0)
+            return;
+
+        layer.confirm("确定要退吗？", { title: '退定金提示', btn: ['确定', '返回'] }, function () {
+
+            var para = { id: id };
+
+            $.ajax({
+                type: "post",
+                url: "/Res/Order/RefundDepositAmount",
+                dataType: "json",
+                data: JSON.stringify(para),
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3,shadeClose: false});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    var res = data;
+                    if (res.Successed == true) {
+                        layer.alert("退定金成功！", function () {
+                        	layer.open({type: 3,shadeClose: false});
+                            location.reload();
+                        });
+
+                    } else {
+                        layer.alert(data.Message);
+                    }
+                }
+            });
+        });
+    }
+
+</script>

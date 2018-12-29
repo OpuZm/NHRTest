@@ -1,0 +1,350 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "预定订单";
+    var Restaurants = ViewBag.Restaurants;
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+}
+
+
+<div class="container-fluid">
+    <ol class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">
+        <li>首页</li>
+        <li>收支统计</li>
+        <li>预定订单</li>
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </ol>
+    <div class="form-inline">
+        <div class="form-group">
+            <label for="">餐厅:</label>
+            <select id="Restaurant" name="Restaurant" class="form-control" v-model="RestaurantSel">
+                <option value="">--所有--</option>
+                @{
+                    if (Restaurants != null)
+                    {
+                        foreach (var item in Restaurants)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="">客源类型:</label>
+            <select id="CyddOrderSource" name="CyddOrderSource" class="form-control" v-model="StatusSel">
+                <option value="">--所有--</option>
+                @{
+                    foreach (var item in CustomerSources)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="">订单号:</label>
+
+            <input type="text"  class="form-control" id="OrderNo" name="OrderNo" style="width:150px" />
+
+        </div>
+        <div class="form-group">
+            <label for="">预定日期:</label>
+
+            <input type="text" class="form-control datetimepicker" id="beginDate" name="beginDate" style="width:100px" />
+            -
+            <input type="text" class="form-control datetimepicker" id="endDate" name="endDate" style="width:100px" />
+        </div>
+        <div class="form-group">
+            <label for="">联系人:</label>
+            <input type="text" class="form-control" id="ContactPerson" name="ContactPerson" />
+        </div>
+        <div class="form-group">
+            <label for="">联系人电话:</label>
+            <input type="text" class="form-control" id="ContactTel" name="ContactTel" />
+        </div>
+
+        <div class="form-group">
+            <button type="button" onclick="Search()" class="btn btn-primary search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+        </div>
+    </div>
+    <div class="page-container">
+        <table id="tablist" class="table table-condensed table-hovered sortableTable"></table>
+    </div>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR");
+    <script src="~/signalr/hubs"></script>
+    <script type="text/javascript">
+        var date = new Date();
+        $('#beginDate,#endDate').datetimepicker(
+            {
+                language: "zh-CN",
+                format: "yyyy-mm-dd",
+                todayBtn: true,
+                clearBtn: true,// 自定义属性,true 显示 清空按钮 false 隐藏 默认:true
+                startView: 2,
+                minView: 2,
+                weekStart: 1,
+                todayHighlight: 1,
+                autoclose: 1,
+                forceParse: 0
+            }
+        );
+        
+        $(function () {
+            var pageJs = stalls.Create();
+            pageJs.init();
+        })
+
+        var stalls = {
+            Create: function () {
+                var bindModel = {};
+                var layindex;
+
+                var chat = $.connection.systemHub;
+                chat.hubName = 'systemHub';
+                chat.connection.start();
+
+                var bindAction = function () {
+                    var height = $(document).height() - 100;
+                    var width = $(document).width() - 100;
+                    $("#tablist").bootstrapTable({
+                        url: '/Res/Order/OrderReserveListSearch',     //请求后台的URL（*）
+                        method: 'get',           //请求方式（*）
+                        toolbar: '#toolbar',        //工具按钮用哪个容器
+                        striped: true,           //是否显示行间隔色
+                        cache: false,            //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                        pagination: true,          //是否显示分页（*）
+                        sortName: "Id",
+                        sortable: true,           //是否启用排序
+                        sortOrder: "desc",     //排序方式
+                        showRefresh: false, // 开启刷新功能
+                        clickToSelect: true,
+                        showFooter: false,  //footer 用作统计
+                        queryParamsType: "limit",//查询参数组织方式
+                        queryParams: function getParams(params) {
+                            params.Restaurant = $("#Restaurant").val();
+                            //params.Area = $("#Area").val();
+                            params.CyddOrderSource = $("#CyddOrderSource").val();
+                            params.CyddStatus = $("#CyddStatus").val();
+                            params.beginDate = $("#beginDate").val();
+                            params.endDate = $("#endDate").val();
+                            params.OrderNo = $("#OrderNo").val();
+                            params.IsReserveList = true;
+                            params.ContactPerson = $("#ContactPerson").val();
+                            params.ContactTel = $("#ContactTel").val();
+                            return params;
+                        },//传递参数（*）
+                        sidePagination: "server",      //分页方式：client客户端分页，server服务端分页（*）
+                        pageNumber: 1,            //初始化加载第一页，默认第一页
+                        pageSize: 10,            //每页的记录行数（*）
+                        pageList: [10, 20, 50, 100],    //可供选择的每页的行数（*）
+                        strictSearch: true,
+                        //height: 460,            //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                        uniqueId: "ID",           //每一行的唯一标识，一般为主键列
+                        cardView: false,          //是否显示详细视图
+                        buttonsAlign: "left",
+                        exportDataType: "basic",
+                        columns: [{
+                            field: 'Id',
+                            title: 'ID'
+                        },{
+                            field: 'OrderNo',
+                            title: '单号',
+                            sortable: true
+                        }, {
+                            field: 'RestaurantName',
+                            title: '餐厅'
+                        }, {
+                            field: 'orderStatus',
+                            title: '订单状态'
+                        },
+                        {
+                            field: 'SourceTypeName',
+                            title: '客源类型'
+                        },
+                        {
+                            field: 'ReserveDate',
+                            title: '预定就餐时间',
+                            sortable: true
+                        },
+                        //{
+                        //    field: 'CreateDate',
+                        //    title: '创建时间',
+                        //    sortable: true
+                        //},
+                        {
+                            field: 'PersonNum',
+                            title: '人数',
+                            sortable: true
+                        },
+                        {
+                            field: 'ContactPerson',
+                            title: '联系人'
+                        },
+                        {
+                            field: 'ContactTel',
+                            title: '联系电话'
+                        },
+                        {
+                            field: 'Remark',
+                            title: '备注',
+                        },
+                        {
+                            field: 'action',
+                            title: '操作',
+                            formatter: controlEdit
+                        }]
+                    })
+                    
+                    function controlEdit(value, row, index) {
+                        var id = row["Id"];
+                        var OrderNo = row["OrderNo"];
+                        return new Array(
+                            "<a class='btn btn-default edit' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>编辑</a>",
+                            "<a class='btn btn-default open' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-edit'></span>开台</a>",
+                            "<a class='btn btn-default cancel' href='javascript://' data-id='" + id + "'><span class='glyphicon glyphicon-remove'></span>取消预订</a>",
+                            "<a class='btn btn-default record' href='javascript://' data-id='" + id + "' data-OrderNo='" + OrderNo + "' ><span class='glyphicon glyphicon-edit'></span>操作记录</a>"
+                        ).join(" ");
+                    }
+
+                    $(document).on("click", ".edit", function () {
+                        var id = $(this).attr("data-id");
+                        layer.open({
+                            type: 2,
+                            title: "预订编辑",
+                            area: [width + "px", height + "px"],
+                            content: "/Res/Order/EditReserve?orderId=" + id,
+                            maxmin: false
+                        });
+                    });
+
+                    $(document).on("click", ".open", function () {
+                        var id = $(this).attr("data-id");
+                        if (id == 0) {
+                            layer.alert("请先选择操作的订单！");
+                            return;
+                        }
+
+                        layer.confirm("确定开台吗？", { title: '开台提示', btn: ['确定', '返回'] }, function () {
+                            var para = { orderId: id };
+                            $.ajax({
+                                type: "post",
+                                url: "/Res/Home/ReserveToOpen",
+                                dataType: "json",
+                                data: JSON.stringify(para),
+                                contentType: "application/json; charset=utf-8",
+                                async: false,
+                                beforeSend: function (xhr) {
+                                    layindex = layer.open({
+                                        type: 3,
+                                        shadeClose: false, //点击遮罩关闭层
+                                    });
+                                },
+                                success: function (data, textStatus) {
+                                    var res = data.Data;
+                                    if (res != null && res.OrderId > 0) {
+                                        $.connection.hub.start().done(function () {
+                                            chat.server.notifyResServiceRefersh(true);
+                                        });
+                                        layer.confirm("开台成功", {
+                                            btn: ['进行点餐操作', '取消'] //按钮
+                                        }, function () {
+                                            location.href = "/Res/Home/BatchChoseProject?orderTableIds=" + res.OrderTableIds.join(",");
+                                        }, function () {
+                                            Refresh();
+                                        });
+
+                                    } else {
+                                        layer.alert(data["Message"]);
+                                    }
+                                },
+                                complete: function (XMLHttpRequest, textStatus) {
+                                    layer.close(layindex);
+                                }
+                            });
+                        });
+                    });
+
+                    $(document).on("click", ".cancel", function () {
+                        var id = $(this).attr("data-id");
+                        if (id == 0) {
+                            layer.alert("请先选择操作的订单！");
+                            return;
+                        }
+                        layer.confirm("继续取消预订单吗？", { title: '取消预订提示', btn: ['确认取消', '返回'] }, function () {
+                            var para = { orderId: id };
+                            $.ajax({
+                                type: "post",
+                                url: "/Res/Home/CancelOrder",
+                                dataType: "json",
+                                data: JSON.stringify(para),
+                                contentType: "application/json; charset=utf-8",
+                                async: false,
+                                beforeSend: function (xhr) {
+                                    layindex = layer.open({
+                                        type: 3,
+                                        shadeClose: false, //点击遮罩关闭层
+                                    });
+                                },
+                                success: function (data, textStatus) {
+                                    var res = data.Data;
+                                    if (res == true) {
+                                        $.connection.hub.start().done(function () {
+                                            chat.server.notifyResServiceRefersh(true);
+                                        });
+                                        layer.alert("取消预订订单成功!");
+                                        Refresh();
+                                    } else {
+                                        layer.alert(data["Message"]);
+                                    }
+                                },
+                                complete: function (XMLHttpRequest, textStatus) {
+                                    layer.close(layindex);
+                                }
+                            });
+                        });
+                    });
+
+                    $(document).on("click", ".record", function () {
+                        var id = $(this).attr("data-id");
+                        var OrderNo = $(this).attr("data-OrderNo");
+                        var height = $(document).height() - 100;
+                        layer.open({
+                            type: 2,
+                            title: "<h5>" + OrderNo + " 订单-操作记录 </h5>",
+                            area: ['800px', '500px'],
+                            content: "/Res/Order/OrderRecord?id=" + id,
+                            maxmin: false
+                        });
+                    });
+                }
+
+                bindModel.init = function () {
+                    bindAction();
+                }
+
+                return bindModel;
+            }
+        }
+
+        function Refresh() {
+            $("#tablist").bootstrapTable('refresh');
+        }
+
+        function Search() {
+            $("#tablist").bootstrapTable('refreshOptions', { pageNumber: 1 });
+        }
+        
+    </script>
+}
+
+
+
+
+
+
+
+

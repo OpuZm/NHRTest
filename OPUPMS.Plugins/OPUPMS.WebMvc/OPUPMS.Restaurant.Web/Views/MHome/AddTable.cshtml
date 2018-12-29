@@ -1,0 +1,262 @@
+﻿@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+    ViewBag.Title = "转台";
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>转台</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "MPublicStyle")
+    <style>
+    	.label-title{margin-left:10px;}
+    	.ClassTab-head{height:50px;}
+    	
+    	#AreaList_view{margin:0 20px 0 5px;}
+    	#TableList_view{padding:0 7px;overflow: hidden;overflow-y: auto;}
+    	#TableList_view li {width: 16%;margin: 0.333%;height:60px;}
+    </style>
+</head>
+<body>
+    <div class="layer-form-box">
+        <div class="layui-form" action="">
+            <div class="flex-item">
+                <!--<blockquote class="label-title">选择转换的桌台</blockquote>-->
+                <div class="ClassTab-head">
+                    <div class="class-group" id="AreaList_view">
+                    </div>
+                    <script id="AreaList_tpml" type="text/html">
+                        <!--<a href="javascript:void(0)" data-area="0" class="layui-btn layui-btn-primary layui-this">全部</a>-->
+                        {{#  layui.each(d, function(index, item){ }}
+                        <a href="javascript:void(0)" data-area="{{ item.Id }}" class="layui-btn layui-btn-primary">{{ item.Name }}</a>
+                        {{#  }); }}
+                    </script>
+                </div>
+
+                <div class="MealTable-lists flex-item">
+                    <ul id="TableList_view"></ul>
+                    <script id="TableList_tpml" type="text/html">
+                        {{# if(d.length !== 0){ }}
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li data-no="{{item.Id}}" {{# if(clickTableId[item.Id]){ }} class="checked" {{# } }}>
+                            <div class="MealTable-head flex"> <span class="item MealTable-number flex-item">{{ item.Id }}</span></div>
+                            <div class="MealTable-title">{{ item.Name }}</div>
+                        </li>
+                        {{#  }); }}
+                        {{# } }}
+                    </script>
+                </div>
+            </div>
+            <div class="layer-btns-bottom">
+                <button class="layui-btn layui-btn-normal" lay-submit="" lay-filter="form1" onclick="newthisOrderTableId()">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+            </div>
+
+        </div>
+        <!-- ▲右侧 添加餐台 -->
+    </div>
+    
+	<div id="loading"><div class="layui-layer-content"></div></div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "MPublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    <script src="~/signalr/hubs"></script>
+    <script>
+        var inidata;
+        var thisOrderTableId = '';
+        var thisTableArr = '';
+        var ProjectsArr = [];
+        var clickTableId = {};//选中桌台
+
+        layui.use(['element', 'form', 'laytpl'], function () {
+            var element = layui.element,
+                form = layui.form,
+                laytpl = layui.laytpl;
+
+            TableId = getUrlParam('TableId');//台号ID
+            restaurantId = getUrlParam('restaurantId');//餐厅ID
+            orderTableId = getUrlParam('orderTableId');//订单ID
+
+            chat = $.connection.systemHub;
+            chat.hubName = 'systemHub';
+            chat.connection.start();
+
+            var AreaListTpl = AreaList_tpml.innerHTML,
+                AreaList_view = document.getElementById('AreaList_view'),
+                TableListTpl = TableList_tpml.innerHTML,
+                TableList_view = document.getElementById('TableList_view');
+
+
+
+            $.ajax({
+                url: "/Res/Project/InitAllChangeTableInfo",
+                data: { RestaurantId: restaurantId, OrderTableId: orderTableId },
+                type: "post",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    inidata = data;
+                    //渲染 切换区域切换按钮
+                    laytpl(AreaListTpl).render(inidata.Areas, function (html) {
+                        AreaList_view.innerHTML = html;
+                    });
+
+                    //渲染 桌台
+//                  laytpl(TableListTpl).render(inidata.Tables, function (html) {
+//                      TableList_view.innerHTML = html;
+//                  });
+
+                    TableClick(inidata.Tables);
+                    
+                    $('#AreaList_view a:first').click();
+                    
+                    $('#TableList_view').height(winH - 150);
+                    
+                    //初始化动作全部完成时
+        			$('#loading').remove();
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                }
+            });
+
+            //区域选择按钮
+            $(document).on('click', '#AreaList_view a', function () {
+                if ($(this).hasClass('layui-this')) return;
+                var areaId = $(this).attr('data-area');
+                var listdata = [];//所选区域的桌台数组
+
+//              clickTableId = "";//重置选中桌台
+
+                var tables = inidata.Tables;//所有可选桌台
+
+                $(this).addClass('layui-this').siblings().removeClass('layui-this');
+                if (areaId == 0) {// 区域全部、状态全部
+                    listdata = tables
+                } else {
+                    for (var i = 0; i < tables.length; i++) {
+                        if (tables[i].AreaId == areaId) {
+                            listdata.push(tables[i]);
+                        }
+                    }
+                }
+
+
+                //渲染 桌台
+                laytpl(TableListTpl).render(listdata, function (html) {
+                    TableList_view.innerHTML = html;
+                });
+
+                TableClick(listdata)
+            })
+
+
+            //桌台选择
+            function TableClick(data) {
+                var table_li = $('#TableList_view li');
+                table_li.off('click');
+                table_li.on('click', function () {
+                    var Id = parseInt($(this).attr('data-no'));
+                    if ($(this).hasClass('checked')){
+                    	$(this).removeClass();
+                    	delete clickTableId[Id];
+                    }else{
+                    	$(this).addClass('checked');
+                    	clickTableId[Id] = Id;
+                    }
+                });
+            }
+        })
+
+
+
+        //提交数据
+        function newthisOrderTableId(id) {
+            if (isEmptyObject(clickTableId)) {
+                layer.msg('请选择要添加的桌台!');
+                return false;
+            }
+            layer.confirm('是否确认添加桌台？', {
+                btn: ['确认', '取消'] //按钮
+            }, function () {
+                GetTablesdata();
+            });
+
+        }
+
+
+        function GetTablesdata() {
+			var newTableIds = [];
+			for(var i in clickTableId){
+				newTableIds.push(clickTableId[i])
+			}
+			
+            var para = { OrderTableId: parseInt(orderTableId), NewTableIds: newTableIds, OldTableId: parseInt(TableId) };
+            
+            $.ajax({
+                url: "/Res/Home/AddTableSubmit",
+                data: JSON.stringify(para),
+                type: "post",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data) {
+                    if (data.Successed == true) {
+                        $.connection.hub.start().done(function () {
+                            chat.server.notifyResServiceRefersh(true);
+                        });
+                        layer.confirm('是否跳转到新桌台？', {
+                        	closeBtn  : 0,
+                        	shadeClose : false,
+			                btn: ['跳转', '继续操作本桌'] //按钮
+			            }, function () {
+			            	layindex = layer.open({type: 3,shadeClose: true});
+			            	$.ajax({
+						        type: "post",
+						        url: "/Res/Order/UpdateOrderTableIsControl",
+						        dataType: "json",
+						        data: {ordertableIds:[orderTableId],isControl: false},
+						        async: false,
+						        success: function (res, textStatus) {
+						            if (res.Data == true) {
+										parent.location.replace("/Res/MHome/BatchChoseProject?OrderTableIds=" + data.Data.join(','));
+						            } else {
+						                layer.alert(res.Message);
+						                layer.close(layindex)
+						            }
+						        }
+						    });
+			            }, function (){
+			            	parent.layer.close(parent.layer.getFrameIndex(window.name));
+			            });
+                    } else {
+                        layer.alert(data.Message);
+                    }
+
+                }, error: function (msg) {
+                    console.log(msg.responseText);
+                }
+            });
+
+
+        }
+
+
+
+    </script>
+
+</body>
+</html>

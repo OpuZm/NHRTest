@@ -1,0 +1,467 @@
+﻿body{background:rgba(230,242,230,.8);}
+.layui-table{background:rgba(230,242,230,.8)}
+.order-content{background:rgba(230,242,230,.8)}
+.layui-table td{border-color:#ccc;}
+.actions-box.pbr{background:rgba(230,242,230,.8)}
+..Panel-side .actions-box{background:rgba(230,242,230,.8)}
+
+.color-blue {color: #1E9FFF;}
+
+.tc{text-align: center;}
+
+.scroll-hidden::-webkit-scrollbar{display:none;}
+
+.clearfix:after {       
+	content: ".";    
+	display: block;  
+	clear: both;    
+	visibility: hidden;      
+	line-height: 0;   
+	height: 0;    
+	font-size:0;    
+}
+
+.MealTable-lists ul:after, .class-tab:after, #TableList_view:after, .row{
+	display: table;
+    content: " ";
+    clear: both;
+}
+
+.flex {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+}
+
+.flex-item {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+.layui-layer-msg{
+	margin-top:-100px !important;
+}
+
+.layui-badge {
+    line-height: 16px;
+    padding: 0 2px;
+    border-radius: 50px;
+}
+
+.layui-input[disabled] {
+    background-color: #ddd;
+}
+
+.required{    position: absolute; right: 0px; top: 0;}
+.required:after{content: "*";position: absolute;right:6px;top:11px;color:red;}
+
+@font-face {font-family: "iconfont";
+  src: url('../icons/iconfont.eot'); /* IE9*/
+  src: url('../icons/iconfont.eot#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../icons/iconfont.woff') format('woff'), /* chrome, firefox */
+  url('../icons/iconfont.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('../icons/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.sl {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tl{
+	text-align: left !important;
+}
+
+.tr{
+	text-align: right !important;
+}
+
+.layui-table {
+    color: #333;
+}
+
+.table-center td,.table-center th{text-align: center;}
+.table-center tr td:first-child,.table-center tr th:first-child{text-align:left;}
+
+
+/*清除hover*/
+.layui-table tbody tr:hover, .layui-table thead tr, .layui-table-click, .layui-table-header, .layui-table-hover, .layui-table-mend, .layui-table-patch, .layui-table-tool{background:#fff;}
+
+.layui-table-header tr {
+    background-color: #393d49 !important;
+    color: #fff;
+}
+
+.layui-table-header {
+    border-color: #393d49 !important;
+}
+
+::-webkit-scrollbar{width:0px;}
+.element::-webkit-scrollbar {display:none}
+
+.layer-tables.MealTable-lists li.checked:before, .MealTable-lists li.checked:before {
+    width: 32px;
+    height: 32px;
+    content: "";
+    background-image: url(/Plugins/Web/OPUPMS.Restaurant.Web/Content/Images/checked.png);
+    bottom: -3px;
+    right: -3px;
+    position: absolute;
+    z-index: 10;
+}
+
+.layer-tables.MealTable-lists li.checked:after, .MealTable-lists li.checked:after {
+    content: "";
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    border: 2px solid #f60;
+    border-radius: 5px;
+}
+
+/*锁台 CSS   开始*/
+
+.locking{position: fixed; z-index: 999; width: 100%; height: 100%; top: 0;left: 470px; background: rgba(0,0,0,0.1);}
+.locking-box{width: 500px;height: 400px;position: absolute;top: 50%;left: 50%;margin-top: -200px;margin-left: -250px;text-align: center;color: red;}
+.locking-box i{font-size: 120px;}
+.locking-box h4{margin-top: 50px;font-size: 30px;}
+/*锁台 CSS   结束*/
+
+/*启用时loading设置  开始*/
+#loading{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.3);z-index: 99;}
+/*loading图标*/
+#loading .layui-layer-content{position:absolute;left:50%;top:50%;z-index:120;margin-left:-30px;margin-top:-30px;width:60px;height:60px !important;background: url(../Images/loading-0.gif) no-repeat;}
+
+.layui-layer-loading .layui-layer-content{height:60px !important;}
+
+
+/*清除hover*/
+.layui-btn-primary:hover{
+	border-color:#C9C9C9;
+	opacity:1;
+}
+
+.layui-btn-primary:active{
+	border-color: #1E9FFF;
+}
+
+.layui-btn-group .layui-btn-primary:hover{
+    color:#333;
+}
+
+.layui-btn-group .layui-btn-primary:active{
+    border-color: #C9C9C9;
+    color: #009688;
+}
+
+/*启用时loading设置  结束*/
+
+/*可向右滑动提示*/
+.right-scroll-hint{
+	position:absolute;
+	color:#eee;
+	right:0;top:8px;font-size:20px;
+}
+
+/*layer 右下提示 按钮*/
+.layer-btns-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    text-align: right;
+    border-top: 1px solid #bbb;
+    padding: 10px 25px;
+    width: calc(100% - 50px);
+    z-index: 40;
+}
+
+/*拼台多单*/
+.chosen-order li{width: 94%;margin: 10px 1%;border: 1px solid #ddd;border-top: 3px solid #999;padding: 10px;border-radius: 5px;float: left;}
+.chosen-order li .time{float:right;}
+
+.chosen-order li strong{font-weight: 100;margin-left:10px;}
+.chosen-order li p{margin-top: 15px;}
+.chosen-order li p span{font-size: 12px;border: 1px solid #ddd;color: #999;float: right;padding: 2px 3px;}
+.chosen-order li:active{color: #FF5722;border: 1px solid #ddd;border-top: 3px solid #FF5722;background: #eee;}
+
+.chosen-order li.IsLock{border-top: 3px solid #ddd;background:#999;color:#fff;}
+.chosen-order li.IsLock .LockTextColor{color: red;font-weight: bold;margin-left:10px;}
+.chosen-order li.IsLock a,.chosen-order li.IsLock a{color:#fff;border-color: 1px solid #FF5722;}
+.chosen-order li.IsLock p span,.chosen-order li.IsLock:hover p span,.chosen-order li.IsLock:active p span{color:#fff;border:1px solid #fff;}
+
+/*分类tab*/
+.ClassTab-head .class-group{height:63px;overflow-x:auto;white-space: nowrap;}
+.class-group-list{height:48px;}
+.ClassTab-head .layui-tab{margin: 0;padding-top:10px;}
+.ClassTab-head .layui-tab-content{position:relative;}
+.class-group .layui-btn.layui-this{background-color: #1E9FFF;color:#fff;border-color:#1e9fff;transition:border-color .3s,background-color .3s;}
+.class-group .layui-btn{margin: 5px;}
+	/*点餐右上顶部分类  小箭头*/
+.ClassTab-head .tabList .layui-this:after,.ClassTab-head .tabList .layui-this:before{width: 0;content: "";position:absolute;height: 0;  border-left:10px solid transparent;border-right: 10px solid transparent;border-bottom: 10px solid #bbb;bottom:0;top:inherit!important;left: 50%;  margin-left:-10px;}
+.ClassTab-head .tabList .layui-this:before{border-bottom: 10px solid #fff;;z-index: 10;bottom: -2px;}
+/*.layui-btn-primary:hover{border-color:#1E9FFF;}*/
+
+header.ClassTab-head{margin:25px 0 5px 13px;height:46px;overflow: hidden;padding:0;}
+header.ClassTab-head .layui-tab .layui-tab-title,header.ClassTab-head .layui-tab-content{margin:0;padding-left: 30px;border-color:#ccc;}
+
+/*点餐 菜品导航*/
+#CategoryList_view .ClassTab-head .class-group{width:calc(100% - 172px);}
+/*控制台  开始*/
+
+.container {
+    padding-left: 15px;
+}
+
+.console-list .MealTable-lists {
+    margin-right: 160px;
+}
+
+	/*数据面板*/
+.DataPanel{text-align: center;}
+.DataPanel h3{font-size: 22px;color:#1E9FFF;}
+.DataPanel p{font-size: 14px;color:#999;}
+
+.content-md{padding: 15px;}
+.label-title{padding-left: 10px;border-left: 3px solid #1e9fff;margin:10px 0;}
+.container-head{line-height: 50px;padding:0 20px 0 30px;background-color: #efefef;}
+.header{background-color: #393D49;color:#fff;}
+.header a{color:#fff;}
+.right-side,.Panel-side{border:1px solid #ddd;width: 148px; position: fixed; right: 0; top:78px; bottom: 0;}
+.Panel-side{top: 51px;width: 400px;}
+.Panel-side.left {top: 0px;width: 400px;right: initial;left: 0;}
+.Panel-form.right{margin-left: 400px;}
+div.layui-input{line-height: 32px;}
+
+.full{width: 100%!important;}
+.MealTable-box{padding:10px;border-top: 1px solid #ddd;}
+.layui-table tbody tr:hover, .layui-table thead tr, .layui-table-click,, .layui-table-hover, .layui-table-mend, .layui-table-patch, .layui-table-tool
+{background-color: #eee;}
+
+	/*餐台*/
+/*.MealTable-lists ul{padding:10px 0;}*/
+.MealTable-lists li{width: 136px;font-size: 12px;height:80px;border-radius: 5px;border:1px solid #bbb;padding:3px;background-color: #f1f1f1;color:#555;float: left;margin:2px;position: relative;}
+
+
+.MealTable-lists li a{display: inline-block;width: 100%;height: 100%;}
+.MealTable-lists li a.btn-del{width: auto;height: auto;}
+.MealTable-lists li.InUse{border:1px solid rgba(255,255,255,0);}
+.MealTable-lists li.InUse,.MealTable-lists li.InUse a{color:#fff;}
+.MealTable-lists li .MealTable-head,.MealTable-lists li .MealTable-footer{line-height:16px;}
+.MealTable-lists li .MealTable-head .MealTable-usernum,.MealTable-lists li .MealTable-head .MealTable-time{width: 33%;display: inline-block;}
+.MealTable-lists li .iconfont{font-size: 12px;}
+.MealTable-lists li .MealTable-title{font-size: 18px;text-align: center;line-height:26px;height:26px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.MealTable-lists li .MealTable-footer .MealTable-icon{display: inline-block;width: 36%;} 
+.MealTable-lists li .MealTable-footer .MealTable-price{text-align: right;}
+
+.MealTable-lists li.layui-this{background-color:#5FB878;border-color:#5FB878;color: #fff; }
+.MealTable-lists li.layui-this a{color:#fff;}
+.MealTable-lists li.layui-this .add_minus a{color:#555;}
+.MealTable-lists li.layui-this .add_minus .layui-btn{border-color:#999}
+
+.MealTable-lists li.disabled {background-color: #dddddd;border-color:#bbb;}
+.MealTable-lists li.disabled a,.MealTable-lists li.disabled a .MealTable-stock{color: #333;}
+
+
+#TableList_view li{width: 19.4%;box-sizing:border-box;margin:0.3%;}
+	/*餐台筛选*/
+.MealTable-Screen li{padding:0 10px;overflow: hidden; line-height: 40px;;cursor: pointer;}
+.MealTable-Screen li.layui-this{background-color: #f1f1f1}
+/*.MealTable-Screen a{line-height: 55px;}*/
+.MealTable-Screen .num{float: right;}
+.MealTable-Screen .ScreenMealTable-icon{display:block;width: 24px;height: 24px;border-radius: 4px;border:1px solid #ddd;float: left;margin-right: 5px;margin-top:7px;}
+.MealTable-Screen .ScreenMealTable-icon.all{background-image: url(../images/colorall.png);background-size: 100% 100%;}
+.MealTable-Screen .ScreenMealTable-icon.empty,.MealTable-lists li.empty{background-color:#efefef; }
+.MealTable-Screen .ScreenMealTable-icon.add,.MealTable-lists li.add{background-color:rgb(245, 161, 135); }
+.MealTable-Screen .ScreenMealTable-icon.print,.MealTable-lists li.print{background-color:rgb(100, 197, 241); }
+.MealTable-Screen .ScreenMealTable-icon.pay,.MealTable-lists li.pay{background-color:#FFB800; }
+.MealTable-Screen .ScreenMealTable-icon.reserve,.MealTable-lists li.reserve{background-color:#009688; }
+.MealTable-Screen .ScreenMealTable-icon.dirty,.MealTable-lists li.dirty{background-color:#999; }
+.MealTable-stock{width: 70px;color: #1E9FFF;}
+.layui-this .MealTable-stock{color:#fff;}
+
+	/*餐台数据*/
+.MealTable-Data{border-top:1px solid #ddd;padding:0 10px;}
+.MealTable-Data p{ine-height:35px;}
+.MealTable-Data p .num{float: right;}
+.MealTable-Data .DataPanel{margin-top: 10px;}
+.MealTable-Data .DataPanel p{line-height: 2}
+.SysTime{text-align: center;position: absolute;width: 100%;bottom:0;}
+.SysTime p{font-size: 12px;}
+.SysTime h3{font-size: 12px;line-height: 2;}
+.SysTime .blue p{color:#1E9FFF;font-size:20px;font-weight: bold;}
+.MealTable-state{text-align: center; height: 16px;}
+
+	/*批量清空*/
+#BatchEmpty{padding:10px 10px;}
+#BatchEmpty li{width:13%;height:60px;margin: 0.52%;padding:0;}
+
+
+
+
+/*多订单*/
+.choice-shop{margin:10px;}
+.choice-shop li{width: 32%;margin: 10px 0.665%;border:1px solid #ddd;border-top:3px solid #999;padding:10px;border-radius: 5px;float: left;box-sizing: border-box;}
+.choice-shop li a{display: inline-block;width:100%;height: 100%;}
+.choice-shop li h4{font-weight: 500;    font-size: 16px;color:#555}
+.choice-shop li p,.choice-shop li a.ok{font-size: 12px;border:1px solid #ddd;color:#999;float: right;    margin-top: 15px; padding: 2px 3px;}
+.choice-shop li:active{border-top:3px solid #FF5722;}
+.choice-shop li:active h4{color:#333;}
+.choice-shop li:active p,.choice-shop li:active a.ok{color:#FF5722;border:1px solid #FF5722;}
+
+.choice-shop:after {content: ".";display: block;clear: both;visibility: hidden;line-height: 0;height: 0;font-size:0;}
+/*控制台  结束*/
+
+/*餐厅切换*/
+.choose-shop.choice-shop li{width: 48%;margin:10px 1%;border:1px solid #ddd;border-top:3px solid #999;padding:10px;border-radius: 5px;float: left;}
+.choose-shop.choice-shop li a{display: inline-block;width:100%;height: 100%;}
+.choose-shop.choice-shop li h4{font-weight: 500;    font-size: 16px;color:#555}
+.choose-shop.choice-shop li p,.choose-shop.choice-shop li a.ok{font-size: 14px;text-align:center;border:1px solid #ddd;color:#999;float: right; width: 36%; margin-top: 6px; padding: 8px 3px;}
+
+
+/*开台  开始*/
+	/*添加餐桌*/
+.Panel-side{top:20px;}
+.Panel-side .ClassTab-head{margin:5px 13px 5px 7px;height:46px;overflow: hidden;padding:0;}
+.Panel-side .ClassTab-head .layui-tab{padding-top:0;}
+.Panel-side .ClassTab-head .layui-tab .layui-tab-title,.Panel-side .ClassTab-head .layui-tab .layui-tab-content{padding-left: 0px;}
+.Panel-side .ClassTab-head .class-group{height:63px;overflow-x:auto;overflow-y:hidden;width:100%;white-space: nowrap;}
+.Panel-side .class-group-list{height:48px;}
+
+.Panel-side .MealTable-lists{margin-right: 0;padding: 0 10px;overflow-x: hidden; overflow-y: auto;}
+.Panel-side .MealTable-lists li,.MealTable-lists.box-sm li{width: 32%;height: 55px;box-sizing: border-box;margin:0.65%;}
+.Panel-side .MealTable-lists li .MealTable-title{font-size: 16px;height: 16px;line-height: 16px;}
+.Panel-side .MealTable-lists li .MealTable-head, .MealTable-lists li .MealTable-footer{line-height: 16px;}
+.Panel-side .actions-box{padding: 10px 0; text-align: center; position: absolute; bottom: 0; width: 100%;;border-top:1px solid #ddd;}
+	/*基础信息*/
+.StartDesk-form{margin-right: 410px;}
+.StartDesk-form .layui-form{background-color: #fff;padding:15px;}
+.StartDesk-form .layui-form-label{width:60px;padding:7px 10px;}
+.StartDesk-form .layui-form-item .layui-input-inline {width: calc(100% - 90px);}
+.StartDesk-form .layui-textarea{min-height:40px;}
+
+
+	/*开台餐桌*/
+.StartDesk-form .MealTable-lists{margin-right: 0;overflow-y: auto;}
+.StartDesk-form .MealTable-lists .btn-del{position: absolute;top:0px;right:0;width: 30px;height: 30px;text-align: center; line-height: 30px;}
+
+.StartDesk-form .MealTable-lists li .MealTable-title {line-height: 26px;height: 26px;}
+.StartDesk-form .MealTable-lists li{width:24%;height:60px;margin:0.5%;box-sizing:border-box;}
+/*
+.MealTable-lists li.layui-this a{color:#fff;}
+.MealTable-lists li.layui-this .add_minus a{color:#555;}
+.MealTable-lists li.layui-this .add_minus .layui-btn{border-color:#999}*/
+/*开台  结束*/
+
+/*点餐  开始*/
+	/*左侧*/
+.Panel-side.left {width: 400px;position: fixed;left:0;right:initial;top:0px;bottom:0;}
+		/*顶部*/
+.order-head .layui-table, .order-head .layui-table tr, .order-head .layui-table tbody tr:hover, .order-head .layui-table-hover {margin: 0;background-color: #58c3e7!important;}
+.order-head .layui-table td{padding:5px;}
+		/*已点菜品*/
+.Panel-side.left .table-head th{padding: 4px 5px;}
+/*.order-content {position: absolute;width: 100%;background: #f1f1f1;top: 129px;bottom: 96px;overflow: hidden;overflow-y: auto;}*/
+.order-content .layui-table td {vertical-align: top;padding: 6px 5px;}
+
+.order-head{padding-top:10px;background:#58c3e7;}
+.order-head .layui-table td{padding: 2px;}
+.order-content{position: absolute; width: 100%; top: 111px; bottom: 64px; overflow: hidden; overflow-x: auto;;}
+.order-content .layui-table{border:none;}
+.order-content .layui-table thead tr{background-color: #ddd;}
+.order-content .layui-table tr{position: relative;}
+.order-content .prod-title p{color:#999;font-size: 14px;position: relative;}
+.order-content .prod-title p .intro{position: absolute; width: 320px;    z-index: 2; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; top: 0; left: 54px;}
+.order-content .prod-title p .prod-zt{left: 10px;}
+.order-content .layui-table tr.layui-this td{background-color:#8BC34A;}
+.order-content .layui-table tr.layui-this td .prod-title p{color:#fff;}
+#ProjectLists_view .layui-badge{line-height:18px;}
+
+		/*左下角 总计*/
+.order-total{position: absolute;bottom:0;width: 100%;border-top:1px solid #ddd;}
+.order-total td{padding: 6px 15px;}
+.order-total .layui-table{margin:0;}
+.order-total .layui-table .price{font-size: 30px;color:red;}
+.actions-vertical{position: fixed;width: 70px;height: 100%;top:0;left: 400px;background-color: rgb(100, 197, 241);overflow-y: auto;}
+.actions-vertical ul{background-color: rgb(100, 197, 241);width: 100%;}
+.actions-vertical li{margin:2px 0;background-color: #1E9FFF;}
+.actions-vertical li a{width: 100%;line-height:50px;color:#fff;display: inline-block;text-align: center; }
+.actions-vertical li a.Disable{ background-color: #58a2c3;color: #b9b8b8;cursor: not-allowed;}
+	/*右侧*/
+.order-form.Panel-form.right{margin-left: 470px;width: calc(100% - 470px);padding-top:20px;}
+.order-form .MealTable-lists li{width:24%;margin:0.5%;height: 80px;box-sizing: border-box;}
+.order-form .MealTable-lists li .MealTable-title{font-size: 14px;line-height: 34px; height: 34px;}
+.order-form  .MealTable-lists li .MealTable-head,.order-form  .MealTable-lists li .MealTable-footer{    line-height: 22px;}
+
+
+.ClassTab-head .tabList{height:40px;overflow:hidden;border-bottom: 1px solid #ccc;padding-right:25px;position:relative;}
+.ClassTab-head .tabList ul{white-space: nowrap;overflow: hidden;overflow-x:scroll;height;60px;}
+.ClassTab-head .tabList li{display:inline-block;font-size:16px;font-weight:bold;line-height: 40px;min-width: 65px;padding: 0 15px;text-align: center;position:relative;}
+.ClassTab-head .layui-tab-content{height: 48px;margin: 10px;padding:0;overflow: hidden;}
+.ClassTab-head .layui-tab-content .layui-tab-item{position:relative;}
+.ClassTab-head .layui-tab-content .class-group{width: calc(100% - 225px);}
+
+.actions-box.pbr{padding: 10px;text-align:center;position: absolute; left: 470px; bottom: 0;right: 0;border-top:1px solid #ccc;min-height:44px;}
+
+.ClassTab-head .tabList li,.tab-nav-sm li{font-size: 16px;font-weight: bold;}
+
+.layer-practice{box-shadow: none!important; border: 1px solid #ddd;top: inherit!important; bottom: 65px;}
+.practice-item{overflow: hidden;}
+.practice-title,.practice-lists li{min-width: 50px; float: left; text-align: center; height: 50px;line-height: 50px; font-size: 18px; background-color:#9e9e9e;margin-right:1px;margin-bottom:1px;border: 1px solid #bbb;}
+.practice-title,.practice-lists li:last-child{margin-bottom:0;}
+
+.practice-lists li{background-color:#ddd;position: relative;cursor: pointer;}
+.practice-lists li.layui-this{background-color: #50b0ff;}
+.practice-lists li p{position: absolute;font-size: 12px;right:5px;bottom:5px;line-height: 14px;color: #777;}
+
+.hide{display: none;}
+.layui-table-page{text-align: right;}
+.layui-table-cell { height: 33px;line-height: 30px;}
+.layui-table-view{    width: 100%;}
+.layui-laypage .layui-laypage-curr .layui-laypage-em{background-color: #1e9fff;}
+
+	/*特殊要求 更多弹窗*/
+.moreExtend .MealTable-lists li{width: 19%;height: 50px;box-sizing: border-box;margin:0.5%;height: 62px;padding:10px;}
+.MealTable-lists.select-lists .MealTable-title{line-height: 30px; height: 30px; font-size: 16px; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.layer-tab .layui-layer-title span.layui-this{color: #1e9fff;     height: 40px!important;  border-right: none!important;  border-left: none!important; border-bottom: 2px solid #1e9fff;}
+
+
+	/*弹窗删除按钮*/
+.practice-close{width: 50px;height: 50px;display: inline-block;position: absolute;top:0;right:0px;line-height: 50px;text-align: center;}
+.practice-close i{font-size: 20px;font-weight: bold;}
+/*点餐  结束*/
+
+
+
+
+
+
+/*移动端样式		开始*/
+	/*新增预定	开始*/
+@media screen and (max-width: 768px){
+	.layui-form-label{
+		width:60px;
+	}
+	
+	.layui-form-item .layui-input-inline {
+	    margin: 0 15px 10px 0;
+	    float: left;
+	    width: calc(100% - 110px);
+	}
+}
+
+	/*新增预定	结束*/
+/*移动端样式		结束*/

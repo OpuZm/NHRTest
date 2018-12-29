@@ -1,0 +1,170 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>点菜</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	.Panel-side .layui-form-switch{margin-top:0;}
+    	.Panel-side .del-icon{border-radius: 50%;border:1px solid #bbb;padding: 0 1px;background:#fff;cursor:pointer;}
+    	.Panel-side .layui-btn{width:32px !important;}
+    	.order-content .layui-table td{vertical-align: middle;}
+    	.Panel-side .Num{line-height:21px;}
+    	#CategoryList_view .layui-show .layui-btn:last-child{margin-right:200px}
+    	.order-form .MealTable-lists li{height:75px;}
+    	
+    	#ProjectLists_view .prod-title .layui-form-checked:first-of-type{border-color:red;}
+    	#ProjectLists_view .prod-title .layui-form-checked:first-of-type span{background-color:red;}
+    	#ProjectLists_view .prod-title .layui-form-checked:first-of-type i{color:red;}
+    </style>
+</head>
+<body>
+    <div class="container flex">
+        <!-- ▼左侧 点菜列表 -->
+        <div class="Panel-side left layui-form">
+            <!-- ▼左侧 点菜内容 -->
+            <table class="layui-table table-head layui-table-header" lay-skin="line" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th width="90%">
+                        	<input type="checkbox" name="allSelect" lay-skin="switch" lay-filter="allSelect" lay-text="全选|取消" id="allSelected">
+                        	<span style="vertical-align: middle;">菜名</span>
+                        </th>
+                        <th width="10%"></th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="order-content" style="top: 44px;bottom: 10px;">
+                <table class="layui-table" lay-skin="line" style="margin: 0;">
+                    <tbody id="ProjectLists_view"></tbody>
+                </table>
+                <script id="ProjectLists_tpml" type="text/html">
+                    {{#  layui.each(d, function(index, item){ }}
+	                    <tr data-id="{{ item.Id }}"  data-index="{{index}}" data-CyddMxType="{{ item.CyddMxType }}" {{# if(item.T_Orderselected){ }} class="layui-this" {{# } }}>
+	                        <td width="90%">
+	                            <div class="prod-title">
+	                                <h4>
+	                                	<input type="checkbox" name="recomand" title="主厨推荐"/>
+	                                	<input type="checkbox" name="emergency" title="急推菜"/>
+	                                	<span style="vertical-align: middle;">{{ item.Name }}</span>
+	                                </h4>
+	                            </div>
+	                        </td>
+	                        <td width="10%"><i class="layui-icon del-icon" onclick="orderDelete(this)">&#x1006;</i></td>
+	                    </tr>
+                    {{#  }); }}
+                </script>
+            </div>
+
+            <!-- ▲左侧 点菜内容 -->
+        </div>
+        <!-- ▲左侧 点菜列表 -->
+        <!-- ▼点菜操作菜单 -->
+        <nav class="actions-vertical">
+            <ul class="row" id="operation_lists">
+                <li><a href="javascript:void(0);" onclick="allRecomand()">全部推荐</a></li>
+                <li><a href="javascript:void(0);" onclick="allEmergency()">全部急推</a></li>
+                <li><a href="javascript:void(0);" onclick="Recomand()">推荐</a></li>
+                <li><a href="javascript:void(0);" onclick="Emergency()";>急推</a></li>
+                <li><a href="javascript:void(0);" data-type="delte" onclick="selectDelete()">删除</a></li>
+            </ul>
+        </nav>
+        <!-- ▲点菜操作菜单 -->
+        <!-- ▼点菜操作 -->
+        <div class="Panel-form right flex-item order-form">
+            <form class="layui-form" action="">
+                <div class="ClassTab-head">
+                    <div id="CategoryList_view" class="layui-tab layui-tab-brief CategoryListTab" lay-filter="ClassTab" style="width: calc(100vw - 480px);overflow: hidden;">
+                       
+                       
+                        
+                    </div>
+                    <script id="CategoryList_tpml" type="text/html">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">全部</li>
+                            {{#  layui.each(d, function(index, item){ }}
+                            <li>{{ item.Name }}</li>
+                            {{#  }); }}
+                            
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="class-group">
+                                    <a href="javascript:void(0);" class="layui-btn layui-btn-primary layui-this tab-choose-hint">全部</a>
+                                </div>
+                            </div>
+                            <div class="layui-form-item " style="position: absolute;right: 0; bottom:12px;">
+				                <div class="layui-input-inline">
+				                    <div class="layui-input-inline">
+				                    <input type="text" id="KeyWord" name="KeyWord" placeholder="输入检索字母" title="搜索" value="" data-type="text" data-lang="en" onfocus="ShowKeyboard(this.name)"  class="layui-input" style="font-size:16px;">
+				                    <a class="input-keyboard"><i class="iconfont">&#xe67a;</i></a>
+				                </div>
+				                </div>
+	                        </div>
+                        </div>
+                    </script>
+                </div>
+                <!-- ▼菜品列表 -->
+                <div class="MealTable-lists flex-item" style="margin-right: 0;">
+                    <ul id="ProjectAndDetails_view"></ul>
+                    <script id="ProjectAndDetails_tpml" type="text/html">
+                        {{#  layui.each(d, function(index, item){ }}
+                        <li data-id="{{ item.Id }}" data-CyddMxType="{{ item.CyddMxType }}"  {{# if( item.T_isSelected ){ }} class="layui-this" {{# } }}>
+                            <a>
+                                <div class="MealTable-head flex">
+                                    <span class="item MealTable-number flex-item">{{ item.Id }}</span>
+                                </div>
+                                <div class="MealTable-title">
+                                    {{ item.Name }}
+                                </div>
+                                <div class="MealTable-footer flex">
+                                    {{#  if(item.IsStock == false){ var stock='<span>--</span>'; }}  {{#  }else{ var stock='<span class="color-red">'+item.Stock+'</span>'; }} {{#  } }}
+                                    <span class="MealTable-stock"><i class="iconfont">&#xe645;</i>{{ stock }}</span>
+                                    
+                                    {{#  layui.each(item.ProjectDetailList, function(index, item){ }}
+                                      {{#  if(index==0){ }} 
+                                        <span class="MealTable-price flex-item">￥{{ item.Price }}</span>
+                                      {{#  } }}
+                                    {{#  }); }}
+                                </div>
+                            </a>
+                        </li>
+                        {{#  }); }}
+                    </script>
+                </div>
+                <!-- ▲菜品列表 -->
+                <!-- ▼操作 -->
+                <div class="actions-box pbr" id="actionsbtn_view" style="padding-left:50px;text-align: left;">
+                	<a href="javascript:void(0)" class="layui-btn layui-btn-normal layui-btn-lg" onclick="submitOrderTable()">提 交</a>
+                </div>
+                <!-- ▲操作 -->
+                
+            </form>
+
+        </div>
+        <!-- ▲点菜操作 -->
+
+
+
+    </div>
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+    @ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+    @ScriptsEx.Render(Plugin.Instance.Name, "chinese_pynsimpl")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Keyboard_en")
+    
+    @ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+    @ScriptsEx.Render(Plugin.Instance.Name, "Report")
+	@ScriptsEx.Render(Plugin.Instance.Name, "RecomandConfigJs")
+
+    <script src="~/signalr/hubs"></script>
+</body>
+</html>

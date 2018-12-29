@@ -1,0 +1,325 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = @Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    TableCreateDTO Table = ViewBag.Table ?? new TableCreateDTO();
+    var ListRestaurant = ViewBag.Restaurants;
+    //var ListAreas = ViewBag.Areas;
+    //var ListBoxs = ViewBag.Boxs;
+}
+
+<div class="container">
+    <form class="form-horizontal" id="SubmitForm">
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">餐厅:</label>
+            <div class="col-xs-10">
+                <select id="Restaurant" name="Restaurant" class="form-control select2">
+                    <option value="0">请选择</option>
+                    @{
+                        if (ListRestaurant != null)
+                        {
+                            foreach (var item in ListRestaurant)
+                            {
+                                <option value="@item.Id" @(Table.Restaurant == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">餐厅区域:</label>
+            <div class="col-xs-10">
+                <select id="RestaurantArea" name="RestaurantArea" class="form-control select2" v-model="areaId">
+                    <option value="0">请选择</option>
+                    <option v-for="(area,index) in areaRes" :srate="area.ServerRate" v-bind:value="area.Id">{{area.Name}}</option>
+                    <span>Selected: {{ areaId }}</span>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">属于包厢:</label>
+            <div class="col-xs-4">
+                <input type="radio" value="0" name="isBox" class="radio inline" @(Table.Box>0?"":"checked='checked'") />否
+                <input type="radio" value="1" name="isBox" class="radio inline" @(Table.Box>0?"checked='checked'":"") />是
+            </div>
+            <div class="col-xs-6">
+                <select id="Box" name="Box" class="form-control select2" v-model="boxId" @(Table.Box>0?"":"style=display:none")>
+                    <option value="0">请选择</option>
+                    <option v-for="(box,index) in boxRes" v-bind:value="box.Id" v-bind:selected="@Table.Box">{{box.Name}}</option>
+                    <span>Selected: {{ boxId }}</span>
+                </select>
+</div>
+        </div>
+        <div class="form-group">
+            <label for="Name" class="col-xs-2 control-label">名称:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="Name" name="Name" placeholder="请输入名称" value="@Table.Name">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="SeatNum" class="col-xs-2 control-label">座位数:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="SeatNum" name="SeatNum" placeholder="请输入座位数" value="@Table.SeatNum">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="ServerRate" class="col-xs-2 control-label">服务费率:</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" id="ServerRate" name="ServerRate" placeholder="请输入费率" value="@(Table.ServerRate==null?0:Table.ServerRate)">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Description" class="col-xs-2 control-label">描述:</label>
+            <div class="col-xs-10">
+                <textarea id="Description" class="form-control" rows="5">@Table.Description</textarea>
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <button class="btn btn-primary" type="submit">提交</button>
+            <button class="btn btn-default closeAll" type="button">取消</button>
+        </div>
+    </form>
+</div>
+@section FooterScripts{
+@ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+<script>
+    $(function () {
+        var pageJs = editJs.Create();
+        pageJs.init();
+    })
+
+    var editJs = {
+        Create: function () {
+            var editor = {};
+            var layindex;
+
+            var bindAction = function () {
+                var height = $(document).height() - 250;
+
+                var vmBox = new Vue({
+                    el: '#Box',
+                    data: {
+                        box: [],
+                        boxRes: [],
+                        boxId: '@Table.Box'
+                    },
+                    methods: {
+                    }
+                })
+
+                var vmArea = new Vue({
+                    el: '#RestaurantArea',
+                    data: {
+                        area: [],
+                        areaRes: [],
+                        areaId: '@Table.RestaurantArea'
+                    },
+                    methods: {
+                        AreaChange: function (event) {
+                        }
+                    }
+                })
+
+                function PushBox(data) {
+                    $(data).each(function (i, o) {
+                        vmBox.box.push(o);
+                        if ('@Table.RestaurantArea' == o.RestaurantAreaId) {
+                            vmBox.boxRes.push(o);
+                        }
+                    })
+                }
+
+                function PushArea(data) {
+                    $(data).each(function (i, o) {
+                        vmArea.area.push(o);
+                        if ('@Table.Restaurant' == o.RestaurantId) {
+                            vmArea.areaRes.push(o);
+                        }
+                    })
+                }
+
+                function GetBoxs() {
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetBoxs",
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushBox(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                function GetAreas() {
+                    $.ajax({
+                        type: "get",
+                        url: "/Res/Api/GetAreas",
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false, //点击遮罩关闭层
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data.Data != null) {
+                                PushArea(data.Data);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    })
+                }
+
+                $("#SubmitForm").validate({
+                    rules: {
+                        Name: {
+                            required: true
+                        },
+                        Restaurant: {
+                            min: 1
+                        },
+                        RestaurantArea: {
+                            min: 1
+                        },
+                        SeatNum: {
+                            isIntGteZero: true
+                        },
+                        ServerRate: {
+                            isFloatGteZero: true
+                        }
+                    },
+                    messages: {
+                        Restaurant: {
+                            min: "请选择餐厅"
+                        },
+                        RestaurantArea: {
+                            min: "请选择区域 "
+                        },
+                        SeatNum: {
+                            isIntGteZero: "座位数必须为数字"
+                        },
+                        ServerRate: {
+                            isFloatGteZero: "费率必须为数字且大于等于0"
+                        }
+                    },
+                    errorPlacement: function (error, element) {
+                        error.appendTo(element.parent());
+                    },
+                    submitHandler: function (label) {
+                        Submit();
+                    }
+                })
+
+                function Submit() {
+                    var box = 0;
+                    if ($("input[name='isBox']:checked").val() == 1) {
+                        box = $("#Box").val();
+                    }
+                    var para = { Id: '@Table.Id', Name: $("#Name").val(), Description: $("#Description").val(), Restaurant: $("#Restaurant").val(), RestaurantArea: $("#RestaurantArea").val(), Box: box, SeatNum: $("#SeatNum").val(), ServerRate: $("#ServerRate").val() };
+                    $.ajax({
+                        type: "post",
+                        url: "/Res/Table/Edit",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(para),
+                        async: false,
+                        beforeSend: function (XMLHttpRequest) {
+                            layindex = layer.open({
+                                type: 3,
+                                shadeClose: false,
+                            });
+                        },
+                        success: function (data, textStatus) {
+                            if (data["Data"] == true) {
+                                layer.confirm("提交完成", {
+                                    btn: ['继续操作', '取消'] //按钮
+                                }, function () {
+                                    location.reload();
+                                }, function () {
+                                    parent.layer.closeAll();
+                                });
+                                parent.Refresh();
+                            } else {
+                                layer.alert(data["Message"]);
+                            }
+                        },
+                        complete: function (XMLHttpRequest, textStatus) {
+                            layer.close(layindex);
+                        }
+                    });
+                }
+
+                $(".closeAll").click(function () {
+                    parent.layer.closeAll();
+                })
+
+
+                $("#RestaurantArea").on("change", function () {
+                    var value = $(this).val();
+                    var srate = $(this).find("option:selected").attr("srate");
+                    $("#ServerRate").val(srate);
+                    vmBox.boxRes = [];
+                    $(vmBox.box).each(function (i, o) {
+                        if (o.RestaurantAreaId == value) {
+                            vmBox.boxRes.push(o);
+                        }
+                    })
+                })
+
+                $("#Restaurant").on("change", function () {
+                    var value = $(this).val();
+                    vmArea.areaRes = [];
+                    $(vmArea.area).each(function (i, o) {
+                        if (o.RestaurantId == value) {
+                            vmArea.areaRes.push(o);
+                        }
+                    })
+                })
+
+                $('input').iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                });
+
+                $("input[name='isBox']").on("ifChecked", function (event) { //ifCreated 事件应该在插件初始化之前绑定
+                    var value = $(this).val();
+                    if (value == 1) {
+                        $("#Box").show();
+                    } else {
+                        $("#Box").hide();
+                    }
+                });
+
+                GetAreas();
+                GetBoxs();
+            }
+
+            editor.init = function () {
+                bindAction();
+            }
+
+            return editor;
+        }
+    }
+</script>
+}
+

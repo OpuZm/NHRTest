@@ -1,0 +1,145 @@
+﻿@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_Layout.cshtml"));
+    ViewBag.Title = "首页";
+}
+@section Styles{
+    @StylesEx.Render(Plugin.Instance.Name, "BootstrapContextMenuStyle")
+    <style>
+        .list-group-item {
+            height: 50px;
+            padding: 5px;
+        }
+
+        .li-margin-5 {
+            margin: 5px 10px 5px 10px;
+            cursor: pointer;
+        }
+
+            .li-margin-5 p {
+                margin: 0 0 0 0;
+            }
+
+        .disabled {
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .notice {
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            font-size: 10px;
+            color: #fff;
+            text-align: center;
+            background-color: #f00;
+            border-radius: 50%;
+            position: absolute;
+            right: -10px;
+            top: -10px;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <ol class="breadcrumb" style="margin-bottom:0px; padding:6px 15px; line-height:25px;">
+        <li>首页</li>
+        <a class="btn btn-primary pull-right radius" style="line-height:1.6em;" href="javascript:location.replace(location.href);" title="刷新"><span class="glyphicon glyphicon-refresh"></span></a>
+    </ol>
+    <div class="" id="TabList">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="">餐厅:</label>
+                <select id="Restaurant" name="Restaurant" class="form-control" v-model="RestaurantSel">
+                    <option v-for="(res,index) in restaurants" v-bind:value="res.Id">{{res.Name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">区域:</label>
+                <select id="Area" name="Area" class="form-control" v-model="AreaSel">
+                    <option value="0">所有</option>
+                    <option v-for="(area,index) in FilterArea(RestaurantSel)" v-bind:value="area.Id">{{area.Name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">台号状态:</label>
+                <select id="TableStatus" name="TableStatus" class="form-control" v-model="StatusSel">
+                    <option value="0">所有</option>
+                    <option v-for="(statu,index) in status" v-bind:value="statu.Id">{{statu.Name}}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary search" v-on:click="Search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button>
+            </div>
+        </div>
+        <hr />
+        <ul class="list-group" id="ulList" style="margin:0 0 0 0;">
+            <li v-for="(table,index) in tables" v-on:contextmenu.prevent="ContextMenu(index,$event)" v-bind:class="FilterClass(table.CythStatus)">
+                {{table.Name}}
+                <span class="pull-right">{{table.SeatNum}}座</span>
+                @*<p v-if="table.OrderNow!=null" class="text-danger">消费:{{table.OrderNow.TotalAmount}}
+                    <span class="badge pull-right">{{table.OrderNow.Cydd}}</span>
+                    </p>*@
+                <ul v-if="table.OrderNow!=null">
+                    <li v-for="(order,index) in table.OrderNow" class="list-unstyled " v-if="order.IsCheckOut==false">订单:{{order.OrderId}} 消费:{{order.TotalAmount}}</li>
+                </ul>
+                <div v-if="table.OrderList!=null && table.OrderList.length>0" class="notice">预{{table.OrderList.length}}</div>
+            </li>
+        </ul>
+
+        <div class="footer navbar-fixed-bottom">
+            <div class="btn-group" role="group" aria-label="...">
+                <button class="btn btn-primary" type="button">
+                    全部 <span class="badge">{{tables.length}}</span>
+                </button>
+                <button class="btn btn-success" type="button">
+                    空置 <span class="badge">{{GetStatusCount(1)}}</span>
+                </button>
+                <button class="btn btn-danger" type="button">
+                    在用 <span class="badge">{{GetStatusCount(2)}}</span>
+                </button>
+                <button class="btn btn-warning" type="button">
+                    清理 <span class="badge">{{GetStatusCount(3)}}</span>
+                </button>
+            </div>
+        </div>
+
+        <!--订单选择 单选-->
+        <div id="TableOrderChose" style="display:none;">
+            <a v-for="(order,index) in GetTableControlOrder" class="btn btn-default text-center" href="javascript:void(0);" v-on:click="OperatorSelectOrder(order)" role="button">{{order.OrderId}}</a>
+        </div>
+
+        <!--台号选择  多选-->
+        <div id="TableChoose" style="display:none;">
+            <ul class="list-group" style="margin: 0px;">
+                <!--默认全选，对所有台号/整个订单结账 -->
+                <li  v-bind:data-tableid="table.R_Table_Id" v-for="(table,index) in GetOrderTables"  class="list-group-item col-xs-2 li-margin-5 active" v-on:click="OperatorSelectTable(table,$event)"  >                    
+                    {{table.R_Table_Id}}号台&nbsp;/&nbsp;{{table.Name}}                    
+                    <span class="pull-right glyphicon glyphicon-ok" style="display:normal;"></span>
+                </li>
+            </ul>
+
+            <a class="btn btn-default text-center" href="javascript:void(0);" v-on:click="OperatorSelectTableConfirm()" role="button">确定</a>
+           
+        </div>
+    </div>
+
+    <div id="contextmenu">
+        <ul v-if="statusShow===1" class="dropdown-menu" role="menu">
+            <li v-for="(con,index) in controls1"><a tabindex="-1">{{con}}</a></li>
+        </ul>
+        <ul v-else-if="statusShow===2" class="dropdown-menu" role="menu">
+            <li v-for="(con,index) in controls2"><a tabindex="-1">{{con}}</a></li>
+        </ul>
+        <ul v-else-if="statusShow===3" class="dropdown-menu" role="menu">
+            <li v-for="(con,index) in controls3"><a tabindex="-1">{{con}}</a></li>
+        </ul>
+    </div>
+</div>
+@section FooterScripts{
+    @ScriptsEx.Render(Plugin.Instance.Name, "VueJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "BootstrapContextMenuJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "WelcomeJs")
+<script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+<script src="~/signalr/hubs"></script>
+}

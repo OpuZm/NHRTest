@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    @StylesEx.Render(FrameworkInfo.Name, "CommonStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "DatetimepickerStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "SelectStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "IcheckStyle")
+    @StylesEx.Render(Plugin.Instance.Name, "BootstrapSwitchStyle")
+    @RenderSection("Styles", false)
+    @RenderSection("HeaderScripts", false)
+</head>
+<body>
+    @RenderBody()
+
+    @ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "LayerJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "DatetimepickerJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "SelectJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "JqueryValidateJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "IcheckJs")
+    @ScriptsEx.Render(Plugin.Instance.Name, "BootstrapSwitchJs")
+    @RenderSection("FooterScripts", false)
+</body>
+</html>
+

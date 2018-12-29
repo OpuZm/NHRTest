@@ -1,0 +1,300 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?gmpw4a');
+  src:  url('fonts/icomoon.eot?gmpw4a#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?gmpw4a') format('truetype'),
+    url('fonts/icomoon.woff?gmpw4a') format('woff'),
+    url('fonts/icomoon.svg?gmpw4a#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-twouser:before {
+  content: "\e95a";
+}
+.icon-ewm:before {
+  content: "\e900";
+}
+.icon-menu:before {
+  content: "\e901";
+}
+.icon-search:before {
+  content: "\e902";
+}
+.icon-vip:before {
+  content: "\e903";
+}
+.icon-form_pwd:before {
+  content: "\e904";
+}
+.icon-form_prod_money:before {
+  content: "\e905";
+}
+.icon-form_home:before {
+  content: "\e906";
+}
+.icon-form_edit_money:before {
+  content: "\e907";
+}
+.icon-room_sort:before {
+  content: "\e908";
+}
+.icon-set:before {
+  content: "\e909";
+}
+.icon-form_edit:before {
+  content: "\e90a";
+}
+.icon-Meeting:before {
+  content: "\e90b";
+}
+.icon-data_dome:before {
+  content: "\e90c";
+}
+.icon-Customer:before {
+  content: "\e90d";
+}
+.icon-calendar:before {
+  content: "\e90e";
+}
+.icon-Arrow_line_bottom:before {
+  content: "\e90f";
+}
+.icon-Arrow_line_left:before {
+  content: "\e910";
+}
+.icon-Arrow_line_right:before {
+  content: "\e911";
+}
+.icon-Arrow_line_top:before {
+  content: "\e912";
+}
+.icon-Arrow_long_bottom:before {
+  content: "\e913";
+}
+.icon-Arrow_long_left:before {
+  content: "\e914";
+}
+.icon-Arrow_long_right:before {
+  content: "\e915";
+}
+.icon-Arrow_long_top:before {
+  content: "\e916";
+}
+.icon-Arrow_skew_lb:before {
+  content: "\e917";
+}
+.icon-Arrow_skew_lt:before {
+  content: "\e918";
+}
+.icon-Arrow_skew_rb:before {
+  content: "\e919";
+}
+.icon-Arrow_skew_rt:before {
+  content: "\e91a";
+}
+.icon-change_room:before {
+  content: "\e91b";
+}
+.icon-check:before {
+  content: "\e91c";
+}
+.icon-check_round:before {
+  content: "\e91d";
+}
+.icon-clean:before {
+  content: "\e91e";
+}
+.icon-Close:before {
+  content: "\e91f";
+}
+.icon-data_Column:before {
+  content: "\e920";
+}
+.icon-date_Shift:before {
+  content: "\e921";
+}
+.icon-date_time:before {
+  content: "\e922";
+}
+.icon-edit:before {
+  content: "\e923";
+}
+.icon-email:before {
+  content: "\e924";
+}
+.icon-footer_logo:before {
+  content: "\e925";
+}
+.icon-form_time:before {
+  content: "\e926";
+}
+.icon-Full:before {
+  content: "\e927";
+}
+.icon-Full_over:before {
+  content: "\e928";
+}
+.icon-getpay:before {
+  content: "\e929";
+}
+.icon-Help:before {
+  content: "\e92a";
+}
+.icon-Hotel:before {
+  content: "\e92b";
+}
+.icon-leave_shop:before {
+  content: "\e92c";
+}
+.icon-links:before {
+  content: "\e92d";
+}
+.icon-merge_room:before {
+  content: "\e92e";
+}
+.icon-msg:before {
+  content: "\e92f";
+}
+.icon-password:before {
+  content: "\e930";
+}
+.icon-pay:before {
+  content: "\e931";
+}
+.icon-pms:before {
+  content: "\e932";
+}
+.icon-prod:before {
+  content: "\e933";
+}
+.icon-Reserve:before {
+  content: "\e934";
+}
+.icon-Reserve_list:before {
+  content: "\e935";
+}
+.icon-room_log:before {
+  content: "\e936";
+}
+.icon-room_pwd:before {
+  content: "\e937";
+}
+.icon-room_state:before {
+  content: "\e938";
+}
+.icon-screen:before {
+  content: "\e939";
+}
+.icon-set_log:before {
+  content: "\e93a";
+}
+.icon-time_room:before {
+  content: "\e93b";
+}
+.icon-tool:before {
+  content: "\e93c";
+}
+.icon-Triangle_border_bottom:before {
+  content: "\e93d";
+}
+.icon-Triangle_border_left:before {
+  content: "\e93e";
+}
+.icon-Triangle_border_right:before {
+  content: "\e93f";
+}
+.icon-Triangle_border_round_bttom:before {
+  content: "\e940";
+}
+.icon-Triangle_border_round_left:before {
+  content: "\e941";
+}
+.icon-Triangle_border_round_right:before {
+  content: "\e942";
+}
+.icon-Triangle_border_round_top:before {
+  content: "\e943";
+}
+.icon-Triangle_border_top:before {
+  content: "\e944";
+}
+.icon-Triangle_solid_btoom:before {
+  content: "\e945";
+}
+.icon-Triangle_solid_left:before {
+  content: "\e946";
+}
+.icon-Triangle_solid_right:before {
+  content: "\e947";
+}
+.icon-Triangle_solid_round_bottom:before {
+  content: "\e948";
+}
+.icon-Triangle_solid_round_left:before {
+  content: "\e949";
+}
+.icon-Triangle_solid_round_right:before {
+  content: "\e94a";
+}
+.icon-Triangle_solid_round_top:before {
+  content: "\e94b";
+}
+.icon-Triangle_solid_top:before {
+  content: "\e94c";
+}
+.icon-user:before {
+  content: "\e94d";
+}
+.icon-user_b:before {
+  content: "\e94e";
+}
+.icon-userset:before {
+  content: "\e94f";
+}
+.icon-warning:before {
+  content: "\e950";
+}
+.icon-copy2:before {
+  content: "\e959";
+}
+.icon-del2:before {
+  content: "\e953";
+}
+.icon-edit1:before {
+  content: "\e954";
+}
+.icon-Close2:before {
+  content: "\e955";
+}
+.icon-menu3:before {
+  content: "\e952";
+}
+.icon-menu4:before {
+  content: "\e951";
+}
+.icon-wifi:before {
+  content: "\e958";
+}
+.icon-客服电话-(1):before {
+  content: "\e957";
+}
+.icon-客服电话:before {
+  content: "\e956";
+}
+

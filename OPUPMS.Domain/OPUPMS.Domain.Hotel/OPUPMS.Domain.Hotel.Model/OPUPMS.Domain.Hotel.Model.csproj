@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B0F1D93D-5731-4D2F-BD7B-ECE5339FC166}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OPUPMS.Domain.Hotel.Model</RootNamespace>
+    <AssemblyName>OPUPMS.Domain.Hotel.Model</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.FastCrud, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Dapper.FastCrud.2.4.1\lib\net45\Dapper.FastCrud.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.Dapper.Repository.UnitOfWork, Version=0.4.6294.20582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.Dapper.Repository.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.Dapper.Repository.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="Smooth.IoC.UnitOfWork, Version=0.4.6294.20580, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Smooth.IoC.UnitOfWork.0.4.21\lib\net452\Smooth.IoC.UnitOfWork.dll</HintPath>
+    </Reference>
+    <Reference Include="StringInterpolationBridge, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\StringInterpolationBridge.0.9.1\lib\net40\StringInterpolationBridge.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConvertModels\AccountingCodeInfo.cs" />
+    <Compile Include="ConvertModels\AccountReceivableInfo.cs" />
+    <Compile Include="ConvertModels\BookingDetailInfo.cs" />
+    <Compile Include="ConvertModels\BookingInfo.cs" />
+    <Compile Include="ConvertModels\CleanDistributionInfo.cs" />
+    <Compile Include="ConvertModels\CleanSigninInfo.cs" />
+    <Compile Include="ConvertModels\CloudHotelInfo.cs" />
+    <Compile Include="ConvertModels\ForeignGuestInfo.cs" />
+    <Compile Include="ConvertModels\GuestCardInfo.cs" />
+    <Compile Include="ConvertModels\GuestConsumeInfo.cs" />
+    <Compile Include="ConvertModels\GuestDataInfo.cs" />
+    <Compile Include="ConvertModels\GuestAccountingInfo.cs" />
+    <Compile Include="ConvertModels\GuestHistoryInfo.cs" />
+    <Compile Include="ConvertModels\GuestMsgInfo.cs" />
+    <Compile Include="ConvertModels\GuestRoomDailyInfo.cs" />
+    <Compile Include="ConvertModels\GuestRoutineInfo.cs" />
+    <Compile Include="ConvertModels\PreAuthorizationInfo.cs" />
+    <Compile Include="ConvertModels\PriceSystemInfo.cs" />
+    <Compile Include="ConvertModels\ReceivableDetailInfo.cs" />
+    <Compile Include="ConvertModels\ReceivableFormInfo.cs" />
+    <Compile Include="ConvertModels\RoomGoodsInfo.cs" />
+    <Compile Include="ConvertModels\RoomRoutineInfo.cs" />
+    <Compile Include="Dtos\CommonDto.cs" />
+    <Compile Include="Dtos\LoginInputDto.cs" />
+    <Compile Include="Dtos\HotelMenuDto.cs" />
+    <Compile Include="Dtos\Rooms\InitRoomDto.cs" />
+    <Compile Include="Dtos\Rooms\LinkRoomDto.cs" />
+    <Compile Include="Dtos\Rooms\RoomInfoDto.cs" />
+    <Compile Include="ConvertModels\RoomSymbolInfo.cs" />
+    <Compile Include="Dtos\Rooms\RoomListDto.cs" />
+    <Compile Include="Dtos\Rooms\RoomStatisticDto.cs" />
+    <Compile Include="Dtos\Rooms\SumbitCheckInDto.cs" />
+    <Compile Include="HotelConvertModelProfile.cs" />
+    <Compile Include="IRepositories\IBookingDetailRepository.cs" />
+    <Compile Include="IRepositories\IBookingRepository.cs" />
+    <Compile Include="IRepositories\ICloudHotelRepository.cs" />
+    <Compile Include="IRepositories\IGuestDataRepository.cs" />
+    <Compile Include="IRepositories\IGuestAccountingRepository.cs" />
+    <Compile Include="IRepositories\IGuestRoutineRepository.cs" />
+    <Compile Include="IRepositories\IRoomRoutineRepository.cs" />
+    <Compile Include="IRepositories\IRoomSymbolRepository.cs" />
+    <Compile Include="IServices\IHotelLoginService.cs" />
+    <Compile Include="IServices\IRoomManageService.cs" />
+    <Compile Include="Models\Arz0Model.cs" />
+    <Compile Include="Models\CloudModels\DepartmentModel.cs" />
+    <Compile Include="Models\DfmxddModel.cs" />
+    <Compile Include="Models\DfmxModel.cs" />
+    <Compile Include="Models\DfzlddModel.cs" />
+    <Compile Include="Models\DfzlModel.cs" />
+    <Compile Include="Models\FhdmModel.cs" />
+    <Compile Include="Models\FhswModel.cs" />
+    <Compile Include="Models\FjwpModel.cs" />
+    <Compile Include="Models\JgtxModel.cs" />
+    <Compile Include="Models\KrfkModel.cs" />
+    <Compile Include="Models\KrlsModel.cs" />
+    <Compile Include="Models\KrlyModel.cs" />
+    <Compile Include="Models\KrswModel.cs" />
+    <Compile Include="Models\KrwsModel.cs" />
+    <Compile Include="Models\KrxfModel.cs" />
+    <Compile Include="Models\KrzdModel.cs" />
+    <Compile Include="Models\KrzlModel.cs" />
+    <Compile Include="Models\KrzwModel.cs" />
+    <Compile Include="Models\QjbdModel.cs" />
+    <Compile Include="Models\QjfpModel.cs" />
+    <Compile Include="Models\Ysd0Model.cs" />
+    <Compile Include="Models\YsmxModel.cs" />
+    <Compile Include="Models\Ysq0Model.cs" />
+    <Compile Include="Models\ZwdmModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Common\OPUPMS.Infrastructure.Common.csproj">
+      <Project>{68FA3E1C-9C35-4EE4-89F0-2FCCB510F85C}</Project>
+      <Name>OPUPMS.Infrastructure.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\OPUPMS.Infrastructure\OPUPMS.Infrastructure.Dapper\OPUPMS.Infrastructure.Dapper.csproj">
+      <Project>{b7f79bca-a547-482c-94e4-bc33674287cf}</Project>
+      <Name>OPUPMS.Infrastructure.Dapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\OPUPMS.Domain\OPUPMS.Domain.Base\OPUPMS.Domain.Base.csproj">
+      <Project>{92CFCDBE-99DF-460B-9375-9DE7C431145C}</Project>
+      <Name>OPUPMS.Domain.Base</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

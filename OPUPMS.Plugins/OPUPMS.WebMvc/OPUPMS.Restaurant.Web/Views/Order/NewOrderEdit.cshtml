@@ -1,0 +1,326 @@
+﻿@using OPUPMS.Domain.Restaurant.Model;
+@using OPUPMS.Domain.Restaurant.Model.Dtos;
+@using OPUPMS.Domain.Base.Dtos;
+@{
+    Layout = null;
+
+    List<ExtendItemDto> CustomerSources = ViewBag.CustomerSources;
+    List<ExtendItemDto> OrderTypes = ViewBag.OrderTypes;
+    List<OPUPMS.Domain.Base.ConvertModels.TypeCodeInfo> Customers = ViewBag.CustomerList;
+    ReserveCreateDTO Order = ViewBag.Order ?? new ReserveCreateDTO();
+    List<MarketListDTO> Markets = ViewBag.Markets;
+    var SellerList = ViewBag.SellerList;
+    bool IsReview = ViewBag.IsReview;
+    var Sales = ViewBag.Sales;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>餐厅管理</title>
+    @StylesEx.Render(FrameworkInfo.Name, "LayUIStyle2x")
+    @StylesEx.Render(Plugin.Instance.Name, "PublicStyle")
+    <style>
+    	html,body,.container.flex{height:100%;}
+		.container.flex{overflow-y: auto;}
+    </style>
+</head>
+<body>
+	<div class="container flex" lay-filter="docDemoTabBrief">
+        <div class="layui-tab-content">
+            <form class="layui-form form-col-two" id="SubmitForm">
+
+                <div class="layui-row">
+                    <input type="hidden" id="Id" name="Id" value="@Order.Id" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用餐餐厅:</label>
+                        <div class="layui-input-inline">
+                            <label class="layui-form-label" style="width:initial;">@Order.RestaurantName</label>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">订单号:</label>
+                        <div class="layui-input-inline">
+                            <label class="layui-form-label" style="width:initial;">@Order.OrderNo </label>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">分市:</label>
+                        <div class="layui-input-inline">
+                            <select id="R_Market_Id" name="R_Market_Id">
+                                @{
+                                    if (Markets != null)
+                                    {
+                                        foreach (var item in Markets)
+                                        {
+                                            <option value="@item.Id" @(item.Id == Order.R_Market_Id ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">客源类型:</label>
+                        <div class="layui-input-inline">
+                            <select id="CyddOrderSource" name="CyddOrderSource">
+                                <option value="0">请选择</option>
+                                @{
+                                    if (CustomerSources != null)
+                                    {
+                                        foreach (var item in CustomerSources)
+                                        {
+                                            <option value="@item.Id" @(item.Id == Order.CyddOrderSource ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+
+                        <label class="layui-form-label">就餐人数:</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="PersonNum" name="PersonNum" value="@Order.PersonNum" />
+                        </div>
+
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">客户:</label>
+                        <div class="layui-input-inline">
+                            <select id="CustomerId" name="CustomerId" lay-search>
+                                <option value="0">请选择</option>
+                                @{
+                                    if (Customers != null)
+                                    {
+                                        foreach (var item in Customers)
+                                        {
+                                            <option value="@item.Id" @(Order.CustomerId == item.Id ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label for="ContactPerson" class="layui-form-label">联系人:</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="ContactPerson" name="ContactPerson" value="@Order.ContactPerson" />
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">订单类型:</label>
+                        <div class="layui-input-inline">
+                            <select id="OrderType" name="OrderType">
+                                <option value="0">请选择</option>
+                                @{
+                                    if (OrderTypes != null)
+                                    {
+                                        foreach (var item in OrderTypes)
+                                        {
+                                            <option value="@item.Id" @(item.Id == Order.OrderType ? "selected='selected'" : "")>@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label for="ContactTel" class="layui-form-label">联系电话:</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="ContactTel" name="ContactTel" value="@Order.ContactTel" />
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">业务员</label>
+                        <div class="layui-input-inline">
+                            <select name="BillingUser" lay-verify="" lay-search>
+                                <option value="0">请选择</option>
+                                @{
+                                    if (Sales != null)
+                                    {
+                                        foreach (var item in Sales)
+                                        {
+                                            <option value="@item.UserId" @(item.UserId == Order.BillingUser?"selected='selected'" : "")>@item.UserName</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <!--
+    <div class="layui-form-item">
+        <label class="layui-form-label">业务部门</label>
+        <div class="layui-input-inline">
+            <select name="BillDepartMent" lay-verify="required" lay-search>
+                @{
+                    if (SellerList != null)
+                    {
+                        <option value="">请选择</option>
+                        foreach (var item in SellerList)
+                        {
+                            <option value="@item.SysCode" @(Order.BillDepartMent == item.SysCode ? "selected='selected'" : "")>@item.SysCodeName</option>
+                        }
+                    }
+                }
+            </select>
+            <span class="required"></span>
+        </div>
+    </div>
+    -->
+                    @*<div class="layui-form-item">
+            <label class="layui-form-label">业务员</label>
+            <div class="layui-input-inline">
+                <select name="BillingUser" lay-verify="" lay-search>
+                    @{
+                        if (SellerList != null)
+                        {
+                            <option value="0">请选择</option>
+                            foreach (var item in SellerList)
+                            {
+                                <option value="@item.UserId" @(Order.BillingUser == item.UserId ? "selected='selected'" : "")>@item.UserName</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>*@
+                    <div class="layui-form-item" style="width: 89%;">
+                        <label class="layui-form-label">备注信息:</label>
+                        <div class="layui-input-block">
+                            <textarea id="Remark" name="Remark" class="layui-textarea">@Order.Remark</textarea>
+                        </div>
+                    </div>
+                    <!--<div class="layui-form-item">
+        <div class="layui-input-block">
+            @if (Order.CyddStatus != CyddStatus.取消 && Order.CyddStatus != CyddStatus.结账)
+            {
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1" type="submit">提交</button>
+            }
+            <button class="layui-btn layui-btn-normal" type="button" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+        </div>
+
+    </div>-->
+                    <div class="layer-btns-bottom">
+                        @if (Order.CyddStatus != CyddStatus.取消 && Order.CyddStatus != CyddStatus.结账 && IsReview == false)
+                        {
+                            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="form1" type="submit">提交</button>
+                        }
+                        <button type="reset" class="layui-btn layui-btn-primary" onclick="parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                        <!--滚动按钮  开始-->
+                        <div class="layerScrollBtn">
+                            <div class="layui-btn layui-btn-normal scrollTopBtn"><i class="layui-icon">&#xe619;</i></div>
+                            <div class="layui-btn layui-btn-normal scrollBottomBtn"><i class="layui-icon">&#xe61a;</i></div>
+                        </div>
+                        <!--滚动按钮  结束-->
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+@ScriptsEx.Render(FrameworkInfo.Name, "CommonJs")
+@ScriptsEx.Render(FrameworkInfo.Name, "LayUIJs2x")
+@ScriptsEx.Render(Plugin.Instance.Name, "PublicJs")
+@ScriptsEx.Render(Plugin.Instance.Name, "Keyboard")
+
+@ScriptsEx.Render(FrameworkInfo.Name, "JqSignalR")
+<script type="text/javascript">
+    layui.use(['element', 'form', 'layer', 'layedit'], function () {
+        var element = layui.element,
+            layer = layui.layer,
+            layedit = layui.layedit,
+            form = layui.form;
+        var textarea = layedit.build('Remark');
+
+
+        //基本要求提交
+        form.on('submit(form1)', function (data) {
+
+            var textVal = layedit.getContent(textarea);
+            var params = data.field;
+            params.Remark = textVal;
+            params.IsReview = '@IsReview' == 'True' ? true : false;
+            $.ajax({
+                type: "post",
+                url: "/Res/Order/OrderEditSave",
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                data: params,
+                beforeSend: function (XMLHttpRequest) {
+	                layindex = layer.open({type: 3});
+	            },
+	            complete: function (XMLHttpRequest, textStatus) {
+	                layer.close(layindex);
+	            },
+                success: function (data, textStatus) {
+                    if (data["Data"] == true) {
+                        
+                        layer.alert("提交成功", function () {
+                            parent.layer.close(parent.layer.getFrameIndex(window.name));
+                            parent.RefreshOrdeInfo(@Order.Id);
+                            console.log(@Order.Id);
+                        });
+                    } else {
+                        layer.alert(data["Message"]);
+                    }
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    layer.close(layindex);
+                }
+            });
+
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+    
+    function browserRedirect() {
+		var sUserAgent = navigator.userAgent.toLowerCase();
+		var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+		var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+		var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+		var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+		var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+		var bIsAndroid = sUserAgent.match(/android/i) == "android";
+		var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+		var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+		if(bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+			$('.layerScrollBtn').remove();
+		}
+	}
+
+	browserRedirect();
+    
+    
+    //菜品向下滚动 一页
+    $(document).on('mousedown touchstart','.layerScrollBtn .scrollBottomBtn',function(){
+    	console.log('123')
+    	var list = $('.container.flex');
+    	var listH = list.height();
+    	var h = list.scrollTop();
+		list.scrollTop(h + listH)
+    })
+    
+    //菜品向上滚动 一页
+    $(document).on('mousedown touchstart','.layerScrollBtn .scrollTopBtn',function(){
+    	var list = $('.container.flex');
+    	var listH = list.height();
+    	var h = list.scrollTop();
+    	if(h < listH){
+    		list.scrollTop(0)
+    	}else{
+    		list.scrollTop(h - listH)
+    	}
+    })
+</script>

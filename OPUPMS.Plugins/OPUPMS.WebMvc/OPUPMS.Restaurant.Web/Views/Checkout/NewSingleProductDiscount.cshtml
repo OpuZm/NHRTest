@@ -1,0 +1,82 @@
+﻿
+@{
+    Layout = Url.Content(Plugin.Instance.GetLayoutPath("Shared/_LayoutDetail.cshtml"));
+    ViewBag.Title = "单品折设置";
+    var discount = ViewBag.Discount;
+}
+
+@model List<OPUPMS.Domain.Restaurant.Model.Dtos.OrderDetailDTO>
+
+<div>
+
+   <table style="width:100%;">
+       <thead>
+           <tr>
+               <th>菜品名称</th>
+               <th>单位</th>
+               <th>数量</th>
+               <th>单价</th>
+               <th>折扣率</th>
+           </tr>
+       </thead>
+       
+      <tbody>
+        @foreach (var item in Model)
+        {    
+            <tr>
+                <td>@item.ProjectName&nbsp;</td>
+                <td>@item.Unit&nbsp;</td>
+                <td>@item.Num&nbsp;</td>
+                <td>@item.Price&nbsp;</td>
+                <td><input id="input_text_discount" name="discountRate" type="text" value="@item.DiscountRate"  data-id="@item.Id"  /></td>
+            </tr>
+         }
+      </tbody>
+   </table>
+
+</div>
+<div style="text-align:center;">
+    <input type="button" value="确定" onclick="confirm_save()" />
+    
+    <script type="text/javascript">
+        function confirm_save()
+        {
+            //1,通过ajax向服务器提交修改
+            var req = new Array();
+            $("input[type=text]").each(function () {
+
+                if ($(this).prop("name") == "discountRate")
+                {
+                    var obj = new Object();
+                    obj.OrderDetailID = $(this).data("id");
+                    obj.DiscountRate = $(this).val();
+                    req.push(obj);
+                }
+            });
+
+            var tag = true;
+            $(req).each(function () {
+                if (isNaN(this.DiscountRate))
+                {
+                    tag=false;
+                }
+                if ( !(this.DiscountRate >= @discount && this.DiscountRate <= 1) )
+                {
+                    tag = false;
+                }
+            });
+            if (!tag)
+            {
+                alert("折扣率取值必须是大于等于 @discount 且小于等于1的数字");
+                return;
+            }
+
+            parent.单品折设置后的相关更新(req);
+            parent.layer.closeAll();
+          
+
+        }
+        
+
+    </script>
+</div>
