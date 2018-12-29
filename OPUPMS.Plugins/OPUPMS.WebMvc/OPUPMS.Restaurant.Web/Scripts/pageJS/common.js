@@ -1,4 +1,4 @@
-
+﻿alert('123')
 layui.define(['layer'], function(exports) {
 	"use strict";
 
